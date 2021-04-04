@@ -52,12 +52,10 @@ class DataFormatter():
     def _parse_meta(self, meta_raw, time_column_name, time_column_name_out):
         meta = meta_raw[['Sample ID', 'Property', 'Value']]
 
-        meta_timestamp = meta[meta['Property'] == time_column_name]
-        meta_timestamp.drop(columns='Property', inplace=True)
+        meta_timestamp = meta[meta['Property'] == time_column_name].drop(columns='Property')
         meta_timestamp.columns = ['sample_id', time_column_name_out]
 
-        meta_subject_id = meta[meta['Property'] == 'Subject ID']
-        meta_subject_id.drop(columns='Property', inplace=True)
+        meta_subject_id = meta[meta['Property'] == 'Subject ID'].drop(columns='Property')
         meta_subject_id.columns = ['sample_id', 'subject_id']
 
         meta = pd.merge(meta_timestamp, meta_subject_id, on='sample_id')
