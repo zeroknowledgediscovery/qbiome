@@ -29,16 +29,19 @@ class DataFormatter():
         data = self._convert_days_to_weeks(data)
 
         data = self._use_top_k_biomes(data, k_biomes)
-        data_qnet = self.pivot_into_qnet_format(data)
-        return data_qnet
+        return data
 
     def pivot_into_qnet_format(self, data):
+        # keep sample_id in here for later cohort identification
         pivoted = data.pivot_table(index=['sample_id', 'week'],
         columns=['variable'])['value'].reset_index()
+        pivoted.sort_values(by=['week'], inplace=True)
+        pivoted.reset_index(drop=True, inplace=True)
         return pivoted
 
     def melt_into_plot_format(self, data):
-        pass
+        melted = data.melt(id_vars=['sample_id', 'week'])
+        return melted
 
     def _sum_taxon(self, taxa_raw, taxon_name):
         taxa = taxa_raw[['Sample ID', taxon_name, 'Relative Abundance']]
