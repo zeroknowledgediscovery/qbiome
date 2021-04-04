@@ -33,7 +33,7 @@ class DataFormatter():
 
     def pivot_into_column_format(self, data):
         """
-        what is this used for again?
+        TODO: Is this useful as a standalone function or just preprocessing for melt_into_plot_format?
         returns a df where each column is a biome
         """
         # keep sample_id in here for later cohort identification

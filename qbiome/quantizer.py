@@ -1,5 +1,25 @@
+import re
+import string
 import numpy as np
 import pandas as pd
+
+# helper functions for sorting
+# https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
+def atof(text):
+    try:
+        retval = float(text)
+    except ValueError:
+        retval = text
+    return retval
+
+def natural_keys(text):
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    float regex comes from https://stackoverflow.com/a/12643073/190597
+    '''
+    return [ atof(c) for c in re.split(r'[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)', text) ]
 
 class Quantizer():
 
@@ -16,7 +36,7 @@ class Quantizer():
         """
         must call quantize before calling any dequantize
 
-        data: should be in melted format, produced by DataFormatter.melt_into_plot_format
+        data: should be in melted format, produced by DataFormatter.load_data
         first two columns are sample_id and subject_id
 
         returns a pandas df
@@ -42,6 +62,9 @@ class Quantizer():
             quantized[col] = cut
             self.variable_bin_map[col] = bins
 
+        # sort the columns by name in a natural order
+        quantized = quantized.reindex(sorted(quantized.columns, key=natural_keys),
+        axis=1)
         return quantized
 
     def _dequantize_label(self, label, bin_arr):
