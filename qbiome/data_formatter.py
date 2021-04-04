@@ -31,10 +31,14 @@ class DataFormatter():
         data = self._use_top_k_biomes(data, k_biomes)
         return data
 
-    def pivot_into_qnet_format(self, data):
+    def pivot_into_column_format(self, data):
+        """
+        what is this used for again?
+        returns a df where each column is a biome
+        """
         # keep sample_id in here for later cohort identification
-        pivoted = data.pivot_table(index=['sample_id', 'week'],
-        columns=['variable'])['value'].reset_index()
+        pivoted = data.pivot_table(
+            index=['sample_id', 'week'], columns=['variable'])['value'].reset_index()
         pivoted.sort_values(by=['week'], inplace=True)
         pivoted.reset_index(drop=True, inplace=True)
         return pivoted
