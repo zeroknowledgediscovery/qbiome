@@ -23,19 +23,22 @@ class QnetOrchestrator:
     # the following functions can only be called when
     # self.model is not None
 
-    # TODO: refactor the three functions below and write up examples
+    # TODO: refactor the functions below and write up examples
 
-    def predict_value_at_index(self, seq, idx, n_samples=100):
+    def get_label_distributions_of_sequence(self, seq):
         """
-        seq is an np.ndarray
-        return a numeric prediction
+        use qnet to predict the label distributions of a given sequence
         """
         distribs = self.model.predict_distributions(seq)
-        letter = seq[idx]
-        col = self.model.feature_names[idx]
-        bin_arr = self.quantizer.variable_bin_map[col]
-        # predict val
+        return distribs
+
+    def predict_value_given_distributions(self, seq, idx, distribs, n_samples=100):
+        """
+        seq: np.ndarray
+        return a numeric prediction
+        """
         distrib_dict = distribs[idx]
+        bin_arr = self.quantizer.get_bin_array_of_index(idx)
         # sample n_samples
         samples = np.empty(n_samples)
         for i in range(n_samples):
