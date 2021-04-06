@@ -17,42 +17,20 @@ class MaskChecker:
         """
         data: numpy.ndarray
         n_samples: number of samples for each index qnet is trying to predict, will take the mean
-        returns the predicted df
+        returns the predicted df in plottable format
         """
-        masked = self.apply_mask(data, mask_percent)
-        for seq in matrix:
-            # predict distribs for the entire seq
-            distribs = infbiome_qnet.predict_distributions(seq)
-            for idx, letter in enumerate(seq):
-                col = self.model.feature_names[idx]
-                bin_arr = self.quantizervariable_bin_map[col]
-                if letter != '': # dequantize
-                    seq[idx] = dequantize(letter, bin_arr)
-                else: # predict val
-                    distrib_dict = distribs[idx]
-                    # sample n_samples
-                    samples = np.empty(n_samples)
-                    for i in range(n_samples):
-                        sampled = np.random.choice(
-                            list(distrib_dict.keys()),
-                            p=list(distrib_dict.values()))
-                        samples[i] = dequantize(sampled, bin_arr)
-                    seq[idx] = samples.mean()
+        masked = self.apply_random_mask(data, mask_percent)
+        predicted_matrix = np.empty(data.shape)
+        for idx, seq in enumerate(data):
+            # numeric prediction
+            predicted_matrix[idx] = self.qnet_orchestrator.predict_sequence(seq)
 
-        filled_df = pd.DataFrame(matrix, dtype=float)
-        # add back column names
-        filled_df.columns = colnames
-        filled_df = pd.concat([pivot_df.subject_id, filled_df], axis=1)
-        # melt
-        melted_df = filled_df.melt(id_vars='subject_id')
-        splitted = melted_df.variable.str.extract(r'([\D|\d]+)_(\d+)', expand=True)
-        splitted.rename(columns={0: 'variable', 1: 'week'}, inplace=True)
-        melted_df = pd.concat([
-            melted_df.subject_id, splitted, melted_df.value
-        ], axis=1)
-        return melted_df
+        df = self.quantizer.add_meta_to_matrix(predicted_matrix)
+        # convert to plottable format
+        plot_df = self.quantizer.melt_into_plot_format(df)
+        return plot_df
 
-    def apply_mask(self, data, mask_percent):
+    def apply_random_mask(self, data, mask_percent):
         """
         data: numpy.ndarray
         mask_percent: between 0 and 100

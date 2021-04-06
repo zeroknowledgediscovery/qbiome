@@ -83,6 +83,22 @@ class Quantizer:
         matrix = df.astype(str).replace('nan', '').to_numpy(dtype=str)
         return df.columns, matrix
 
+    def get_bin_array_of_index(self, idx):
+        """
+        get the pd.cut bin array corresponding to the sequence index
+        """
+        col = self.column_names[idx]
+        bin_arr = self.variable_bin_map[col]
+        return bin_arr
+
+    def quantize_value(self, val, bin_arr):
+        """
+        quantize a numeric value to label
+        should be the inverse of dequantize_label
+        """
+        label = pd.cut([num], bin_arr, labels=list(self.labels.keys()))[0]
+        return ret
+
     def dequantize_label(self, label, bin_arr):
         if label is np.nan or label.lower() == 'nan' or label not in self.labels:
             return np.nan
@@ -90,14 +106,6 @@ class Quantizer:
         high = low + 1
         val = (bin_arr[low] + bin_arr[high]) / 2
         return val
-
-    def get_bin_array_of_index(self, idx):
-        """
-        get the pd.cut bin array corresponding to the sequence index
-        """
-        col = self.model.feature_names[idx]
-        bin_arr = self.quantizer.variable_bin_map[col]
-        return bin_arr
 
     def dequantize_sequence(self, label_seq):
         """
@@ -113,17 +121,21 @@ class Quantizer:
             numeric_seq[idx] = self.dequantize_label(label, bin_arr)
         return numeric_seq
 
-    def dequantize_to_df(self, label_matrix):
+    def dequantize_to_df(self, matrix):
+        numeric_matrix = np.empty(matrix.shape)
+        for idx, seq in enumerate(matrix):
+            numeric_matrix[idx] = self.dequantize_sequence(seq)
+
+        df = self.add_meta_to_matrix(numeric_matrix)
+        return df
+
+    def add_meta_to_matrix(self, matrix):
         """
         add back the subject_id column and the column names
 
         returns a pandas df
         """
-        numeric_matrix = np.empty(label_matrix.shape)
-        for idx, row in enumerate(label_matrix):
-            numeric_matrix[idx] = self.dequantize_sequence(row)
-
-        df = pd.DataFrame(numeric_matrix, columns=self.column_names)
+        df = pd.DataFrame(matrix, columns=self.column_names)
         df = pd.concat([self.subject_id_column, df], axis=1)
         return df
 

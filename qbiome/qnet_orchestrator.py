@@ -1,3 +1,4 @@
+import numpy as np
 from quasinet import qnet
 
 class QnetOrchestrator:
@@ -23,14 +24,7 @@ class QnetOrchestrator:
     # the following functions can only be called when
     # self.model is not None
 
-    # TODO: refactor the functions below and write up examples
-
-    def get_label_distributions_of_sequence(self, seq):
-        """
-        use qnet to predict the label distributions of a given sequence
-        """
-        distribs = self.model.predict_distributions(seq)
-        return distribs
+    # TODO: refactor the functions below and write up examples, add tqdm
 
     def predict_value_given_distributions(self, seq, idx, distribs, n_samples=100):
         """
@@ -49,23 +43,53 @@ class QnetOrchestrator:
         ret = samples.mean()
         return ret
 
+    def predict_sequence(self, seq, indices_to_predict=None, n_samples=100):
+        """
+        for each entry in the sequence, if it has been masked, i.e. is an empty string ''
+        then make prediction, else dequantize the label
+
+        return a predicted numeric sequence, np.ndarray
+        """
+        predicted = np.empty(seq.shape)
+        distribs = self.model.predict_distributions(seq)
+        if not indices_to_predict: # predict everything in the sequence
+            indices_to_predict = range(len(seq))
+        for idx in indices_to_predict:
+            label = seq[idx]
+            if label == '': # this is masked, predict
+                num = self.predict_value_given_distributions(seq, idx, distribs, n_samples=n_samples)
+            else: # not masked, simpily dequantize
+                bin_arr = self.quantizer.get_bin_array_of_index(idx)
+                num = self.quantizer.dequantize_label(label, bin_arr)
+            predicted[idx] = num
+        return predicted
+
+    # sequantial prediction, i.e., the predicted sequence remain in labels
+
     def predict_sequence_at_week(self, seq, week, n_samples=100):
+        """
+        predict all {biome}_{week} columns for a given week
+
+        returns a label-string predicted np.ndarray
+        """
         predicted = seq.copy()
+        distribs = self.model.predict_distributions(seq)
         col_indices = np.where(self.model.feature_names.str.contains(str(week)))[0]
         for idx in col_indices:
-            num = qnet_predict_num_at_idx(seq, idx, n_samples=n_samples)
-            # quantize qnet-predicted numeric values
-            col = self.model.feature_names[idx]
-            bin_arr = self.quantizer.variable_bin_map[col]
-            letter = pd.cut([num], bin_arr, labels=list(self.quantizer.labels.keys()))[0]
+            # predict
+            num = self.predict_value_given_distributions(seq, idx, distribs, n_samples=n_samples)
+            # re-quantize qnet-predicted numeric values
+            bin_arr = self.quantizer.get_bin_array_of_index(idx)
+            label = self.quantizer.quantize_value(val, bin_arr)
             # fill the spot in masked for sequential feeding into qnet
-            predicted[idx] = letter
+            predicted[idx] = label
         return predicted
 
     def predict_sequentially_by_week(self, seq, start_week, end_week, n_samples=100):
         """
         mask everything after start_week to an empty string
         feed into qnet sequentially
+
         return a numeric seq
         """
         masked = seq.copy()
@@ -73,16 +97,10 @@ class QnetOrchestrator:
             col_indices = np.where(self.model.feature_names.str.contains(str(week)))[0]
             for idx in col_indices:
                 masked[idx] = ''
+        # feed into qnet sequentially, filling one week every iteration
+        for week in range(start_week, end_week + 1):
+            masked = self.predict_sequence_at_week(masked, week, n_samples=n_samples)
 
-        for week in range(start_week, end_week):
-            masked = qnet_predict_seq_at_week(masked, week, n_samples=100)
-
-        # to generate a numeric seq result, dequantize all the letters
-        num_ret = np.empty(masked.shape)
-        distribs = infbiome_qnet.predict_distributions(masked)
-        for idx, letter in enumerate(masked):
-            col = self.model.feature_names[idx]
-            bin_arr = self.quantizer.variable_bin_map[col]
-            num_ret[idx] = self.quantizer.dequantize_label(letter, bin_arr)
-
-        return num_ret
+        # to generate a numeric seq result, dequantize all the labels
+        ret = self.quantizer.dequantize_sequence(masked)
+        return ret
