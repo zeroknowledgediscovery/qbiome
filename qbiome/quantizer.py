@@ -80,10 +80,11 @@ class Quantizer():
         """
         # skip subject_id column
         df = quantized_df.drop(columns='subject_id')
-        return df.columns, df.values
+        matrix = df.astype(str).replace('nan', '').to_numpy(dtype=str)
+        return df.columns, matrix
 
     def dequantize_label(self, label, bin_arr):
-        if label is np.nan or label == 'nan' or label not in self.labels:
+        if label is np.nan or label.lower() == 'nan' or label not in self.labels:
             return np.nan
         low = self.labels[label]
         high = low + 1
