@@ -1,6 +1,6 @@
 import pandas as pd
 
-class DataFormatter():
+class DataFormatter:
 
     def __init__(self):
         pass

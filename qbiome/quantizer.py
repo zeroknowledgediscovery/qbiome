@@ -21,7 +21,7 @@ def natural_keys(text):
     '''
     return [ atof(c) for c in re.split(r'[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)', text) ]
 
-class Quantizer():
+class Quantizer:
 
     # TODO:
     # in the case where the conversion distortion from quantization-dequantization
