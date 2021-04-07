@@ -80,7 +80,7 @@ class QnetOrchestrator:
             num = self.predict_value_given_distributions(seq, idx, distribs, n_samples=n_samples)
             # re-quantize qnet-predicted numeric values
             bin_arr = self.quantizer.get_bin_array_of_index(idx)
-            label = self.quantizer.quantize_value(val, bin_arr)
+            label = self.quantizer.quantize_value(num, bin_arr)
             # fill the spot in masked for sequential feeding into qnet
             predicted[idx] = label
         return predicted

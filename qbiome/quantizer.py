@@ -96,8 +96,8 @@ class Quantizer:
         quantize a numeric value to label
         should be the inverse of dequantize_label
         """
-        label = pd.cut([num], bin_arr, labels=list(self.labels.keys()))[0]
-        return ret
+        label = pd.cut([val], bin_arr, labels=list(self.labels.keys()))[0]
+        return label
 
     def dequantize_label(self, label, bin_arr):
         if label is np.nan or label.lower() == 'nan' or label not in self.labels:

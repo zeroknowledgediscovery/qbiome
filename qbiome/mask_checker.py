@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from itertools import product
 
 from quasinet import qnet
@@ -17,6 +16,7 @@ class MaskChecker:
         """
         data: numpy.ndarray
         n_samples: number of samples for each index qnet is trying to predict, will take the mean
+
         returns the predicted df in plottable format
         """
         masked = self.apply_random_mask(data, mask_percent)
