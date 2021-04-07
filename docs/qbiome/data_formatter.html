@@ -28,7 +28,8 @@
 </summary>
 <pre><code class="python">import pandas as pd
 
-class DataFormatter():
+class DataFormatter:
+
     def __init__(self):
         pass
 
@@ -59,10 +60,14 @@ class DataFormatter():
         data = self._use_top_k_biomes(data, k_biomes)
         return data
 
-    def pivot_into_qnet_format(self, data):
+    def pivot_into_column_format(self, data):
+        &#34;&#34;&#34;
+        TODO: Is this useful as a standalone function or just preprocessing for melt_into_plot_format?
+        returns a df where each column is a biome
+        &#34;&#34;&#34;
         # keep sample_id in here for later cohort identification
-        pivoted = data.pivot_table(index=[&#39;sample_id&#39;, &#39;week&#39;],
-        columns=[&#39;variable&#39;])[&#39;value&#39;].reset_index()
+        pivoted = data.pivot_table(
+            index=[&#39;sample_id&#39;, &#39;week&#39;], columns=[&#39;variable&#39;])[&#39;value&#39;].reset_index()
         pivoted.sort_values(by=[&#39;week&#39;], inplace=True)
         pivoted.reset_index(drop=True, inplace=True)
         return pivoted
@@ -151,7 +156,8 @@ class DataFormatter():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class DataFormatter():
+<pre><code class="python">class DataFormatter:
+
     def __init__(self):
         pass
 
@@ -182,10 +188,14 @@ class DataFormatter():
         data = self._use_top_k_biomes(data, k_biomes)
         return data
 
-    def pivot_into_qnet_format(self, data):
+    def pivot_into_column_format(self, data):
+        &#34;&#34;&#34;
+        TODO: Is this useful as a standalone function or just preprocessing for melt_into_plot_format?
+        returns a df where each column is a biome
+        &#34;&#34;&#34;
         # keep sample_id in here for later cohort identification
-        pivoted = data.pivot_table(index=[&#39;sample_id&#39;, &#39;week&#39;],
-        columns=[&#39;variable&#39;])[&#39;value&#39;].reset_index()
+        pivoted = data.pivot_table(
+            index=[&#39;sample_id&#39;, &#39;week&#39;], columns=[&#39;variable&#39;])[&#39;value&#39;].reset_index()
         pivoted.sort_values(by=[&#39;week&#39;], inplace=True)
         pivoted.reset_index(drop=True, inplace=True)
         return pivoted
@@ -314,19 +324,24 @@ k_years=2, k_biomes=15):
     return melted</code></pre>
 </details>
 </dd>
-<dt id="qbiome.data_formatter.DataFormatter.pivot_into_qnet_format"><code class="name flex">
-<span>def <span class="ident">pivot_into_qnet_format</span></span>(<span>self, data)</span>
+<dt id="qbiome.data_formatter.DataFormatter.pivot_into_column_format"><code class="name flex">
+<span>def <span class="ident">pivot_into_column_format</span></span>(<span>self, data)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>TODO: Is this useful as a standalone function or just preprocessing for melt_into_plot_format?
+returns a df where each column is a biome</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def pivot_into_qnet_format(self, data):
+<pre><code class="python">def pivot_into_column_format(self, data):
+    &#34;&#34;&#34;
+    TODO: Is this useful as a standalone function or just preprocessing for melt_into_plot_format?
+    returns a df where each column is a biome
+    &#34;&#34;&#34;
     # keep sample_id in here for later cohort identification
-    pivoted = data.pivot_table(index=[&#39;sample_id&#39;, &#39;week&#39;],
-    columns=[&#39;variable&#39;])[&#39;value&#39;].reset_index()
+    pivoted = data.pivot_table(
+        index=[&#39;sample_id&#39;, &#39;week&#39;], columns=[&#39;variable&#39;])[&#39;value&#39;].reset_index()
     pivoted.sort_values(by=[&#39;week&#39;], inplace=True)
     pivoted.reset_index(drop=True, inplace=True)
     return pivoted</code></pre>
@@ -355,7 +370,7 @@ k_years=2, k_biomes=15):
 <ul class="">
 <li><code><a title="qbiome.data_formatter.DataFormatter.load_data" href="#qbiome.data_formatter.DataFormatter.load_data">load_data</a></code></li>
 <li><code><a title="qbiome.data_formatter.DataFormatter.melt_into_plot_format" href="#qbiome.data_formatter.DataFormatter.melt_into_plot_format">melt_into_plot_format</a></code></li>
-<li><code><a title="qbiome.data_formatter.DataFormatter.pivot_into_qnet_format" href="#qbiome.data_formatter.DataFormatter.pivot_into_qnet_format">pivot_into_qnet_format</a></code></li>
+<li><code><a title="qbiome.data_formatter.DataFormatter.pivot_into_column_format" href="#qbiome.data_formatter.DataFormatter.pivot_into_column_format">pivot_into_column_format</a></code></li>
 </ul>
 </li>
 </ul>
