@@ -30,6 +30,8 @@
 import string
 import numpy as np
 import pandas as pd
+from scipy import interpolate
+from sklearn.ensemble import RandomForestRegressor
 
 # helper functions for sorting
 # https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
@@ -63,6 +65,14 @@ class Quantizer:
         self.labels = {label: idx for idx, label in enumerate(labels)}
         self.variable_bin_map = {}
         self.column_names = [] # format {biome}_{week}
+        self.random_forest_dict = {} # biome: RandomForestRegressor
+
+    def save(self, outfname):
+        # save self.variable_bin_map and self.random_forest_dict
+        pass
+
+    def load(self, outfname):
+        pass
 
     def quantize_df(self, data):
         &#34;&#34;&#34;
@@ -127,6 +137,55 @@ class Quantizer:
         label = pd.cut([val], bin_arr, labels=list(self.labels.keys()))[0]
         return label
 
+    # procedures and helpers for dequantization follows
+
+    def _fit_random_forest_one_biome(self, x, y):
+        idx_old = np.arange(len(x))
+        fx = interpolate.interp1d(idx_old, x, fill_value=&#39;extrapolate&#39;)
+        fy = interpolate.interp1d(idx_old, y, fill_value=&#39;extrapolate&#39;)
+        idx = np.arange(0, len(x), 0.01)
+        X = fx(idx)[:, np.newaxis]
+        Y = fy(idx)
+        model = RandomForestRegressor()
+        model.fit(X, Y)
+        return model
+
+    def compute_average_df(self, df):
+        &#34;&#34;&#34;
+        df is in plot format, i.e., must have columns week, variable, value
+        take avg wrt subject_id
+        &#34;&#34;&#34;
+        avg = df[[&#39;variable&#39;, &#39;week&#39;, &#39;value&#39;]].groupby(
+            by=[&#39;variable&#39;, &#39;week&#39;]).mean().reset_index()
+        return avg
+
+    def fit_random_forest(self, data, dequantized_data):
+        &#34;&#34;&#34;
+        both data and dequantized_data are in plot format, i.e.,
+        must have columns week, variable, value
+        data: original data
+        dequantized_data: produced by code like
+        ```{python}
+        df = self.quantizer.add_meta_to_matrix(matrix)
+        dequantized_data = self.quantizer.melt_into_plot_format(df)
+        ```
+
+        writes in-place into self.random_forest_dict
+        &#34;&#34;&#34;
+        if self.random_forest_dict:
+            return
+
+        # take avg of data and dequantized_data, grouped by week and biome
+        # want to map dequantized to original, hence dequantized is input
+        inputs = self.compute_average_df(dequantized_data)
+        outputs = self.compute_average_df(data)
+
+        for biome in inputs.variable.unique():
+            x = inputs[inputs.variable == biome].value
+            y = outputs[outputs.variable == biome].value
+            model = self._fit_random_forest_one_biome(x, y)
+            self.random_forest_dict[biome] = model
+
     def dequantize_label(self, label, bin_arr):
         if label is np.nan or label.lower() == &#39;nan&#39; or label not in self.labels:
             return np.nan
@@ -180,7 +239,30 @@ class Quantizer:
         plot_df = pd.concat([
             melted.subject_id, splitted, melted.value
         ], axis=1)
-        return plot_df</code></pre>
+        return plot_df
+
+    def apply_random_forest_regressor(self, data):
+        &#34;&#34;&#34;
+        data: will be averaged and mapped to the average of original
+        returns a df in plot format
+        &#34;&#34;&#34;
+        if not self.random_forest_dict:
+            raise Exception(&#39;No random forest models. First train with fit_random_forest&#39;)
+        avg_data = self.compute_average_df(data)
+        dataframes = []
+        for biome in avg_data.variable.unique():
+            x = avg_data[avg_data.variable == biome].value
+            x = x.to_numpy()[:, np.newaxis]
+            model = self.random_forest_dict[biome]
+            pred = model.predict(x)
+            df = pd.DataFrame({
+                &#39;variable&#39;: biome,
+                &#39;week&#39;: avg_data[avg_data.variable == biome].week,
+                &#39;value&#39;: pred
+            })
+            dataframes.append(df)
+        ret = pd.concat(dataframes)
+        return ret</code></pre>
 </details>
 </section>
 <section>
@@ -258,6 +340,14 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
         self.labels = {label: idx for idx, label in enumerate(labels)}
         self.variable_bin_map = {}
         self.column_names = [] # format {biome}_{week}
+        self.random_forest_dict = {} # biome: RandomForestRegressor
+
+    def save(self, outfname):
+        # save self.variable_bin_map and self.random_forest_dict
+        pass
+
+    def load(self, outfname):
+        pass
 
     def quantize_df(self, data):
         &#34;&#34;&#34;
@@ -322,6 +412,55 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
         label = pd.cut([val], bin_arr, labels=list(self.labels.keys()))[0]
         return label
 
+    # procedures and helpers for dequantization follows
+
+    def _fit_random_forest_one_biome(self, x, y):
+        idx_old = np.arange(len(x))
+        fx = interpolate.interp1d(idx_old, x, fill_value=&#39;extrapolate&#39;)
+        fy = interpolate.interp1d(idx_old, y, fill_value=&#39;extrapolate&#39;)
+        idx = np.arange(0, len(x), 0.01)
+        X = fx(idx)[:, np.newaxis]
+        Y = fy(idx)
+        model = RandomForestRegressor()
+        model.fit(X, Y)
+        return model
+
+    def compute_average_df(self, df):
+        &#34;&#34;&#34;
+        df is in plot format, i.e., must have columns week, variable, value
+        take avg wrt subject_id
+        &#34;&#34;&#34;
+        avg = df[[&#39;variable&#39;, &#39;week&#39;, &#39;value&#39;]].groupby(
+            by=[&#39;variable&#39;, &#39;week&#39;]).mean().reset_index()
+        return avg
+
+    def fit_random_forest(self, data, dequantized_data):
+        &#34;&#34;&#34;
+        both data and dequantized_data are in plot format, i.e.,
+        must have columns week, variable, value
+        data: original data
+        dequantized_data: produced by code like
+        ```{python}
+        df = self.quantizer.add_meta_to_matrix(matrix)
+        dequantized_data = self.quantizer.melt_into_plot_format(df)
+        ```
+
+        writes in-place into self.random_forest_dict
+        &#34;&#34;&#34;
+        if self.random_forest_dict:
+            return
+
+        # take avg of data and dequantized_data, grouped by week and biome
+        # want to map dequantized to original, hence dequantized is input
+        inputs = self.compute_average_df(dequantized_data)
+        outputs = self.compute_average_df(data)
+
+        for biome in inputs.variable.unique():
+            x = inputs[inputs.variable == biome].value
+            y = outputs[outputs.variable == biome].value
+            model = self._fit_random_forest_one_biome(x, y)
+            self.random_forest_dict[biome] = model
+
     def dequantize_label(self, label, bin_arr):
         if label is np.nan or label.lower() == &#39;nan&#39; or label not in self.labels:
             return np.nan
@@ -375,7 +514,30 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
         plot_df = pd.concat([
             melted.subject_id, splitted, melted.value
         ], axis=1)
-        return plot_df</code></pre>
+        return plot_df
+
+    def apply_random_forest_regressor(self, data):
+        &#34;&#34;&#34;
+        data: will be averaged and mapped to the average of original
+        returns a df in plot format
+        &#34;&#34;&#34;
+        if not self.random_forest_dict:
+            raise Exception(&#39;No random forest models. First train with fit_random_forest&#39;)
+        avg_data = self.compute_average_df(data)
+        dataframes = []
+        for biome in avg_data.variable.unique():
+            x = avg_data[avg_data.variable == biome].value
+            x = x.to_numpy()[:, np.newaxis]
+            model = self.random_forest_dict[biome]
+            pred = model.predict(x)
+            df = pd.DataFrame({
+                &#39;variable&#39;: biome,
+                &#39;week&#39;: avg_data[avg_data.variable == biome].week,
+                &#39;value&#39;: pred
+            })
+            dataframes.append(df)
+        ret = pd.concat(dataframes)
+        return ret</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -398,6 +560,60 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
     df = pd.DataFrame(matrix, columns=self.column_names)
     df = pd.concat([self.subject_id_column, df], axis=1)
     return df</code></pre>
+</details>
+</dd>
+<dt id="qbiome.quantizer.Quantizer.apply_random_forest_regressor"><code class="name flex">
+<span>def <span class="ident">apply_random_forest_regressor</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>data: will be averaged and mapped to the average of original
+returns a df in plot format</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def apply_random_forest_regressor(self, data):
+    &#34;&#34;&#34;
+    data: will be averaged and mapped to the average of original
+    returns a df in plot format
+    &#34;&#34;&#34;
+    if not self.random_forest_dict:
+        raise Exception(&#39;No random forest models. First train with fit_random_forest&#39;)
+    avg_data = self.compute_average_df(data)
+    dataframes = []
+    for biome in avg_data.variable.unique():
+        x = avg_data[avg_data.variable == biome].value
+        x = x.to_numpy()[:, np.newaxis]
+        model = self.random_forest_dict[biome]
+        pred = model.predict(x)
+        df = pd.DataFrame({
+            &#39;variable&#39;: biome,
+            &#39;week&#39;: avg_data[avg_data.variable == biome].week,
+            &#39;value&#39;: pred
+        })
+        dataframes.append(df)
+    ret = pd.concat(dataframes)
+    return ret</code></pre>
+</details>
+</dd>
+<dt id="qbiome.quantizer.Quantizer.compute_average_df"><code class="name flex">
+<span>def <span class="ident">compute_average_df</span></span>(<span>self, df)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>df is in plot format, i.e., must have columns week, variable, value
+take avg wrt subject_id</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compute_average_df(self, df):
+    &#34;&#34;&#34;
+    df is in plot format, i.e., must have columns week, variable, value
+    take avg wrt subject_id
+    &#34;&#34;&#34;
+    avg = df[[&#39;variable&#39;, &#39;week&#39;, &#39;value&#39;]].groupby(
+        by=[&#39;variable&#39;, &#39;week&#39;]).mean().reset_index()
+    return avg</code></pre>
 </details>
 </dd>
 <dt id="qbiome.quantizer.Quantizer.dequantize_label"><code class="name flex">
@@ -462,6 +678,50 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
     return df</code></pre>
 </details>
 </dd>
+<dt id="qbiome.quantizer.Quantizer.fit_random_forest"><code class="name flex">
+<span>def <span class="ident">fit_random_forest</span></span>(<span>self, data, dequantized_data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>both data and dequantized_data are in plot format, i.e.,
+must have columns week, variable, value
+data: original data
+dequantized_data: produced by code like</p>
+<pre><code python="python">df = self.quantizer.add_meta_to_matrix(matrix)
+dequantized_data = self.quantizer.melt_into_plot_format(df)
+</code></pre>
+<p>writes in-place into self.random_forest_dict</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit_random_forest(self, data, dequantized_data):
+    &#34;&#34;&#34;
+    both data and dequantized_data are in plot format, i.e.,
+    must have columns week, variable, value
+    data: original data
+    dequantized_data: produced by code like
+    ```{python}
+    df = self.quantizer.add_meta_to_matrix(matrix)
+    dequantized_data = self.quantizer.melt_into_plot_format(df)
+    ```
+
+    writes in-place into self.random_forest_dict
+    &#34;&#34;&#34;
+    if self.random_forest_dict:
+        return
+
+    # take avg of data and dequantized_data, grouped by week and biome
+    # want to map dequantized to original, hence dequantized is input
+    inputs = self.compute_average_df(dequantized_data)
+    outputs = self.compute_average_df(data)
+
+    for biome in inputs.variable.unique():
+        x = inputs[inputs.variable == biome].value
+        y = outputs[outputs.variable == biome].value
+        model = self._fit_random_forest_one_biome(x, y)
+        self.random_forest_dict[biome] = model</code></pre>
+</details>
+</dd>
 <dt id="qbiome.quantizer.Quantizer.get_bin_array_of_index"><code class="name flex">
 <span>def <span class="ident">get_bin_array_of_index</span></span>(<span>self, idx)</span>
 </code></dt>
@@ -501,6 +761,19 @@ returns (feature_names, matrix)</p></div>
     df = quantized_df.drop(columns=&#39;subject_id&#39;)
     matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
     return df.columns, matrix</code></pre>
+</details>
+</dd>
+<dt id="qbiome.quantizer.Quantizer.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>self, outfname)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load(self, outfname):
+    pass</code></pre>
 </details>
 </dd>
 <dt id="qbiome.quantizer.Quantizer.melt_into_plot_format"><code class="name flex">
@@ -596,6 +869,20 @@ should be the inverse of dequantize_label</p></div>
     return label</code></pre>
 </details>
 </dd>
+<dt id="qbiome.quantizer.Quantizer.save"><code class="name flex">
+<span>def <span class="ident">save</span></span>(<span>self, outfname)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save(self, outfname):
+    # save self.variable_bin_map and self.random_forest_dict
+    pass</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -624,14 +911,19 @@ should be the inverse of dequantize_label</p></div>
 <h4><code><a title="qbiome.quantizer.Quantizer" href="#qbiome.quantizer.Quantizer">Quantizer</a></code></h4>
 <ul class="">
 <li><code><a title="qbiome.quantizer.Quantizer.add_meta_to_matrix" href="#qbiome.quantizer.Quantizer.add_meta_to_matrix">add_meta_to_matrix</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.apply_random_forest_regressor" href="#qbiome.quantizer.Quantizer.apply_random_forest_regressor">apply_random_forest_regressor</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.compute_average_df" href="#qbiome.quantizer.Quantizer.compute_average_df">compute_average_df</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.dequantize_label" href="#qbiome.quantizer.Quantizer.dequantize_label">dequantize_label</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.dequantize_sequence" href="#qbiome.quantizer.Quantizer.dequantize_sequence">dequantize_sequence</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.dequantize_to_df" href="#qbiome.quantizer.Quantizer.dequantize_to_df">dequantize_to_df</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.fit_random_forest" href="#qbiome.quantizer.Quantizer.fit_random_forest">fit_random_forest</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.get_bin_array_of_index" href="#qbiome.quantizer.Quantizer.get_bin_array_of_index">get_bin_array_of_index</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.get_qnet_inputs" href="#qbiome.quantizer.Quantizer.get_qnet_inputs">get_qnet_inputs</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.load" href="#qbiome.quantizer.Quantizer.load">load</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.melt_into_plot_format" href="#qbiome.quantizer.Quantizer.melt_into_plot_format">melt_into_plot_format</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.quantize_df" href="#qbiome.quantizer.Quantizer.quantize_df">quantize_df</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.quantize_value" href="#qbiome.quantizer.Quantizer.quantize_value">quantize_value</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.save" href="#qbiome.quantizer.Quantizer.save">save</a></code></li>
 </ul>
 </li>
 </ul>

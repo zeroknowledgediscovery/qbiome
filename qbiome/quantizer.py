@@ -2,6 +2,8 @@ import re
 import string
 import numpy as np
 import pandas as pd
+from scipy import interpolate
+from sklearn.ensemble import RandomForestRegressor
 
 # helper functions for sorting
 # https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
@@ -35,6 +37,14 @@ class Quantizer:
         self.labels = {label: idx for idx, label in enumerate(labels)}
         self.variable_bin_map = {}
         self.column_names = [] # format {biome}_{week}
+        self.random_forest_dict = {} # biome: RandomForestRegressor
+
+    def save(self, outfname):
+        # save self.variable_bin_map and self.random_forest_dict
+        pass
+
+    def load(self, outfname):
+        pass
 
     def quantize_df(self, data):
         """
@@ -99,6 +109,55 @@ class Quantizer:
         label = pd.cut([val], bin_arr, labels=list(self.labels.keys()))[0]
         return label
 
+    # procedures and helpers for dequantization follows
+
+    def _fit_random_forest_one_biome(self, x, y):
+        idx_old = np.arange(len(x))
+        fx = interpolate.interp1d(idx_old, x, fill_value='extrapolate')
+        fy = interpolate.interp1d(idx_old, y, fill_value='extrapolate')
+        idx = np.arange(0, len(x), 0.01)
+        X = fx(idx)[:, np.newaxis]
+        Y = fy(idx)
+        model = RandomForestRegressor()
+        model.fit(X, Y)
+        return model
+
+    def compute_average_df(self, df):
+        """
+        df is in plot format, i.e., must have columns week, variable, value
+        take avg wrt subject_id
+        """
+        avg = df[['variable', 'week', 'value']].groupby(
+            by=['variable', 'week']).mean().reset_index()
+        return avg
+
+    def fit_random_forest(self, data, dequantized_data):
+        """
+        both data and dequantized_data are in plot format, i.e.,
+        must have columns week, variable, value
+        data: original data
+        dequantized_data: produced by code like
+        ```{python}
+        df = self.quantizer.add_meta_to_matrix(matrix)
+        dequantized_data = self.quantizer.melt_into_plot_format(df)
+        ```
+
+        writes in-place into self.random_forest_dict
+        """
+        if self.random_forest_dict:
+            return
+
+        # take avg of data and dequantized_data, grouped by week and biome
+        # want to map dequantized to original, hence dequantized is input
+        inputs = self.compute_average_df(dequantized_data)
+        outputs = self.compute_average_df(data)
+
+        for biome in inputs.variable.unique():
+            x = inputs[inputs.variable == biome].value
+            y = outputs[outputs.variable == biome].value
+            model = self._fit_random_forest_one_biome(x, y)
+            self.random_forest_dict[biome] = model
+
     def dequantize_label(self, label, bin_arr):
         if label is np.nan or label.lower() == 'nan' or label not in self.labels:
             return np.nan
@@ -153,3 +212,26 @@ class Quantizer:
             melted.subject_id, splitted, melted.value
         ], axis=1)
         return plot_df
+
+    def apply_random_forest_regressor(self, data):
+        """
+        data: will be averaged and mapped to the average of original
+        returns a df in plot format
+        """
+        if not self.random_forest_dict:
+            raise Exception('No random forest models. First train with fit_random_forest')
+        avg_data = self.compute_average_df(data)
+        dataframes = []
+        for biome in avg_data.variable.unique():
+            x = avg_data[avg_data.variable == biome].value
+            x = x.to_numpy()[:, np.newaxis]
+            model = self.random_forest_dict[biome]
+            pred = model.predict(x)
+            df = pd.DataFrame({
+                'variable': biome,
+                'week': avg_data[avg_data.variable == biome].week,
+                'value': pred
+            })
+            dataframes.append(df)
+        ret = pd.concat(dataframes)
+        return ret
