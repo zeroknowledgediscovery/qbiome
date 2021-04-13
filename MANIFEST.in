@@ -1,0 +1,2 @@
+recursive-include qbiome/examples *
+recursive-include qbiome *.ipynb *.joblib *.c *.so *.pyx
