@@ -20,3 +20,14 @@ cynet
 :Author: ZeD@UChicago <zed.uchicago.edu>
 :Description: Application of quasinets (https://pypi.org/project/quasinet/) for microbiome analysis  for learning rules of organization, maturation, competition and succession in microbiome ecosystems. 
 :Documentation: https://zeroknowledgediscovery.github.io/qbiome/qbiome/index.html
+
+
+**Usage:**
+
+.. code-block::
+
+    import qbiome
+	from qbiome.data_formatter import DataFormatter
+	from qbiome.quantizer import Quantizer
+	from qbiome.qnet_orchestrator import QnetOrchestrator
+	from qbiome.forecaster import Forecaster
