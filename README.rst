@@ -13,7 +13,7 @@ cynet
    :alt: alternate text
    :align: center
 
-.. image:: https://github.com/zeroknowledgediscovery/qbiome/blob/main/images/img2.png
+.. image:: images/img2.png
    :height: 400px
    :scale: 50 %
    :alt: alternate text
