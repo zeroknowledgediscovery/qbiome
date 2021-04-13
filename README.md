@@ -1,14 +1,23 @@
-# Qbiome
+===============
+cynet
+===============
 
-<p align="center">
-    <img src="http://zed.uchicago.edu/logo/logozed1.png">
-</p>
+.. figure:: https://img.shields.io/pypi/dm/qbiome.svg
+   :alt: cynet PyPI Downloads
+.. figure:: https://img.shields.io/pypi/v/qbiome.svg
+   :alt: cynet version
+
+.. image:: http://zed.uchicago.edu/logo/logozed1.png
+   :height: 400px
+   :scale: 50 %
+   :alt: alternate text
+   :align: center
 
 
-## Description
+.. class:: no-web no-pdf
 
-Microbiome Analysis Powered By Recursive Quasi-species Networks: Uncovering rules of organization, competition, succession and exploitation
+:Info: Draft link will be posted here 
+:Author: ZeD@UChicago <zed.uchicago.edu>
+:Description: Application of quasinets (https://pypi.org/project/quasinet/) for microbiome analysis  for learning rules of organization, maturation, competition and succession in microbiome ecosystems. 
 
-
-A set of tools designed and developed to  uncover  the rules of life driving the assembly, maturation, succession and stability in the complex ecosystem of the human microbiome. The objective here is to uncover  the guiding principles of  microbiome evolution by bringing together experimental observations with sophisticated and novel  learning algorithms, stochastic time series analysis, and  large deviation theory.
-
+.. NOTE:: Documentation is here:  https://zeroknowledgediscovery.github.io/qbiome/qbiome/index.html
