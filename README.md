@@ -1,11 +1,5 @@
 # Qbiome
 
-![quasinet PyPI Downloads](https://img.shields.io/pypi/dm/qbiome.svg)
-
-![PyPI version](https://badge.fury.io/py/qbiome.svg)
-
-
-
 <p align="center">
     <img src="http://zed.uchicago.edu/logo/logozed1.png">
 </p>
