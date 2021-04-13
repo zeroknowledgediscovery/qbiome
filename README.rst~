@@ -27,7 +27,7 @@ cynet
 .. code-block::
 
     import qbiome
-    from qbiome.data_formatter import DataFormatter
-    from qbiome.quantizer import Quantizer
-    from qbiome.qnet_orchestrator import QnetOrchestrator
-    from qbiome.forecaster import Forecaster
+	from qbiome.data_formatter import DataFormatter
+	from qbiome.quantizer import Quantizer
+	from qbiome.qnet_orchestrator import QnetOrchestrator
+	from qbiome.forecaster import Forecaster
