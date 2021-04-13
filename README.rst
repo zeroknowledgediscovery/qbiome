@@ -2,9 +2,9 @@
 cynet
 ===============
 
-.. figure:: https://img.shields.io/pypi/dm/cynet.svg
+.. figure:: https://img.shields.io/pypi/dm/qbiome.svg
    :alt: cynet PyPI Downloads
-.. figure:: https://img.shields.io/pypi/v/cynet.svg
+.. figure:: https://img.shields.io/pypi/v/qbiome.svg
    :alt: cynet version
 
 .. image:: http://zed.uchicago.edu/logo/logozed1.png
@@ -16,8 +16,8 @@ cynet
 
 .. class:: no-web no-pdf
 
-:Info: See <https://arxiv.org/abs/1406.6651> for theoretical background
+:Info: Draft link will be posted here
 :Author: ZeD@UChicago <zed.uchicago.edu>
-:Description: Implementation of the Deep Granger net inference algorithm, described in https://arxiv.org/abs/1406.6651, for learning spatio-temporal stochastic processes (*point processes*). **cynet** learns a network of generative local models, without assuming any specific model structure.
+:Description: Application of quasinets (https://pypi.org/project/quasinet/) for microbiome analysis  for learning rules of organization, maturation, competition and succession in microbiome ecosystems. 
 
-.. NOTE:: If issues arise with dependencies in python3, be sure that *tkinter* is installed
+.. NOTE:: https://zeroknowledgediscovery.github.io/qbiome/qbiome/index.html
