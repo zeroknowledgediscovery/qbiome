@@ -14,7 +14,7 @@ with open("version.py") as fp:
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the relevant file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 
@@ -35,7 +35,7 @@ setup(
         'computational biology'],
     download_url='https://github.com/zeroknowledgediscovery/qbiome/archive/'+str(version['__version__'])+'.tar.gz',
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content_type='text/x-rst',
     install_requires=[
         "scikit-learn", 
         "scipy", 
