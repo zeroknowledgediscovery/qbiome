@@ -13,11 +13,6 @@ cynet
    :alt: alternate text
    :align: center
 
-.. image:: https://github.com/zeroknowledgediscovery/qbiome/raw/main/images/img2.png
-   :height: 400px
-   :scale: 50 %
-   :alt: alternate text
-   :align: center
 
 .. class:: no-web no-pdf
 
@@ -36,3 +31,9 @@ cynet
     from qbiome.quantizer import Quantizer
     from qbiome.qnet_orchestrator import QnetOrchestrator
     from qbiome.forecaster import Forecaster
+
+
+.. image:: https://github.com/zeroknowledgediscovery/qbiome/raw/main/images/img2.png
+   :scale: 50 %
+   :alt: alternate text
+   :align: center
