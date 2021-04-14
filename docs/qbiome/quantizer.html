@@ -36,44 +36,61 @@ from sklearn.ensemble import RandomForestRegressor
 
 # helper functions for sorting
 # https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
-def atof(text):
+def _atof(text):
     try:
         retval = float(text)
     except ValueError:
         retval = text
     return retval
 
-def natural_keys(text):
+def _natural_keys(text):
     &#34;&#34;&#34;
-    alist.sort(key=natural_keys) sorts in human order
+    alist.sort(key=_natural_keys) sorts in human order
     http://nedbatchelder.com/blog/200712/human_sorting.html
     (See Toothy&#39;s implementation in the comments)
     float regex comes from https://stackoverflow.com/a/12643073/190597
     &#34;&#34;&#34;
-    return [ atof(c) for c in re.split(r&#39;[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)&#39;, text) ]
+    return [ _atof(c) for c in re.split(r&#39;[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)&#39;, text) ]
 
 class Quantizer:
-
-    # TODO:
-    # in the case where the conversion distortion from quantization-dequantization
-    # is high, train models to minimize the distortion
+    &#34;&#34;&#34;Handles quantization and dequantization of data
+    &#34;&#34;&#34;
 
     def __init__(self, num_levels=5):
+        &#34;&#34;&#34;Initalization
+
+        Args:
+            num_levels (int, optional): Number of quantization levels. Defaults to 5.
+        &#34;&#34;&#34;
         # use tuple for immutability
         self.num_levels = num_levels
+        &#34;&#34;&#34;number of quantization levels&#34;&#34;&#34;
 
         labels = tuple(string.ascii_uppercase[:num_levels])
         self.labels = {label: idx for idx, label in enumerate(labels)}
+        &#34;&#34;&#34;ex. {A: 0, B: 1, ...}&#34;&#34;&#34;
+
         self.variable_bin_map = {}
-        self.column_names = [] # format {biome}_{week}
-        self.random_forest_dict = {} # biome: RandomForestRegressor
+        &#34;&#34;&#34;key-value pairs {biome_name: quantization map}&#34;&#34;&#34;
+
+        self.column_names = None
+        &#34;&#34;&#34;a list of columns in the format {biome}_{week}&#34;&#34;&#34;
+
+        self.subject_id_column = None
+        &#34;&#34;&#34;cache this column to add back to the label matrix with `self.add_meta_to_matrix`&#34;&#34;&#34;
+
+        self.random_forest_dict = {}
+        &#34;&#34;&#34;key-value pairs {biome_name: sklearn.ensemble.RandomForestRegressor}&#34;&#34;&#34;
 
     def save_quantizer_states(self, out_fname):
-        &#34;&#34;&#34;
-        save self.column_names, self.variable_bin_map and self.random_forest_dict
+        &#34;&#34;&#34;Save `self.column_names, self.subject_id_column, self.variable_bin_map, self.random_forest_dict`. Call this after calling `self.quantize_df`
+
+        Args:
+            out_fname (str): output file name
         &#34;&#34;&#34;
         states = {
             &#39;column_names&#39;: self.column_names,
+            &#39;subject_id_column&#39;: self.subject_id_column,
             &#39;variable_bin_map&#39;: self.variable_bin_map,
             &#39;random_forest_dict&#39;: self.random_forest_dict
         }
@@ -81,23 +98,46 @@ class Quantizer:
             pickle.dump(states, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     def load_quantizer_states(self, in_fname):
+        &#34;&#34;&#34;Load in `self.column_names, self.variable_bin_map, self.random_forest_dict` from file
+
+        Args:
+            in_fname (str): input file name
+        &#34;&#34;&#34;
         with open(in_fname, &#39;rb&#39;) as f:
             states = pickle.load(f)
         self.column_names = states[&#39;column_names&#39;]
+        self.subject_id_column = states[&#39;subject_id_column&#39;]
         self.variable_bin_map = states[&#39;variable_bin_map&#39;]
         self.random_forest_dict = states[&#39;random_forest_dict&#39;]
 
     def quantize_df(self, data):
-        &#34;&#34;&#34;
-        this is used to fill in the things we load
-        self.column_names, self.variable_bin_map, self.random_forest_dict
-        must have data in self.column_names, self.variable_bin_map, self.random_forest_dict
-        before calling any of the dequantization methods
+        &#34;&#34;&#34;This function must be called before calling any of the dequantization procedures. It populates `self.column_names, self.subject_id_column, self.variable_bin_map`
 
-        data: should be in melted format, produced by DataFormatter.load_data
-        first two columns are sample_id and subject_id
+        input data format, produced by DataFormatter.load_data:
 
-        returns a pandas df
+        | sample_id       |   subject_id | variable         |   week |    value |
+        |:----------------|-------------:|:-----------------|-------:|---------:|
+        | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+        | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+        | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+        | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+        | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
+
+        output data format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | A                    |                  nan |
+        |           10 |                  nan | A                    |                  nan |
+        |           11 |                  nan | A                    |                  nan |
+        |           12 |                  nan | D                    |                  nan |
+        |           14 |                  nan | A                    |                  nan |
+
+        Args:
+            data (pandas.DataFrame): see format above
+
+        Returns:
+            pandas.DataFrame: see format above
         &#34;&#34;&#34;
         # some hacky intermediate format, so this probably shouldn&#39;t go into DataFormatter
         melted = pd.concat([
@@ -111,6 +151,8 @@ class Quantizer:
         self.column_names = to_quantize.columns[1:] # skip subject_id, only biome names
         # cache the subject_id column to add back to a dequantized matrix
         self.subject_id_column = to_quantize.subject_id
+        &#34;&#34;&#34;&#34;&#34;&#34;
+
 
         quantized = pd.DataFrame() # return df
         for col in self.column_names:
@@ -121,7 +163,7 @@ class Quantizer:
 
         # sort the columns by name in a natural order
 
-        quantized = quantized.reindex(sorted(quantized.columns, key=natural_keys),
+        quantized = quantized.reindex(sorted(quantized.columns, key=_natural_keys),
         axis=1)
         quantized.insert(0, &#39;subject_id&#39;, to_quantize.subject_id)
         return quantized
@@ -286,48 +328,6 @@ class Quantizer:
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="qbiome.quantizer.atof"><code class="name flex">
-<span>def <span class="ident">atof</span></span>(<span>text)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def atof(text):
-    try:
-        retval = float(text)
-    except ValueError:
-        retval = text
-    return retval</code></pre>
-</details>
-</dd>
-<dt id="qbiome.quantizer.natural_keys"><code class="name flex">
-<span>def <span class="ident">natural_keys</span></span>(<span>text)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>alist.sort(key=natural_keys) sorts in human order
-<a href="http://nedbatchelder.com/blog/200712/human_sorting.html">http://nedbatchelder.com/blog/200712/human_sorting.html</a>
-(See Toothy's implementation in the comments)
-float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">https://stackoverflow.com/a/12643073/190597</a></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def natural_keys(text):
-    &#34;&#34;&#34;
-    alist.sort(key=natural_keys) sorts in human order
-    http://nedbatchelder.com/blog/200712/human_sorting.html
-    (See Toothy&#39;s implementation in the comments)
-    float regex comes from https://stackoverflow.com/a/12643073/190597
-    &#34;&#34;&#34;
-    return [ atof(c) for c in re.split(r&#39;[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)&#39;, text) ]</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -337,33 +337,56 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
 <span>(</span><span>num_levels=5)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Handles quantization and dequantization of data</p>
+<p>Initalization</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>num_levels</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Number of quantization levels. Defaults to 5.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Quantizer:
-
-    # TODO:
-    # in the case where the conversion distortion from quantization-dequantization
-    # is high, train models to minimize the distortion
+    &#34;&#34;&#34;Handles quantization and dequantization of data
+    &#34;&#34;&#34;
 
     def __init__(self, num_levels=5):
+        &#34;&#34;&#34;Initalization
+
+        Args:
+            num_levels (int, optional): Number of quantization levels. Defaults to 5.
+        &#34;&#34;&#34;
         # use tuple for immutability
         self.num_levels = num_levels
+        &#34;&#34;&#34;number of quantization levels&#34;&#34;&#34;
 
         labels = tuple(string.ascii_uppercase[:num_levels])
         self.labels = {label: idx for idx, label in enumerate(labels)}
+        &#34;&#34;&#34;ex. {A: 0, B: 1, ...}&#34;&#34;&#34;
+
         self.variable_bin_map = {}
-        self.column_names = [] # format {biome}_{week}
-        self.random_forest_dict = {} # biome: RandomForestRegressor
+        &#34;&#34;&#34;key-value pairs {biome_name: quantization map}&#34;&#34;&#34;
+
+        self.column_names = None
+        &#34;&#34;&#34;a list of columns in the format {biome}_{week}&#34;&#34;&#34;
+
+        self.subject_id_column = None
+        &#34;&#34;&#34;cache this column to add back to the label matrix with `self.add_meta_to_matrix`&#34;&#34;&#34;
+
+        self.random_forest_dict = {}
+        &#34;&#34;&#34;key-value pairs {biome_name: sklearn.ensemble.RandomForestRegressor}&#34;&#34;&#34;
 
     def save_quantizer_states(self, out_fname):
-        &#34;&#34;&#34;
-        save self.column_names, self.variable_bin_map and self.random_forest_dict
+        &#34;&#34;&#34;Save `self.column_names, self.subject_id_column, self.variable_bin_map, self.random_forest_dict`. Call this after calling `self.quantize_df`
+
+        Args:
+            out_fname (str): output file name
         &#34;&#34;&#34;
         states = {
             &#39;column_names&#39;: self.column_names,
+            &#39;subject_id_column&#39;: self.subject_id_column,
             &#39;variable_bin_map&#39;: self.variable_bin_map,
             &#39;random_forest_dict&#39;: self.random_forest_dict
         }
@@ -371,23 +394,46 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
             pickle.dump(states, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     def load_quantizer_states(self, in_fname):
+        &#34;&#34;&#34;Load in `self.column_names, self.variable_bin_map, self.random_forest_dict` from file
+
+        Args:
+            in_fname (str): input file name
+        &#34;&#34;&#34;
         with open(in_fname, &#39;rb&#39;) as f:
             states = pickle.load(f)
         self.column_names = states[&#39;column_names&#39;]
+        self.subject_id_column = states[&#39;subject_id_column&#39;]
         self.variable_bin_map = states[&#39;variable_bin_map&#39;]
         self.random_forest_dict = states[&#39;random_forest_dict&#39;]
 
     def quantize_df(self, data):
-        &#34;&#34;&#34;
-        this is used to fill in the things we load
-        self.column_names, self.variable_bin_map, self.random_forest_dict
-        must have data in self.column_names, self.variable_bin_map, self.random_forest_dict
-        before calling any of the dequantization methods
+        &#34;&#34;&#34;This function must be called before calling any of the dequantization procedures. It populates `self.column_names, self.subject_id_column, self.variable_bin_map`
 
-        data: should be in melted format, produced by DataFormatter.load_data
-        first two columns are sample_id and subject_id
+        input data format, produced by DataFormatter.load_data:
 
-        returns a pandas df
+        | sample_id       |   subject_id | variable         |   week |    value |
+        |:----------------|-------------:|:-----------------|-------:|---------:|
+        | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+        | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+        | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+        | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+        | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
+
+        output data format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | A                    |                  nan |
+        |           10 |                  nan | A                    |                  nan |
+        |           11 |                  nan | A                    |                  nan |
+        |           12 |                  nan | D                    |                  nan |
+        |           14 |                  nan | A                    |                  nan |
+
+        Args:
+            data (pandas.DataFrame): see format above
+
+        Returns:
+            pandas.DataFrame: see format above
         &#34;&#34;&#34;
         # some hacky intermediate format, so this probably shouldn&#39;t go into DataFormatter
         melted = pd.concat([
@@ -401,6 +447,8 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
         self.column_names = to_quantize.columns[1:] # skip subject_id, only biome names
         # cache the subject_id column to add back to a dequantized matrix
         self.subject_id_column = to_quantize.subject_id
+        &#34;&#34;&#34;&#34;&#34;&#34;
+
 
         quantized = pd.DataFrame() # return df
         for col in self.column_names:
@@ -411,7 +459,7 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
 
         # sort the columns by name in a natural order
 
-        quantized = quantized.reindex(sorted(quantized.columns, key=natural_keys),
+        quantized = quantized.reindex(sorted(quantized.columns, key=_natural_keys),
         axis=1)
         quantized.insert(0, &#39;subject_id&#39;, to_quantize.subject_id)
         return quantized
@@ -570,6 +618,33 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
         ret = pd.concat(dataframes)
         return ret</code></pre>
 </details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="qbiome.quantizer.Quantizer.column_names"><code class="name">var <span class="ident">column_names</span></code></dt>
+<dd>
+<div class="desc"><p>a list of columns in the format {biome}_{week}</p></div>
+</dd>
+<dt id="qbiome.quantizer.Quantizer.labels"><code class="name">var <span class="ident">labels</span></code></dt>
+<dd>
+<div class="desc"><p>ex. {A: 0, B: 1, &hellip;}</p></div>
+</dd>
+<dt id="qbiome.quantizer.Quantizer.num_levels"><code class="name">var <span class="ident">num_levels</span></code></dt>
+<dd>
+<div class="desc"><p>number of quantization levels</p></div>
+</dd>
+<dt id="qbiome.quantizer.Quantizer.random_forest_dict"><code class="name">var <span class="ident">random_forest_dict</span></code></dt>
+<dd>
+<div class="desc"><p>key-value pairs {biome_name: sklearn.ensemble.RandomForestRegressor}</p></div>
+</dd>
+<dt id="qbiome.quantizer.Quantizer.subject_id_column"><code class="name">var <span class="ident">subject_id_column</span></code></dt>
+<dd>
+<div class="desc"><p>cache this column to add back to the label matrix with <code>self.add_meta_to_matrix</code></p></div>
+</dd>
+<dt id="qbiome.quantizer.Quantizer.variable_bin_map"><code class="name">var <span class="ident">variable_bin_map</span></code></dt>
+<dd>
+<div class="desc"><p>key-value pairs {biome_name: quantization map}</p></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="qbiome.quantizer.Quantizer.add_meta_to_matrix"><code class="name flex">
@@ -798,15 +873,26 @@ returns (feature_names, matrix)</p></div>
 <span>def <span class="ident">load_quantizer_states</span></span>(<span>self, in_fname)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Load in <code>self.column_names, self.variable_bin_map, self.random_forest_dict</code> from file</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>in_fname</code></strong> :&ensp;<code>str</code></dt>
+<dd>input file name</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def load_quantizer_states(self, in_fname):
+    &#34;&#34;&#34;Load in `self.column_names, self.variable_bin_map, self.random_forest_dict` from file
+
+    Args:
+        in_fname (str): input file name
+    &#34;&#34;&#34;
     with open(in_fname, &#39;rb&#39;) as f:
         states = pickle.load(f)
     self.column_names = states[&#39;column_names&#39;]
+    self.subject_id_column = states[&#39;subject_id_column&#39;]
     self.variable_bin_map = states[&#39;variable_bin_map&#39;]
     self.random_forest_dict = states[&#39;random_forest_dict&#39;]</code></pre>
 </details>
@@ -840,28 +926,141 @@ returns (feature_names, matrix)</p></div>
 <span>def <span class="ident">quantize_df</span></span>(<span>self, data)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>this is used to fill in the things we load
-self.column_names, self.variable_bin_map, self.random_forest_dict
-must have data in self.column_names, self.variable_bin_map, self.random_forest_dict
-before calling any of the dequantization methods</p>
-<p>data: should be in melted format, produced by DataFormatter.load_data
-first two columns are sample_id and subject_id</p>
-<p>returns a pandas df</p></div>
+<div class="desc"><p>This function must be called before calling any of the dequantization procedures. It populates <code>self.column_names, self.subject_id_column, self.variable_bin_map</code></p>
+<p>input data format, produced by DataFormatter.load_data:</p>
+<table>
+<thead>
+<tr>
+<th align="left">sample_id</th>
+<th align="right">subject_id</th>
+<th align="left">variable</th>
+<th align="right">week</th>
+<th align="right">value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Actinobacteriota</td>
+<td align="right">27</td>
+<td align="right">0.36665</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Bacteroidota</td>
+<td align="right">27</td>
+<td align="right">0.507248</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Campilobacterota</td>
+<td align="right">27</td>
+<td align="right">0.002032</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Desulfobacterota</td>
+<td align="right">27</td>
+<td align="right">0.005058</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Firmicutes</td>
+<td align="right">27</td>
+<td align="right">0.057767</td>
+</tr>
+</tbody>
+</table>
+<p>output data format:</p>
+<table>
+<thead>
+<tr>
+<th align="right">subject_id</th>
+<th align="right">Acidobacteriota_35</th>
+<th align="left">Actinobacteriota_1</th>
+<th align="right">Actinobacteriota_2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="left">A</td>
+<td align="right">nan</td>
+</tr>
+<tr>
+<td align="right">10</td>
+<td align="right">nan</td>
+<td align="left">A</td>
+<td align="right">nan</td>
+</tr>
+<tr>
+<td align="right">11</td>
+<td align="right">nan</td>
+<td align="left">A</td>
+<td align="right">nan</td>
+</tr>
+<tr>
+<td align="right">12</td>
+<td align="right">nan</td>
+<td align="left">D</td>
+<td align="right">nan</td>
+</tr>
+<tr>
+<td align="right">14</td>
+<td align="right">nan</td>
+<td align="left">A</td>
+<td align="right">nan</td>
+</tr>
+</tbody>
+</table>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>see format above</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>see format above</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def quantize_df(self, data):
-    &#34;&#34;&#34;
-    this is used to fill in the things we load
-    self.column_names, self.variable_bin_map, self.random_forest_dict
-    must have data in self.column_names, self.variable_bin_map, self.random_forest_dict
-    before calling any of the dequantization methods
+    &#34;&#34;&#34;This function must be called before calling any of the dequantization procedures. It populates `self.column_names, self.subject_id_column, self.variable_bin_map`
 
-    data: should be in melted format, produced by DataFormatter.load_data
-    first two columns are sample_id and subject_id
+    input data format, produced by DataFormatter.load_data:
 
-    returns a pandas df
+    | sample_id       |   subject_id | variable         |   week |    value |
+    |:----------------|-------------:|:-----------------|-------:|---------:|
+    | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+    | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+    | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+    | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+    | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
+
+    output data format:
+
+    |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+    |-------------:|---------------------:|:---------------------|---------------------:|
+    |            1 |                  nan | A                    |                  nan |
+    |           10 |                  nan | A                    |                  nan |
+    |           11 |                  nan | A                    |                  nan |
+    |           12 |                  nan | D                    |                  nan |
+    |           14 |                  nan | A                    |                  nan |
+
+    Args:
+        data (pandas.DataFrame): see format above
+
+    Returns:
+        pandas.DataFrame: see format above
     &#34;&#34;&#34;
     # some hacky intermediate format, so this probably shouldn&#39;t go into DataFormatter
     melted = pd.concat([
@@ -875,6 +1074,8 @@ first two columns are sample_id and subject_id</p>
     self.column_names = to_quantize.columns[1:] # skip subject_id, only biome names
     # cache the subject_id column to add back to a dequantized matrix
     self.subject_id_column = to_quantize.subject_id
+    &#34;&#34;&#34;&#34;&#34;&#34;
+
 
     quantized = pd.DataFrame() # return df
     for col in self.column_names:
@@ -885,7 +1086,7 @@ first two columns are sample_id and subject_id</p>
 
     # sort the columns by name in a natural order
 
-    quantized = quantized.reindex(sorted(quantized.columns, key=natural_keys),
+    quantized = quantized.reindex(sorted(quantized.columns, key=_natural_keys),
     axis=1)
     quantized.insert(0, &#39;subject_id&#39;, to_quantize.subject_id)
     return quantized</code></pre>
@@ -914,17 +1115,25 @@ should be the inverse of dequantize_label</p></div>
 <span>def <span class="ident">save_quantizer_states</span></span>(<span>self, out_fname)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>save self.column_names, self.variable_bin_map and self.random_forest_dict</p></div>
+<div class="desc"><p>Save <code>self.column_names, self.subject_id_column, self.variable_bin_map, self.random_forest_dict</code>. Call this after calling <code>self.quantize_df</code></p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>out_fname</code></strong> :&ensp;<code>str</code></dt>
+<dd>output file name</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def save_quantizer_states(self, out_fname):
-    &#34;&#34;&#34;
-    save self.column_names, self.variable_bin_map and self.random_forest_dict
+    &#34;&#34;&#34;Save `self.column_names, self.subject_id_column, self.variable_bin_map, self.random_forest_dict`. Call this after calling `self.quantize_df`
+
+    Args:
+        out_fname (str): output file name
     &#34;&#34;&#34;
     states = {
         &#39;column_names&#39;: self.column_names,
+        &#39;subject_id_column&#39;: self.subject_id_column,
         &#39;variable_bin_map&#39;: self.variable_bin_map,
         &#39;random_forest_dict&#39;: self.random_forest_dict
     }
@@ -948,12 +1157,6 @@ should be the inverse of dequantize_label</p></div>
 <li><code><a title="qbiome" href="index.html">qbiome</a></code></li>
 </ul>
 </li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="qbiome.quantizer.atof" href="#qbiome.quantizer.atof">atof</a></code></li>
-<li><code><a title="qbiome.quantizer.natural_keys" href="#qbiome.quantizer.natural_keys">natural_keys</a></code></li>
-</ul>
-</li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
@@ -961,6 +1164,7 @@ should be the inverse of dequantize_label</p></div>
 <ul class="">
 <li><code><a title="qbiome.quantizer.Quantizer.add_meta_to_matrix" href="#qbiome.quantizer.Quantizer.add_meta_to_matrix">add_meta_to_matrix</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.apply_random_forest_regressor" href="#qbiome.quantizer.Quantizer.apply_random_forest_regressor">apply_random_forest_regressor</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.column_names" href="#qbiome.quantizer.Quantizer.column_names">column_names</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.compute_average_df" href="#qbiome.quantizer.Quantizer.compute_average_df">compute_average_df</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.dequantize_label" href="#qbiome.quantizer.Quantizer.dequantize_label">dequantize_label</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.dequantize_sequence" href="#qbiome.quantizer.Quantizer.dequantize_sequence">dequantize_sequence</a></code></li>
@@ -968,11 +1172,16 @@ should be the inverse of dequantize_label</p></div>
 <li><code><a title="qbiome.quantizer.Quantizer.fit_random_forest" href="#qbiome.quantizer.Quantizer.fit_random_forest">fit_random_forest</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.get_bin_array_of_index" href="#qbiome.quantizer.Quantizer.get_bin_array_of_index">get_bin_array_of_index</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.get_qnet_inputs" href="#qbiome.quantizer.Quantizer.get_qnet_inputs">get_qnet_inputs</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.labels" href="#qbiome.quantizer.Quantizer.labels">labels</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.load_quantizer_states" href="#qbiome.quantizer.Quantizer.load_quantizer_states">load_quantizer_states</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.melt_into_plot_format" href="#qbiome.quantizer.Quantizer.melt_into_plot_format">melt_into_plot_format</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.num_levels" href="#qbiome.quantizer.Quantizer.num_levels">num_levels</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.quantize_df" href="#qbiome.quantizer.Quantizer.quantize_df">quantize_df</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.quantize_value" href="#qbiome.quantizer.Quantizer.quantize_value">quantize_value</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.random_forest_dict" href="#qbiome.quantizer.Quantizer.random_forest_dict">random_forest_dict</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.save_quantizer_states" href="#qbiome.quantizer.Quantizer.save_quantizer_states">save_quantizer_states</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.subject_id_column" href="#qbiome.quantizer.Quantizer.subject_id_column">subject_id_column</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.variable_bin_map" href="#qbiome.quantizer.Quantizer.variable_bin_map">variable_bin_map</a></code></li>
 </ul>
 </li>
 </ul>
