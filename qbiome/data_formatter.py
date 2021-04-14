@@ -1,6 +1,8 @@
 import pandas as pd
 
 class DataFormatter:
+    """Parse raw data into usable format by the Quasinet
+    """
 
     def __init__(self):
         pass
@@ -8,14 +10,19 @@ class DataFormatter:
     def load_data(self, fpath_data, fpath_meta, taxon_name='Phylum',
     time_column_name='Age (days)', time_column_name_out='day',
     k_years=2, k_biomes=15):
-        """
-        fpath_data:
-        fpath_meta:
-        taxon: name of the taxon column, must have proper capitalization
-        time_column_name: name of the timestamp column in the meta file
-        time_column_name_out: name of the timestamp column in the data frame produced
-        k_years:
-        k_biomes:
+        """Parse and join the data CSV and the metadata CSV
+
+        Args:
+            fpath_data (str): file path for the data CSV
+            fpath_meta (str): file path for the metadata CSV
+            taxon_name (str, optional): name of the taxon column exactly as in the data CSV. Defaults to 'Phylum'.
+            time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to 'Age (days)'.
+            time_column_name_out (str, optional): [description]. Defaults to 'day'.
+            k_years (int, optional): keep timestamps up to the number of years specified. Defaults to 2.
+            k_biomes (int, optional): keep the topmost abundant biomes. Defaults to 15.
+
+        Returns:
+            pandas.DataFrame: parsed, cleaned data frame
         """
         taxa_raw = pd.read_csv(fpath_data)
         meta_raw = pd.read_csv(fpath_meta)
@@ -33,9 +40,13 @@ class DataFormatter:
         return data
 
     def pivot_into_column_format(self, data):
-        """
-        TODO: Is this useful as a standalone function or just preprocessing for melt_into_plot_format?
-        returns a df where each column is a biome
+        """[summary]
+
+        Args:
+            data ([type]): [description]
+
+        Returns:
+            [type]: [description]
         """
         # keep sample_id in here for later cohort identification
         pivoted = data.pivot_table(

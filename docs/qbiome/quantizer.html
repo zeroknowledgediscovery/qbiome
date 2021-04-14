@@ -28,6 +28,7 @@
 </summary>
 <pre><code class="python">import re
 import string
+import pickle
 import numpy as np
 import pandas as pd
 from scipy import interpolate
@@ -43,12 +44,12 @@ def atof(text):
     return retval
 
 def natural_keys(text):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     alist.sort(key=natural_keys) sorts in human order
     http://nedbatchelder.com/blog/200712/human_sorting.html
     (See Toothy&#39;s implementation in the comments)
     float regex comes from https://stackoverflow.com/a/12643073/190597
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     return [ atof(c) for c in re.split(r&#39;[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)&#39;, text) ]
 
 class Quantizer:
@@ -67,16 +68,31 @@ class Quantizer:
         self.column_names = [] # format {biome}_{week}
         self.random_forest_dict = {} # biome: RandomForestRegressor
 
-    def save(self, outfname):
-        # save self.variable_bin_map and self.random_forest_dict
-        pass
+    def save_quantizer_states(self, out_fname):
+        &#34;&#34;&#34;
+        save self.column_names, self.variable_bin_map and self.random_forest_dict
+        &#34;&#34;&#34;
+        states = {
+            &#39;column_names&#39;: self.column_names,
+            &#39;variable_bin_map&#39;: self.variable_bin_map,
+            &#39;random_forest_dict&#39;: self.random_forest_dict
+        }
+        with open(out_fname, &#39;wb&#39;) as f:
+            pickle.dump(states, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def load(self, outfname):
-        pass
+    def load_quantizer_states(self, in_fname):
+        with open(in_fname, &#39;rb&#39;) as f:
+            states = pickle.load(f)
+        self.column_names = states[&#39;column_names&#39;]
+        self.variable_bin_map = states[&#39;variable_bin_map&#39;]
+        self.random_forest_dict = states[&#39;random_forest_dict&#39;]
 
     def quantize_df(self, data):
         &#34;&#34;&#34;
-        must call quantize before calling any dequantize
+        this is used to fill in the things we load
+        self.column_names, self.variable_bin_map, self.random_forest_dict
+        must have data in self.column_names, self.variable_bin_map, self.random_forest_dict
+        before calling any of the dequantization methods
 
         data: should be in melted format, produced by DataFormatter.load_data
         first two columns are sample_id and subject_id
@@ -302,12 +318,12 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def natural_keys(text):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     alist.sort(key=natural_keys) sorts in human order
     http://nedbatchelder.com/blog/200712/human_sorting.html
     (See Toothy&#39;s implementation in the comments)
     float regex comes from https://stackoverflow.com/a/12643073/190597
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     return [ atof(c) for c in re.split(r&#39;[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)&#39;, text) ]</code></pre>
 </details>
 </dd>
@@ -342,16 +358,31 @@ float regex comes from <a href="https://stackoverflow.com/a/12643073/190597">htt
         self.column_names = [] # format {biome}_{week}
         self.random_forest_dict = {} # biome: RandomForestRegressor
 
-    def save(self, outfname):
-        # save self.variable_bin_map and self.random_forest_dict
-        pass
+    def save_quantizer_states(self, out_fname):
+        &#34;&#34;&#34;
+        save self.column_names, self.variable_bin_map and self.random_forest_dict
+        &#34;&#34;&#34;
+        states = {
+            &#39;column_names&#39;: self.column_names,
+            &#39;variable_bin_map&#39;: self.variable_bin_map,
+            &#39;random_forest_dict&#39;: self.random_forest_dict
+        }
+        with open(out_fname, &#39;wb&#39;) as f:
+            pickle.dump(states, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def load(self, outfname):
-        pass
+    def load_quantizer_states(self, in_fname):
+        with open(in_fname, &#39;rb&#39;) as f:
+            states = pickle.load(f)
+        self.column_names = states[&#39;column_names&#39;]
+        self.variable_bin_map = states[&#39;variable_bin_map&#39;]
+        self.random_forest_dict = states[&#39;random_forest_dict&#39;]
 
     def quantize_df(self, data):
         &#34;&#34;&#34;
-        must call quantize before calling any dequantize
+        this is used to fill in the things we load
+        self.column_names, self.variable_bin_map, self.random_forest_dict
+        must have data in self.column_names, self.variable_bin_map, self.random_forest_dict
+        before calling any of the dequantization methods
 
         data: should be in melted format, produced by DataFormatter.load_data
         first two columns are sample_id and subject_id
@@ -763,8 +794,8 @@ returns (feature_names, matrix)</p></div>
     return df.columns, matrix</code></pre>
 </details>
 </dd>
-<dt id="qbiome.quantizer.Quantizer.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>self, outfname)</span>
+<dt id="qbiome.quantizer.Quantizer.load_quantizer_states"><code class="name flex">
+<span>def <span class="ident">load_quantizer_states</span></span>(<span>self, in_fname)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -772,8 +803,12 @@ returns (feature_names, matrix)</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def load(self, outfname):
-    pass</code></pre>
+<pre><code class="python">def load_quantizer_states(self, in_fname):
+    with open(in_fname, &#39;rb&#39;) as f:
+        states = pickle.load(f)
+    self.column_names = states[&#39;column_names&#39;]
+    self.variable_bin_map = states[&#39;variable_bin_map&#39;]
+    self.random_forest_dict = states[&#39;random_forest_dict&#39;]</code></pre>
 </details>
 </dd>
 <dt id="qbiome.quantizer.Quantizer.melt_into_plot_format"><code class="name flex">
@@ -805,7 +840,10 @@ returns (feature_names, matrix)</p></div>
 <span>def <span class="ident">quantize_df</span></span>(<span>self, data)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>must call quantize before calling any dequantize</p>
+<div class="desc"><p>this is used to fill in the things we load
+self.column_names, self.variable_bin_map, self.random_forest_dict
+must have data in self.column_names, self.variable_bin_map, self.random_forest_dict
+before calling any of the dequantization methods</p>
 <p>data: should be in melted format, produced by DataFormatter.load_data
 first two columns are sample_id and subject_id</p>
 <p>returns a pandas df</p></div>
@@ -815,7 +853,10 @@ first two columns are sample_id and subject_id</p>
 </summary>
 <pre><code class="python">def quantize_df(self, data):
     &#34;&#34;&#34;
-    must call quantize before calling any dequantize
+    this is used to fill in the things we load
+    self.column_names, self.variable_bin_map, self.random_forest_dict
+    must have data in self.column_names, self.variable_bin_map, self.random_forest_dict
+    before calling any of the dequantization methods
 
     data: should be in melted format, produced by DataFormatter.load_data
     first two columns are sample_id and subject_id
@@ -869,18 +910,26 @@ should be the inverse of dequantize_label</p></div>
     return label</code></pre>
 </details>
 </dd>
-<dt id="qbiome.quantizer.Quantizer.save"><code class="name flex">
-<span>def <span class="ident">save</span></span>(<span>self, outfname)</span>
+<dt id="qbiome.quantizer.Quantizer.save_quantizer_states"><code class="name flex">
+<span>def <span class="ident">save_quantizer_states</span></span>(<span>self, out_fname)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>save self.column_names, self.variable_bin_map and self.random_forest_dict</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def save(self, outfname):
-    # save self.variable_bin_map and self.random_forest_dict
-    pass</code></pre>
+<pre><code class="python">def save_quantizer_states(self, out_fname):
+    &#34;&#34;&#34;
+    save self.column_names, self.variable_bin_map and self.random_forest_dict
+    &#34;&#34;&#34;
+    states = {
+        &#39;column_names&#39;: self.column_names,
+        &#39;variable_bin_map&#39;: self.variable_bin_map,
+        &#39;random_forest_dict&#39;: self.random_forest_dict
+    }
+    with open(out_fname, &#39;wb&#39;) as f:
+        pickle.dump(states, f, protocol=pickle.HIGHEST_PROTOCOL)</code></pre>
 </details>
 </dd>
 </dl>
@@ -919,11 +968,11 @@ should be the inverse of dequantize_label</p></div>
 <li><code><a title="qbiome.quantizer.Quantizer.fit_random_forest" href="#qbiome.quantizer.Quantizer.fit_random_forest">fit_random_forest</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.get_bin_array_of_index" href="#qbiome.quantizer.Quantizer.get_bin_array_of_index">get_bin_array_of_index</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.get_qnet_inputs" href="#qbiome.quantizer.Quantizer.get_qnet_inputs">get_qnet_inputs</a></code></li>
-<li><code><a title="qbiome.quantizer.Quantizer.load" href="#qbiome.quantizer.Quantizer.load">load</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.load_quantizer_states" href="#qbiome.quantizer.Quantizer.load_quantizer_states">load_quantizer_states</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.melt_into_plot_format" href="#qbiome.quantizer.Quantizer.melt_into_plot_format">melt_into_plot_format</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.quantize_df" href="#qbiome.quantizer.Quantizer.quantize_df">quantize_df</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.quantize_value" href="#qbiome.quantizer.Quantizer.quantize_value">quantize_value</a></code></li>
-<li><code><a title="qbiome.quantizer.Quantizer.save" href="#qbiome.quantizer.Quantizer.save">save</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.save_quantizer_states" href="#qbiome.quantizer.Quantizer.save_quantizer_states">save_quantizer_states</a></code></li>
 </ul>
 </li>
 </ul>

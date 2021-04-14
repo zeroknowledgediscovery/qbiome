@@ -29,6 +29,8 @@
 <pre><code class="python">import pandas as pd
 
 class DataFormatter:
+    &#34;&#34;&#34;Parse raw data into usable format by the Quasinet
+    &#34;&#34;&#34;
 
     def __init__(self):
         pass
@@ -36,14 +38,19 @@ class DataFormatter:
     def load_data(self, fpath_data, fpath_meta, taxon_name=&#39;Phylum&#39;,
     time_column_name=&#39;Age (days)&#39;, time_column_name_out=&#39;day&#39;,
     k_years=2, k_biomes=15):
-        &#34;&#34;&#34;
-        fpath_data:
-        fpath_meta:
-        taxon: name of the taxon column, must have proper capitalization
-        time_column_name: name of the timestamp column in the meta file
-        time_column_name_out: name of the timestamp column in the data frame produced
-        k_years:
-        k_biomes:
+        &#34;&#34;&#34;Parse and join the data CSV and the metadata CSV
+
+        Args:
+            fpath_data (str): file path for the data CSV
+            fpath_meta (str): file path for the metadata CSV
+            taxon_name (str, optional): name of the taxon column exactly as in the data CSV. Defaults to &#39;Phylum&#39;.
+            time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to &#39;Age (days)&#39;.
+            time_column_name_out (str, optional): [description]. Defaults to &#39;day&#39;.
+            k_years (int, optional): keep timestamps up to the number of years specified. Defaults to 2.
+            k_biomes (int, optional): keep the topmost abundant biomes. Defaults to 15.
+
+        Returns:
+            pandas.DataFrame: parsed, cleaned data frame
         &#34;&#34;&#34;
         taxa_raw = pd.read_csv(fpath_data)
         meta_raw = pd.read_csv(fpath_meta)
@@ -61,9 +68,13 @@ class DataFormatter:
         return data
 
     def pivot_into_column_format(self, data):
-        &#34;&#34;&#34;
-        TODO: Is this useful as a standalone function or just preprocessing for melt_into_plot_format?
-        returns a df where each column is a biome
+        &#34;&#34;&#34;[summary]
+
+        Args:
+            data ([type]): [description]
+
+        Returns:
+            [type]: [description]
         &#34;&#34;&#34;
         # keep sample_id in here for later cohort identification
         pivoted = data.pivot_table(
@@ -151,12 +162,14 @@ class DataFormatter:
 <span>class <span class="ident">DataFormatter</span></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Parse raw data into usable format by the Quasinet</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DataFormatter:
+    &#34;&#34;&#34;Parse raw data into usable format by the Quasinet
+    &#34;&#34;&#34;
 
     def __init__(self):
         pass
@@ -164,14 +177,19 @@ class DataFormatter:
     def load_data(self, fpath_data, fpath_meta, taxon_name=&#39;Phylum&#39;,
     time_column_name=&#39;Age (days)&#39;, time_column_name_out=&#39;day&#39;,
     k_years=2, k_biomes=15):
-        &#34;&#34;&#34;
-        fpath_data:
-        fpath_meta:
-        taxon: name of the taxon column, must have proper capitalization
-        time_column_name: name of the timestamp column in the meta file
-        time_column_name_out: name of the timestamp column in the data frame produced
-        k_years:
-        k_biomes:
+        &#34;&#34;&#34;Parse and join the data CSV and the metadata CSV
+
+        Args:
+            fpath_data (str): file path for the data CSV
+            fpath_meta (str): file path for the metadata CSV
+            taxon_name (str, optional): name of the taxon column exactly as in the data CSV. Defaults to &#39;Phylum&#39;.
+            time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to &#39;Age (days)&#39;.
+            time_column_name_out (str, optional): [description]. Defaults to &#39;day&#39;.
+            k_years (int, optional): keep timestamps up to the number of years specified. Defaults to 2.
+            k_biomes (int, optional): keep the topmost abundant biomes. Defaults to 15.
+
+        Returns:
+            pandas.DataFrame: parsed, cleaned data frame
         &#34;&#34;&#34;
         taxa_raw = pd.read_csv(fpath_data)
         meta_raw = pd.read_csv(fpath_meta)
@@ -189,9 +207,13 @@ class DataFormatter:
         return data
 
     def pivot_into_column_format(self, data):
-        &#34;&#34;&#34;
-        TODO: Is this useful as a standalone function or just preprocessing for melt_into_plot_format?
-        returns a df where each column is a biome
+        &#34;&#34;&#34;[summary]
+
+        Args:
+            data ([type]): [description]
+
+        Returns:
+            [type]: [description]
         &#34;&#34;&#34;
         # keep sample_id in here for later cohort identification
         pivoted = data.pivot_table(
@@ -271,13 +293,29 @@ class DataFormatter:
 <span>def <span class="ident">load_data</span></span>(<span>self, fpath_data, fpath_meta, taxon_name='Phylum', time_column_name='Age (days)', time_column_name_out='day', k_years=2, k_biomes=15)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>fpath_data:
-fpath_meta:
-taxon: name of the taxon column, must have proper capitalization
-time_column_name: name of the timestamp column in the meta file
-time_column_name_out: name of the timestamp column in the data frame produced
-k_years:
-k_biomes:</p></div>
+<div class="desc"><p>Parse and join the data CSV and the metadata CSV</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>fpath_data</code></strong> :&ensp;<code>str</code></dt>
+<dd>file path for the data CSV</dd>
+<dt><strong><code>fpath_meta</code></strong> :&ensp;<code>str</code></dt>
+<dd>file path for the metadata CSV</dd>
+<dt><strong><code>taxon_name</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>name of the taxon column exactly as in the data CSV. Defaults to 'Phylum'.</dd>
+<dt><strong><code>time_column_name</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>name of the timestamp column exactly as in the metadata CSV. Defaults to 'Age (days)'.</dd>
+<dt><strong><code>time_column_name_out</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>[description]. Defaults to 'day'.</dd>
+<dt><strong><code>k_years</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>keep timestamps up to the number of years specified. Defaults to 2.</dd>
+<dt><strong><code>k_biomes</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>keep the topmost abundant biomes. Defaults to 15.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>parsed, cleaned data frame</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -285,14 +323,19 @@ k_biomes:</p></div>
 <pre><code class="python">def load_data(self, fpath_data, fpath_meta, taxon_name=&#39;Phylum&#39;,
 time_column_name=&#39;Age (days)&#39;, time_column_name_out=&#39;day&#39;,
 k_years=2, k_biomes=15):
-    &#34;&#34;&#34;
-    fpath_data:
-    fpath_meta:
-    taxon: name of the taxon column, must have proper capitalization
-    time_column_name: name of the timestamp column in the meta file
-    time_column_name_out: name of the timestamp column in the data frame produced
-    k_years:
-    k_biomes:
+    &#34;&#34;&#34;Parse and join the data CSV and the metadata CSV
+
+    Args:
+        fpath_data (str): file path for the data CSV
+        fpath_meta (str): file path for the metadata CSV
+        taxon_name (str, optional): name of the taxon column exactly as in the data CSV. Defaults to &#39;Phylum&#39;.
+        time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to &#39;Age (days)&#39;.
+        time_column_name_out (str, optional): [description]. Defaults to &#39;day&#39;.
+        k_years (int, optional): keep timestamps up to the number of years specified. Defaults to 2.
+        k_biomes (int, optional): keep the topmost abundant biomes. Defaults to 15.
+
+    Returns:
+        pandas.DataFrame: parsed, cleaned data frame
     &#34;&#34;&#34;
     taxa_raw = pd.read_csv(fpath_data)
     meta_raw = pd.read_csv(fpath_meta)
@@ -328,16 +371,29 @@ k_years=2, k_biomes=15):
 <span>def <span class="ident">pivot_into_column_format</span></span>(<span>self, data)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>TODO: Is this useful as a standalone function or just preprocessing for melt_into_plot_format?
-returns a df where each column is a biome</p></div>
+<div class="desc"><p>[summary]</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>[type]</code></dt>
+<dd>[description]</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>[type]</code></dt>
+<dd>[description]</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def pivot_into_column_format(self, data):
-    &#34;&#34;&#34;
-    TODO: Is this useful as a standalone function or just preprocessing for melt_into_plot_format?
-    returns a df where each column is a biome
+    &#34;&#34;&#34;[summary]
+
+    Args:
+        data ([type]): [description]
+
+    Returns:
+        [type]: [description]
     &#34;&#34;&#34;
     # keep sample_id in here for later cohort identification
     pivoted = data.pivot_table(

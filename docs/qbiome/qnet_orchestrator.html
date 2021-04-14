@@ -39,15 +39,21 @@ class QnetOrchestrator:
         self.quantizer = quantizer
 
     def train_qnet(self, features, data, alpha, min_samples_split, out_fname=None):
+        &#34;&#34;&#34;
+        train the qnet, if out_fname is given, also saves the qnet
+        &#34;&#34;&#34;
         model = qnet.Qnet(feature_names=features, alpha=alpha,
         min_samples_split=min_samples_split, n_jobs=-1)
         model.fit(data)
         if out_fname:
-            qnet.save_qnet(model, f=out_fname, low_mem=False)
+            self.save_qnet(out_fname)
         self.model = model
 
-    def load_qnet(self, fname):
-        self.model = qnet.load_qnet(fname)
+    def load_qnet(self, in_fname):
+        self.model = qnet.load_qnet(in_fname)
+
+    def save_qnet(self, out_fname):
+        qnet.save_qnet(self.model, f=out_fname, low_mem=False)
 
     # the following functions can only be called when
     # self.model is not None
@@ -163,15 +169,21 @@ class QnetOrchestrator:
         self.quantizer = quantizer
 
     def train_qnet(self, features, data, alpha, min_samples_split, out_fname=None):
+        &#34;&#34;&#34;
+        train the qnet, if out_fname is given, also saves the qnet
+        &#34;&#34;&#34;
         model = qnet.Qnet(feature_names=features, alpha=alpha,
         min_samples_split=min_samples_split, n_jobs=-1)
         model.fit(data)
         if out_fname:
-            qnet.save_qnet(model, f=out_fname, low_mem=False)
+            self.save_qnet(out_fname)
         self.model = model
 
-    def load_qnet(self, fname):
-        self.model = qnet.load_qnet(fname)
+    def load_qnet(self, in_fname):
+        self.model = qnet.load_qnet(in_fname)
+
+    def save_qnet(self, out_fname):
+        qnet.save_qnet(self.model, f=out_fname, low_mem=False)
 
     # the following functions can only be called when
     # self.model is not None
@@ -260,7 +272,7 @@ class QnetOrchestrator:
 <h3>Methods</h3>
 <dl>
 <dt id="qbiome.qnet_orchestrator.QnetOrchestrator.load_qnet"><code class="name flex">
-<span>def <span class="ident">load_qnet</span></span>(<span>self, fname)</span>
+<span>def <span class="ident">load_qnet</span></span>(<span>self, in_fname)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -268,8 +280,8 @@ class QnetOrchestrator:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def load_qnet(self, fname):
-    self.model = qnet.load_qnet(fname)</code></pre>
+<pre><code class="python">def load_qnet(self, in_fname):
+    self.model = qnet.load_qnet(in_fname)</code></pre>
 </details>
 </dd>
 <dt id="qbiome.qnet_orchestrator.QnetOrchestrator.predict_sequence"><code class="name flex">
@@ -395,8 +407,8 @@ return a numeric prediction</p></div>
     return ret</code></pre>
 </details>
 </dd>
-<dt id="qbiome.qnet_orchestrator.QnetOrchestrator.train_qnet"><code class="name flex">
-<span>def <span class="ident">train_qnet</span></span>(<span>self, features, data, alpha, min_samples_split, out_fname=None)</span>
+<dt id="qbiome.qnet_orchestrator.QnetOrchestrator.save_qnet"><code class="name flex">
+<span>def <span class="ident">save_qnet</span></span>(<span>self, out_fname)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -404,12 +416,28 @@ return a numeric prediction</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
+<pre><code class="python">def save_qnet(self, out_fname):
+    qnet.save_qnet(self.model, f=out_fname, low_mem=False)</code></pre>
+</details>
+</dd>
+<dt id="qbiome.qnet_orchestrator.QnetOrchestrator.train_qnet"><code class="name flex">
+<span>def <span class="ident">train_qnet</span></span>(<span>self, features, data, alpha, min_samples_split, out_fname=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>train the qnet, if out_fname is given, also saves the qnet</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def train_qnet(self, features, data, alpha, min_samples_split, out_fname=None):
+    &#34;&#34;&#34;
+    train the qnet, if out_fname is given, also saves the qnet
+    &#34;&#34;&#34;
     model = qnet.Qnet(feature_names=features, alpha=alpha,
     min_samples_split=min_samples_split, n_jobs=-1)
     model.fit(data)
     if out_fname:
-        qnet.save_qnet(model, f=out_fname, low_mem=False)
+        self.save_qnet(out_fname)
     self.model = model</code></pre>
 </details>
 </dd>
@@ -439,6 +467,7 @@ return a numeric prediction</p></div>
 <li><code><a title="qbiome.qnet_orchestrator.QnetOrchestrator.predict_sequence_at_week" href="#qbiome.qnet_orchestrator.QnetOrchestrator.predict_sequence_at_week">predict_sequence_at_week</a></code></li>
 <li><code><a title="qbiome.qnet_orchestrator.QnetOrchestrator.predict_sequentially_by_week" href="#qbiome.qnet_orchestrator.QnetOrchestrator.predict_sequentially_by_week">predict_sequentially_by_week</a></code></li>
 <li><code><a title="qbiome.qnet_orchestrator.QnetOrchestrator.predict_value_given_distributions" href="#qbiome.qnet_orchestrator.QnetOrchestrator.predict_value_given_distributions">predict_value_given_distributions</a></code></li>
+<li><code><a title="qbiome.qnet_orchestrator.QnetOrchestrator.save_qnet" href="#qbiome.qnet_orchestrator.QnetOrchestrator.save_qnet">save_qnet</a></code></li>
 <li><code><a title="qbiome.qnet_orchestrator.QnetOrchestrator.train_qnet" href="#qbiome.qnet_orchestrator.QnetOrchestrator.train_qnet">train_qnet</a></code></li>
 </ul>
 </li>
