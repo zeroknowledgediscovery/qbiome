@@ -64,6 +64,18 @@ class DataFormatter:
         return pivoted
 
     def melt_into_plot_format(self, data):
+        """[summary]
+
+        |   week |   variable      |   value |
+        |-------:|----------------:|--------:|
+        |      1 | Acidobacteriota | 0.043808|
+
+        Args:
+            data ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """``
         melted = data.melt(id_vars=['sample_id', 'week'])
         return melted
 
