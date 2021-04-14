@@ -43,18 +43,29 @@ class DataFormatter:
         return data
 
     def pivot_into_column_format(self, data):
-        """[summary]
+        """Pivot the input data frame from this format:
+        | sample_id       |   subject_id | variable         |   week |    value |
+        |:----------------|-------------:|:-----------------|-------:|---------:|
+        | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+        | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+        | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+        | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+        | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
 
-        |   week |   Acidobacteriota |   Bacteroidota |
-        |-------:|------------------:|---------------:|
-        |      1 |               nan |       0.043808 |
-        |      2 |               nan |       0.000686 |
+        Into this format where each column is a biome:
+        | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
+        |:------------------|-------:|------------------:|-------------------:|---------------:|
+        | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |
+        | MBSMPL0020-6-777  |      1 |               nan |           9.8e-05  |       0.000686 |
+        | MBSMPL0020-6-1123 |      1 |               nan |           0.005603 |       0.201417 |
+        | MBSMPL0020-6-1191 |      1 |               nan |           0.002578 |       0.368164 |
+        | MBSMPL0020-6-263  |      1 |               nan |           0.004344 |       0.000381 |
 
         Args:
-            data ([type]): [description]
+            data (pandas.DataFrame): see format above
 
         Returns:
-            [type]: [description]
+            pandas.DataFrame: see format above
         """
         # keep sample_id in here for later cohort identification
         pivoted = data.pivot_table(
@@ -64,18 +75,33 @@ class DataFormatter:
         return pivoted
 
     def melt_into_plot_format(self, data):
-        """[summary]
+        """Melt the data into a format `seaborn` can plot easily
+        From format:
 
-        |   week |   variable      |   value |
-        |-------:|----------------:|--------:|
-        |      1 | Acidobacteriota | 0.043808|
+        | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
+        |:------------------|-------:|------------------:|-------------------:|---------------:|
+        | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |
+        | MBSMPL0020-6-777  |      1 |               nan |           9.8e-05  |       0.000686 |
+        | MBSMPL0020-6-1123 |      1 |               nan |           0.005603 |       0.201417 |
+        | MBSMPL0020-6-1191 |      1 |               nan |           0.002578 |       0.368164 |
+        | MBSMPL0020-6-263  |      1 |               nan |           0.004344 |       0.000381 |
+
+        Into format:
+
+        | sample_id         |   week | variable        |   value |
+        |:------------------|-------:|:----------------|--------:|
+        | MBSMPL0020-6-421  |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-777  |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-1123 |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-1191 |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-263  |      1 | Acidobacteriota |     nan |
 
         Args:
-            data ([type]): [description]
+            data (pandas.DataFrame): see format above
 
         Returns:
-            [type]: [description]
-        """``
+            pandas.DataFrame: see format above
+        """
         melted = data.melt(id_vars=['sample_id', 'week'])
         return melted
 

@@ -43,11 +43,12 @@ class DataFormatter:
         Args:
             fpath_data (str): file path for the data CSV
             fpath_meta (str): file path for the metadata CSV
-            taxon_name (str, optional): name of the taxon column exactly as in the data CSV. Defaults to &#39;Phylum&#39;.
+            taxon_name (str, optional): name of the taxon column exactly as in the data CSV.
+            Defaults to &#39;Phylum&#39;.
             time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to &#39;Age (days)&#39;.
-            time_column_name_out (str, optional): [description]. Defaults to &#39;day&#39;.
-            k_years (int, optional): keep timestamps up to the number of years specified. Defaults to 2.
-            k_biomes (int, optional): keep the topmost abundant biomes. Defaults to 15.
+            time_column_name_out (str, optional): name of the timestamp column in the return data frame. Defaults to &#39;day&#39;.
+            k_years (int, optional): in the return data frame, we keep timestamps up to the number of years specified. Defaults to 2.
+            k_biomes (int, optional): in the return data frame, we keep the k most abundant biomes. Defaults to 15.
 
         Returns:
             pandas.DataFrame: parsed, cleaned data frame
@@ -61,20 +62,38 @@ class DataFormatter:
         # depending on the unit of the timestamp in the original data,
         # it may be necessary to cut out days beyond 2 or more years
         # and to convert days to weeks
-        data = self._cut_after_k_years(data, k_years)
+        if k_years is not None:
+            data = self._cut_after_k_years(data, k_years)
         data = self._convert_days_to_weeks(data)
 
-        data = self._use_top_k_biomes(data, k_biomes)
+        if k_biomes is not None:
+            data = self._use_top_k_biomes(data, k_biomes)
         return data
 
     def pivot_into_column_format(self, data):
-        &#34;&#34;&#34;[summary]
+        &#34;&#34;&#34;Pivot the input data frame from this format:
+        | sample_id       |   subject_id | variable         |   week |    value |
+        |:----------------|-------------:|:-----------------|-------:|---------:|
+        | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+        | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+        | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+        | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+        | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
+
+        Into this format where each column is a biome:
+        | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
+        |:------------------|-------:|------------------:|-------------------:|---------------:|
+        | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |
+        | MBSMPL0020-6-777  |      1 |               nan |           9.8e-05  |       0.000686 |
+        | MBSMPL0020-6-1123 |      1 |               nan |           0.005603 |       0.201417 |
+        | MBSMPL0020-6-1191 |      1 |               nan |           0.002578 |       0.368164 |
+        | MBSMPL0020-6-263  |      1 |               nan |           0.004344 |       0.000381 |
 
         Args:
-            data ([type]): [description]
+            data (pandas.DataFrame): see format above
 
         Returns:
-            [type]: [description]
+            pandas.DataFrame: see format above
         &#34;&#34;&#34;
         # keep sample_id in here for later cohort identification
         pivoted = data.pivot_table(
@@ -84,6 +103,33 @@ class DataFormatter:
         return pivoted
 
     def melt_into_plot_format(self, data):
+        &#34;&#34;&#34;Melt the data into a format `seaborn` can plot easily
+        From format:
+
+        | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
+        |:------------------|-------:|------------------:|-------------------:|---------------:|
+        | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |
+        | MBSMPL0020-6-777  |      1 |               nan |           9.8e-05  |       0.000686 |
+        | MBSMPL0020-6-1123 |      1 |               nan |           0.005603 |       0.201417 |
+        | MBSMPL0020-6-1191 |      1 |               nan |           0.002578 |       0.368164 |
+        | MBSMPL0020-6-263  |      1 |               nan |           0.004344 |       0.000381 |
+
+        Into format:
+
+        | sample_id         |   week | variable        |   value |
+        |:------------------|-------:|:----------------|--------:|
+        | MBSMPL0020-6-421  |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-777  |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-1123 |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-1191 |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-263  |      1 | Acidobacteriota |     nan |
+
+        Args:
+            data (pandas.DataFrame): see format above
+
+        Returns:
+            pandas.DataFrame: see format above
+        &#34;&#34;&#34;
         melted = data.melt(id_vars=[&#39;sample_id&#39;, &#39;week&#39;])
         return melted
 
@@ -182,11 +228,12 @@ class DataFormatter:
         Args:
             fpath_data (str): file path for the data CSV
             fpath_meta (str): file path for the metadata CSV
-            taxon_name (str, optional): name of the taxon column exactly as in the data CSV. Defaults to &#39;Phylum&#39;.
+            taxon_name (str, optional): name of the taxon column exactly as in the data CSV.
+            Defaults to &#39;Phylum&#39;.
             time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to &#39;Age (days)&#39;.
-            time_column_name_out (str, optional): [description]. Defaults to &#39;day&#39;.
-            k_years (int, optional): keep timestamps up to the number of years specified. Defaults to 2.
-            k_biomes (int, optional): keep the topmost abundant biomes. Defaults to 15.
+            time_column_name_out (str, optional): name of the timestamp column in the return data frame. Defaults to &#39;day&#39;.
+            k_years (int, optional): in the return data frame, we keep timestamps up to the number of years specified. Defaults to 2.
+            k_biomes (int, optional): in the return data frame, we keep the k most abundant biomes. Defaults to 15.
 
         Returns:
             pandas.DataFrame: parsed, cleaned data frame
@@ -200,20 +247,38 @@ class DataFormatter:
         # depending on the unit of the timestamp in the original data,
         # it may be necessary to cut out days beyond 2 or more years
         # and to convert days to weeks
-        data = self._cut_after_k_years(data, k_years)
+        if k_years is not None:
+            data = self._cut_after_k_years(data, k_years)
         data = self._convert_days_to_weeks(data)
 
-        data = self._use_top_k_biomes(data, k_biomes)
+        if k_biomes is not None:
+            data = self._use_top_k_biomes(data, k_biomes)
         return data
 
     def pivot_into_column_format(self, data):
-        &#34;&#34;&#34;[summary]
+        &#34;&#34;&#34;Pivot the input data frame from this format:
+        | sample_id       |   subject_id | variable         |   week |    value |
+        |:----------------|-------------:|:-----------------|-------:|---------:|
+        | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+        | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+        | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+        | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+        | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
+
+        Into this format where each column is a biome:
+        | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
+        |:------------------|-------:|------------------:|-------------------:|---------------:|
+        | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |
+        | MBSMPL0020-6-777  |      1 |               nan |           9.8e-05  |       0.000686 |
+        | MBSMPL0020-6-1123 |      1 |               nan |           0.005603 |       0.201417 |
+        | MBSMPL0020-6-1191 |      1 |               nan |           0.002578 |       0.368164 |
+        | MBSMPL0020-6-263  |      1 |               nan |           0.004344 |       0.000381 |
 
         Args:
-            data ([type]): [description]
+            data (pandas.DataFrame): see format above
 
         Returns:
-            [type]: [description]
+            pandas.DataFrame: see format above
         &#34;&#34;&#34;
         # keep sample_id in here for later cohort identification
         pivoted = data.pivot_table(
@@ -223,6 +288,33 @@ class DataFormatter:
         return pivoted
 
     def melt_into_plot_format(self, data):
+        &#34;&#34;&#34;Melt the data into a format `seaborn` can plot easily
+        From format:
+
+        | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
+        |:------------------|-------:|------------------:|-------------------:|---------------:|
+        | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |
+        | MBSMPL0020-6-777  |      1 |               nan |           9.8e-05  |       0.000686 |
+        | MBSMPL0020-6-1123 |      1 |               nan |           0.005603 |       0.201417 |
+        | MBSMPL0020-6-1191 |      1 |               nan |           0.002578 |       0.368164 |
+        | MBSMPL0020-6-263  |      1 |               nan |           0.004344 |       0.000381 |
+
+        Into format:
+
+        | sample_id         |   week | variable        |   value |
+        |:------------------|-------:|:----------------|--------:|
+        | MBSMPL0020-6-421  |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-777  |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-1123 |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-1191 |      1 | Acidobacteriota |     nan |
+        | MBSMPL0020-6-263  |      1 | Acidobacteriota |     nan |
+
+        Args:
+            data (pandas.DataFrame): see format above
+
+        Returns:
+            pandas.DataFrame: see format above
+        &#34;&#34;&#34;
         melted = data.melt(id_vars=[&#39;sample_id&#39;, &#39;week&#39;])
         return melted
 
@@ -301,15 +393,16 @@ class DataFormatter:
 <dt><strong><code>fpath_meta</code></strong> :&ensp;<code>str</code></dt>
 <dd>file path for the metadata CSV</dd>
 <dt><strong><code>taxon_name</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>name of the taxon column exactly as in the data CSV. Defaults to 'Phylum'.</dd>
+<dd>name of the taxon column exactly as in the data CSV.</dd>
+<dt>Defaults to 'Phylum'.</dt>
 <dt><strong><code>time_column_name</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>name of the timestamp column exactly as in the metadata CSV. Defaults to 'Age (days)'.</dd>
 <dt><strong><code>time_column_name_out</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>[description]. Defaults to 'day'.</dd>
+<dd>name of the timestamp column in the return data frame. Defaults to 'day'.</dd>
 <dt><strong><code>k_years</code></strong> :&ensp;<code>int</code>, optional</dt>
-<dd>keep timestamps up to the number of years specified. Defaults to 2.</dd>
+<dd>in the return data frame, we keep timestamps up to the number of years specified. Defaults to 2.</dd>
 <dt><strong><code>k_biomes</code></strong> :&ensp;<code>int</code>, optional</dt>
-<dd>keep the topmost abundant biomes. Defaults to 15.</dd>
+<dd>in the return data frame, we keep the k most abundant biomes. Defaults to 15.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -328,11 +421,12 @@ k_years=2, k_biomes=15):
     Args:
         fpath_data (str): file path for the data CSV
         fpath_meta (str): file path for the metadata CSV
-        taxon_name (str, optional): name of the taxon column exactly as in the data CSV. Defaults to &#39;Phylum&#39;.
+        taxon_name (str, optional): name of the taxon column exactly as in the data CSV.
+        Defaults to &#39;Phylum&#39;.
         time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to &#39;Age (days)&#39;.
-        time_column_name_out (str, optional): [description]. Defaults to &#39;day&#39;.
-        k_years (int, optional): keep timestamps up to the number of years specified. Defaults to 2.
-        k_biomes (int, optional): keep the topmost abundant biomes. Defaults to 15.
+        time_column_name_out (str, optional): name of the timestamp column in the return data frame. Defaults to &#39;day&#39;.
+        k_years (int, optional): in the return data frame, we keep timestamps up to the number of years specified. Defaults to 2.
+        k_biomes (int, optional): in the return data frame, we keep the k most abundant biomes. Defaults to 15.
 
     Returns:
         pandas.DataFrame: parsed, cleaned data frame
@@ -346,10 +440,12 @@ k_years=2, k_biomes=15):
     # depending on the unit of the timestamp in the original data,
     # it may be necessary to cut out days beyond 2 or more years
     # and to convert days to weeks
-    data = self._cut_after_k_years(data, k_years)
+    if k_years is not None:
+        data = self._cut_after_k_years(data, k_years)
     data = self._convert_days_to_weeks(data)
 
-    data = self._use_top_k_biomes(data, k_biomes)
+    if k_biomes is not None:
+        data = self._use_top_k_biomes(data, k_biomes)
     return data</code></pre>
 </details>
 </dd>
@@ -357,12 +453,141 @@ k_years=2, k_biomes=15):
 <span>def <span class="ident">melt_into_plot_format</span></span>(<span>self, data)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Melt the data into a format <code>seaborn</code> can plot easily
+From format:</p>
+<table>
+<thead>
+<tr>
+<th align="left">sample_id</th>
+<th align="right">week</th>
+<th align="right">Acidobacteriota</th>
+<th align="right">Actinobacteriota</th>
+<th align="right">Bacteroidota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">MBSMPL0020-6-421</td>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="right">0.011904</td>
+<td align="right">0.043808</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-777</td>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="right">9.8e-05</td>
+<td align="right">0.000686</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-1123</td>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="right">0.005603</td>
+<td align="right">0.201417</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-1191</td>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="right">0.002578</td>
+<td align="right">0.368164</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-263</td>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="right">0.004344</td>
+<td align="right">0.000381</td>
+</tr>
+</tbody>
+</table>
+<p>Into format:</p>
+<table>
+<thead>
+<tr>
+<th align="left">sample_id</th>
+<th align="right">week</th>
+<th align="left">variable</th>
+<th align="right">value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">MBSMPL0020-6-421</td>
+<td align="right">1</td>
+<td align="left">Acidobacteriota</td>
+<td align="right">nan</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-777</td>
+<td align="right">1</td>
+<td align="left">Acidobacteriota</td>
+<td align="right">nan</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-1123</td>
+<td align="right">1</td>
+<td align="left">Acidobacteriota</td>
+<td align="right">nan</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-1191</td>
+<td align="right">1</td>
+<td align="left">Acidobacteriota</td>
+<td align="right">nan</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-263</td>
+<td align="right">1</td>
+<td align="left">Acidobacteriota</td>
+<td align="right">nan</td>
+</tr>
+</tbody>
+</table>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>see format above</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>see format above</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def melt_into_plot_format(self, data):
+    &#34;&#34;&#34;Melt the data into a format `seaborn` can plot easily
+    From format:
+
+    | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
+    |:------------------|-------:|------------------:|-------------------:|---------------:|
+    | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |
+    | MBSMPL0020-6-777  |      1 |               nan |           9.8e-05  |       0.000686 |
+    | MBSMPL0020-6-1123 |      1 |               nan |           0.005603 |       0.201417 |
+    | MBSMPL0020-6-1191 |      1 |               nan |           0.002578 |       0.368164 |
+    | MBSMPL0020-6-263  |      1 |               nan |           0.004344 |       0.000381 |
+
+    Into format:
+
+    | sample_id         |   week | variable        |   value |
+    |:------------------|-------:|:----------------|--------:|
+    | MBSMPL0020-6-421  |      1 | Acidobacteriota |     nan |
+    | MBSMPL0020-6-777  |      1 | Acidobacteriota |     nan |
+    | MBSMPL0020-6-1123 |      1 | Acidobacteriota |     nan |
+    | MBSMPL0020-6-1191 |      1 | Acidobacteriota |     nan |
+    | MBSMPL0020-6-263  |      1 | Acidobacteriota |     nan |
+
+    Args:
+        data (pandas.DataFrame): see format above
+
+    Returns:
+        pandas.DataFrame: see format above
+    &#34;&#34;&#34;
     melted = data.melt(id_vars=[&#39;sample_id&#39;, &#39;week&#39;])
     return melted</code></pre>
 </details>
@@ -371,29 +596,107 @@ k_years=2, k_biomes=15):
 <span>def <span class="ident">pivot_into_column_format</span></span>(<span>self, data)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>[summary]</p>
+<div class="desc"><p>Pivot the input data frame from this format:
+| sample_id
+|
+subject_id | variable
+|
+week |
+value |
+|:----------------|-------------:|:-----------------|-------:|---------:|
+| MBSMPL0020-6-10 |
+1 | Actinobacteriota |
+27 | 0.36665
+|
+| MBSMPL0020-6-10 |
+1 | Bacteroidota
+|
+27 | 0.507248 |
+| MBSMPL0020-6-10 |
+1 | Campilobacterota |
+27 | 0.002032 |
+| MBSMPL0020-6-10 |
+1 | Desulfobacterota |
+27 | 0.005058 |
+| MBSMPL0020-6-10 |
+1 | Firmicutes
+|
+27 | 0.057767 |</p>
+<p>Into this format where each column is a biome:
+| sample_id
+|
+week |
+Acidobacteriota |
+Actinobacteriota |
+Bacteroidota |
+|:------------------|-------:|------------------:|-------------------:|---------------:|
+| MBSMPL0020-6-421
+|
+1 |
+nan |
+0.011904 |
+0.043808 |
+| MBSMPL0020-6-777
+|
+1 |
+nan |
+9.8e-05
+|
+0.000686 |
+| MBSMPL0020-6-1123 |
+1 |
+nan |
+0.005603 |
+0.201417 |
+| MBSMPL0020-6-1191 |
+1 |
+nan |
+0.002578 |
+0.368164 |
+| MBSMPL0020-6-263
+|
+1 |
+nan |
+0.004344 |
+0.000381 |</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>data</code></strong> :&ensp;<code>[type]</code></dt>
-<dd>[description]</dd>
+<dt><strong><code>data</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>see format above</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt><code>[type]</code></dt>
-<dd>[description]</dd>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>see format above</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def pivot_into_column_format(self, data):
-    &#34;&#34;&#34;[summary]
+    &#34;&#34;&#34;Pivot the input data frame from this format:
+    | sample_id       |   subject_id | variable         |   week |    value |
+    |:----------------|-------------:|:-----------------|-------:|---------:|
+    | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+    | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+    | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+    | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+    | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
+
+    Into this format where each column is a biome:
+    | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
+    |:------------------|-------:|------------------:|-------------------:|---------------:|
+    | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |
+    | MBSMPL0020-6-777  |      1 |               nan |           9.8e-05  |       0.000686 |
+    | MBSMPL0020-6-1123 |      1 |               nan |           0.005603 |       0.201417 |
+    | MBSMPL0020-6-1191 |      1 |               nan |           0.002578 |       0.368164 |
+    | MBSMPL0020-6-263  |      1 |               nan |           0.004344 |       0.000381 |
 
     Args:
-        data ([type]): [description]
+        data (pandas.DataFrame): see format above
 
     Returns:
-        [type]: [description]
+        pandas.DataFrame: see format above
     &#34;&#34;&#34;
     # keep sample_id in here for later cohort identification
     pivoted = data.pivot_table(
