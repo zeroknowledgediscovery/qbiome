@@ -8,44 +8,61 @@ from sklearn.ensemble import RandomForestRegressor
 
 # helper functions for sorting
 # https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
-def atof(text):
+def _atof(text):
     try:
         retval = float(text)
     except ValueError:
         retval = text
     return retval
 
-def natural_keys(text):
+def _natural_keys(text):
     """
-    alist.sort(key=natural_keys) sorts in human order
+    alist.sort(key=_natural_keys) sorts in human order
     http://nedbatchelder.com/blog/200712/human_sorting.html
     (See Toothy's implementation in the comments)
     float regex comes from https://stackoverflow.com/a/12643073/190597
     """
-    return [ atof(c) for c in re.split(r'[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)', text) ]
+    return [ _atof(c) for c in re.split(r'[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)', text) ]
 
 class Quantizer:
-
-    # TODO:
-    # in the case where the conversion distortion from quantization-dequantization
-    # is high, train models to minimize the distortion
+    """Handles quantization and dequantization of data
+    """
 
     def __init__(self, num_levels=5):
+        """Initalization
+
+        Args:
+            num_levels (int, optional): Number of quantization levels. Defaults to 5.
+        """
         # use tuple for immutability
         self.num_levels = num_levels
+        """number of quantization levels"""
 
         labels = tuple(string.ascii_uppercase[:num_levels])
         self.labels = {label: idx for idx, label in enumerate(labels)}
+        """ex. {A: 0, B: 1, ...}"""
+
         self.variable_bin_map = {}
-        self.column_names = [] # format {biome}_{week}
-        self.random_forest_dict = {} # biome: RandomForestRegressor
+        """key-value pairs {biome_name: quantization map}"""
+
+        self.column_names = None
+        """a list of columns in the format {biome}_{week}"""
+
+        self.subject_id_column = None
+        """cache this column to add back to the label matrix with `self.add_meta_to_matrix`"""
+
+        self.random_forest_dict = {}
+        """key-value pairs {biome_name: sklearn.ensemble.RandomForestRegressor}"""
 
     def save_quantizer_states(self, out_fname):
-        """
-        save self.column_names, self.variable_bin_map and self.random_forest_dict
+        """Save `self.column_names, self.subject_id_column, self.variable_bin_map, self.random_forest_dict`. Call this after calling `self.quantize_df`
+
+        Args:
+            out_fname (str): output file name
         """
         states = {
             'column_names': self.column_names,
+            'subject_id_column': self.subject_id_column,
             'variable_bin_map': self.variable_bin_map,
             'random_forest_dict': self.random_forest_dict
         }
@@ -53,23 +70,46 @@ class Quantizer:
             pickle.dump(states, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     def load_quantizer_states(self, in_fname):
+        """Load in `self.column_names, self.variable_bin_map, self.random_forest_dict` from file
+
+        Args:
+            in_fname (str): input file name
+        """
         with open(in_fname, 'rb') as f:
             states = pickle.load(f)
         self.column_names = states['column_names']
+        self.subject_id_column = states['subject_id_column']
         self.variable_bin_map = states['variable_bin_map']
         self.random_forest_dict = states['random_forest_dict']
 
     def quantize_df(self, data):
-        """
-        this is used to fill in the things we load
-        self.column_names, self.variable_bin_map, self.random_forest_dict
-        must have data in self.column_names, self.variable_bin_map, self.random_forest_dict
-        before calling any of the dequantization methods
+        """This function must be called before calling any of the dequantization procedures. It populates `self.column_names, self.subject_id_column, self.variable_bin_map`
 
-        data: should be in melted format, produced by DataFormatter.load_data
-        first two columns are sample_id and subject_id
+        input data format, produced by DataFormatter.load_data:
 
-        returns a pandas df
+        | sample_id       |   subject_id | variable         |   week |    value |
+        |:----------------|-------------:|:-----------------|-------:|---------:|
+        | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+        | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+        | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+        | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+        | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
+
+        output data format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | A                    |                  nan |
+        |           10 |                  nan | A                    |                  nan |
+        |           11 |                  nan | A                    |                  nan |
+        |           12 |                  nan | D                    |                  nan |
+        |           14 |                  nan | A                    |                  nan |
+
+        Args:
+            data (pandas.DataFrame): see format above
+
+        Returns:
+            pandas.DataFrame: see format above
         """
         # some hacky intermediate format, so this probably shouldn't go into DataFormatter
         melted = pd.concat([
@@ -83,6 +123,8 @@ class Quantizer:
         self.column_names = to_quantize.columns[1:] # skip subject_id, only biome names
         # cache the subject_id column to add back to a dequantized matrix
         self.subject_id_column = to_quantize.subject_id
+        """"""
+
 
         quantized = pd.DataFrame() # return df
         for col in self.column_names:
@@ -93,7 +135,7 @@ class Quantizer:
 
         # sort the columns by name in a natural order
 
-        quantized = quantized.reindex(sorted(quantized.columns, key=natural_keys),
+        quantized = quantized.reindex(sorted(quantized.columns, key=_natural_keys),
         axis=1)
         quantized.insert(0, 'subject_id', to_quantize.subject_id)
         return quantized
