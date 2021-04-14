@@ -44,6 +44,7 @@ class DataFormatter:
 
     def pivot_into_column_format(self, data):
         """Pivot the input data frame from this format:
+
         | sample_id       |   subject_id | variable         |   week |    value |
         |:----------------|-------------:|:-----------------|-------:|---------:|
         | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
@@ -53,6 +54,7 @@ class DataFormatter:
         | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
 
         Into this format where each column is a biome:
+
         | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
         |:------------------|-------:|------------------:|-------------------:|---------------:|
         | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |

@@ -72,6 +72,7 @@ class DataFormatter:
 
     def pivot_into_column_format(self, data):
         &#34;&#34;&#34;Pivot the input data frame from this format:
+
         | sample_id       |   subject_id | variable         |   week |    value |
         |:----------------|-------------:|:-----------------|-------:|---------:|
         | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
@@ -81,6 +82,7 @@ class DataFormatter:
         | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
 
         Into this format where each column is a biome:
+
         | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
         |:------------------|-------:|------------------:|-------------------:|---------------:|
         | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |
@@ -257,6 +259,7 @@ class DataFormatter:
 
     def pivot_into_column_format(self, data):
         &#34;&#34;&#34;Pivot the input data frame from this format:
+
         | sample_id       |   subject_id | variable         |   week |    value |
         |:----------------|-------------:|:-----------------|-------:|---------:|
         | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
@@ -266,6 +269,7 @@ class DataFormatter:
         | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
 
         Into this format where each column is a biome:
+
         | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
         |:------------------|-------:|------------------:|-------------------:|---------------:|
         | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |
@@ -596,69 +600,104 @@ From format:</p>
 <span>def <span class="ident">pivot_into_column_format</span></span>(<span>self, data)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Pivot the input data frame from this format:
-| sample_id
-|
-subject_id | variable
-|
-week |
-value |
-|:----------------|-------------:|:-----------------|-------:|---------:|
-| MBSMPL0020-6-10 |
-1 | Actinobacteriota |
-27 | 0.36665
-|
-| MBSMPL0020-6-10 |
-1 | Bacteroidota
-|
-27 | 0.507248 |
-| MBSMPL0020-6-10 |
-1 | Campilobacterota |
-27 | 0.002032 |
-| MBSMPL0020-6-10 |
-1 | Desulfobacterota |
-27 | 0.005058 |
-| MBSMPL0020-6-10 |
-1 | Firmicutes
-|
-27 | 0.057767 |</p>
-<p>Into this format where each column is a biome:
-| sample_id
-|
-week |
-Acidobacteriota |
-Actinobacteriota |
-Bacteroidota |
-|:------------------|-------:|------------------:|-------------------:|---------------:|
-| MBSMPL0020-6-421
-|
-1 |
-nan |
-0.011904 |
-0.043808 |
-| MBSMPL0020-6-777
-|
-1 |
-nan |
-9.8e-05
-|
-0.000686 |
-| MBSMPL0020-6-1123 |
-1 |
-nan |
-0.005603 |
-0.201417 |
-| MBSMPL0020-6-1191 |
-1 |
-nan |
-0.002578 |
-0.368164 |
-| MBSMPL0020-6-263
-|
-1 |
-nan |
-0.004344 |
-0.000381 |</p>
+<div class="desc"><p>Pivot the input data frame from this format:</p>
+<table>
+<thead>
+<tr>
+<th align="left">sample_id</th>
+<th align="right">subject_id</th>
+<th align="left">variable</th>
+<th align="right">week</th>
+<th align="right">value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Actinobacteriota</td>
+<td align="right">27</td>
+<td align="right">0.36665</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Bacteroidota</td>
+<td align="right">27</td>
+<td align="right">0.507248</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Campilobacterota</td>
+<td align="right">27</td>
+<td align="right">0.002032</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Desulfobacterota</td>
+<td align="right">27</td>
+<td align="right">0.005058</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Firmicutes</td>
+<td align="right">27</td>
+<td align="right">0.057767</td>
+</tr>
+</tbody>
+</table>
+<p>Into this format where each column is a biome:</p>
+<table>
+<thead>
+<tr>
+<th align="left">sample_id</th>
+<th align="right">week</th>
+<th align="right">Acidobacteriota</th>
+<th align="right">Actinobacteriota</th>
+<th align="right">Bacteroidota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">MBSMPL0020-6-421</td>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="right">0.011904</td>
+<td align="right">0.043808</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-777</td>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="right">9.8e-05</td>
+<td align="right">0.000686</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-1123</td>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="right">0.005603</td>
+<td align="right">0.201417</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-1191</td>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="right">0.002578</td>
+<td align="right">0.368164</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-263</td>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="right">0.004344</td>
+<td align="right">0.000381</td>
+</tr>
+</tbody>
+</table>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>data</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
@@ -675,6 +714,7 @@ nan |
 </summary>
 <pre><code class="python">def pivot_into_column_format(self, data):
     &#34;&#34;&#34;Pivot the input data frame from this format:
+
     | sample_id       |   subject_id | variable         |   week |    value |
     |:----------------|-------------:|:-----------------|-------:|---------:|
     | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
@@ -684,6 +724,7 @@ nan |
     | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
 
     Into this format where each column is a biome:
+
     | sample_id         |   week |   Acidobacteriota |   Actinobacteriota |   Bacteroidota |
     |:------------------|-------:|------------------:|-------------------:|---------------:|
     | MBSMPL0020-6-421  |      1 |               nan |           0.011904 |       0.043808 |
