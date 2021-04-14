@@ -1,11 +1,11 @@
 ===============
-cynet
+Qbiome
 ===============
 
 .. figure:: https://img.shields.io/pypi/dm/qbiome.svg
-   :alt: cynet PyPI Downloads
+   :alt: qbiome PyPI Downloads
 .. figure:: https://img.shields.io/pypi/v/qbiome.svg
-   :alt: cynet version
+   :alt: qbiome curent version
 
 .. image:: http://zed.uchicago.edu/logo/logozed1.png
    :height: 400px
@@ -36,4 +36,4 @@ cynet
 .. image:: https://github.com/zeroknowledgediscovery/qbiome/raw/main/images/img2.png
    :scale: 50 %
    :alt: alternate text
-   :align: center
+   :align: center 
