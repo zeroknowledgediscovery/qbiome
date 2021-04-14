@@ -11,15 +11,21 @@ class QnetOrchestrator:
         self.quantizer = quantizer
 
     def train_qnet(self, features, data, alpha, min_samples_split, out_fname=None):
+        """
+        train the qnet, if out_fname is given, also saves the qnet
+        """
         model = qnet.Qnet(feature_names=features, alpha=alpha,
         min_samples_split=min_samples_split, n_jobs=-1)
         model.fit(data)
         if out_fname:
-            qnet.save_qnet(model, f=out_fname, low_mem=False)
+            self.save_qnet(out_fname)
         self.model = model
 
-    def load_qnet(self, fname):
-        self.model = qnet.load_qnet(fname)
+    def load_qnet(self, in_fname):
+        self.model = qnet.load_qnet(in_fname)
+
+    def save_qnet(self, out_fname):
+        qnet.save_qnet(self.model, f=out_fname, low_mem=False)
 
     # the following functions can only be called when
     # self.model is not None

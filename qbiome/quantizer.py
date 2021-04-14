@@ -1,5 +1,6 @@
 import re
 import string
+import pickle
 import numpy as np
 import pandas as pd
 from scipy import interpolate
@@ -39,16 +40,31 @@ class Quantizer:
         self.column_names = [] # format {biome}_{week}
         self.random_forest_dict = {} # biome: RandomForestRegressor
 
-    def save(self, outfname):
-        # save self.variable_bin_map and self.random_forest_dict
-        pass
+    def save_quantizer_states(self, out_fname):
+        """
+        save self.column_names, self.variable_bin_map and self.random_forest_dict
+        """
+        states = {
+            'column_names': self.column_names,
+            'variable_bin_map': self.variable_bin_map,
+            'random_forest_dict': self.random_forest_dict
+        }
+        with open(out_fname, 'wb') as f:
+            pickle.dump(states, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def load(self, outfname):
-        pass
+    def load_quantizer_states(self, in_fname):
+        with open(in_fname, 'rb') as f:
+            states = pickle.load(f)
+        self.column_names = states['column_names']
+        self.variable_bin_map = states['variable_bin_map']
+        self.random_forest_dict = states['random_forest_dict']
 
     def quantize_df(self, data):
         """
-        must call quantize before calling any dequantize
+        this is used to fill in the things we load
+        self.column_names, self.variable_bin_map, self.random_forest_dict
+        must have data in self.column_names, self.variable_bin_map, self.random_forest_dict
+        before calling any of the dequantization methods
 
         data: should be in melted format, produced by DataFormatter.load_data
         first two columns are sample_id and subject_id
