@@ -15,11 +15,12 @@ class DataFormatter:
         Args:
             fpath_data (str): file path for the data CSV
             fpath_meta (str): file path for the metadata CSV
-            taxon_name (str, optional): name of the taxon column exactly as in the data CSV. Defaults to 'Phylum'.
+            taxon_name (str, optional): name of the taxon column exactly as in the data CSV.
+            Defaults to 'Phylum'.
             time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to 'Age (days)'.
-            time_column_name_out (str, optional): [description]. Defaults to 'day'.
-            k_years (int, optional): keep timestamps up to the number of years specified. Defaults to 2.
-            k_biomes (int, optional): keep the topmost abundant biomes. Defaults to 15.
+            time_column_name_out (str, optional): name of the timestamp column in the return data frame. Defaults to 'day'.
+            k_years (int, optional): in the return data frame, we keep timestamps up to the number of years specified. Defaults to 2.
+            k_biomes (int, optional): in the return data frame, we keep the k most abundant biomes. Defaults to 15.
 
         Returns:
             pandas.DataFrame: parsed, cleaned data frame
@@ -33,14 +34,21 @@ class DataFormatter:
         # depending on the unit of the timestamp in the original data,
         # it may be necessary to cut out days beyond 2 or more years
         # and to convert days to weeks
-        data = self._cut_after_k_years(data, k_years)
+        if k_years is not None:
+            data = self._cut_after_k_years(data, k_years)
         data = self._convert_days_to_weeks(data)
 
-        data = self._use_top_k_biomes(data, k_biomes)
+        if k_biomes is not None:
+            data = self._use_top_k_biomes(data, k_biomes)
         return data
 
     def pivot_into_column_format(self, data):
         """[summary]
+
+        |   week |   Acidobacteriota |   Bacteroidota |
+        |-------:|------------------:|---------------:|
+        |      1 |               nan |       0.043808 |
+        |      2 |               nan |       0.000686 |
 
         Args:
             data ([type]): [description]
