@@ -31,22 +31,37 @@
 from quasinet import qnet
 
 class Forecaster:
-    &#34;&#34;&#34;
-    a sequantial, week-by-week forecaster
+    &#34;&#34;&#34;Forecast the data week by week by sequantially generating qnet predictions for the next timestamp and using the filled timestamp to update qnet predictions
     &#34;&#34;&#34;
 
     def __init__(self, qnet_orchestrator):
-        &#34;&#34;&#34;
-        qnet_orchestrator: instance of class QnetOrchestrator
+        &#34;&#34;&#34;Initialization
+
+        Args:
+            qnet_orchestrator (qbiome.QnetOrchestrator): an instance with a trained qnet model
         &#34;&#34;&#34;
         self.qnet_orchestrator = qnet_orchestrator
         self.quantizer = qnet_orchestrator.quantizer
 
     def forecast_data(self, data, start_week, end_week, n_samples=100):
-        &#34;&#34;&#34;
-        data: a label matrix
+        &#34;&#34;&#34;Forecast the data matrix from `start_week` to `end_week`
 
-        returns the forecasted df in plottable format
+        Output format:
+
+        |   subject_id | variable         |   week |    value |
+        |-------------:|:-----------------|-------:|---------:|
+        |            1 | Actinobacteriota |     27 | 0.36665  |
+        |            1 | Bacteroidota     |     27 | 0.507248 |
+        |            1 | Campilobacterota |     27 | 0.002032 |
+
+        Args:
+            data (numpy.ndarray): 2D array of label strings, produced by `self.get_qnet_inputs`
+            start_week (int): start predicting from this week
+            end_week (int): end predicting after this week
+            n_samples (int, optional): the number of times to sample from qnet predictions for one masked entry. Defaults to 100.
+
+        Returns:
+            pandas.DataFrame: see format above
         &#34;&#34;&#34;
         forecasted_matrix = np.empty(data.shape)
         for idx, seq in enumerate(data):
@@ -75,29 +90,49 @@ class Forecaster:
 <span>(</span><span>qnet_orchestrator)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>a sequantial, week-by-week forecaster</p>
-<p>qnet_orchestrator: instance of class QnetOrchestrator</p></div>
+<div class="desc"><p>Forecast the data week by week by sequantially generating qnet predictions for the next timestamp and using the filled timestamp to update qnet predictions</p>
+<p>Initialization</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>qnet_orchestrator</code></strong> :&ensp;<code>qbiome.QnetOrchestrator</code></dt>
+<dd>an instance with a trained qnet model</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Forecaster:
-    &#34;&#34;&#34;
-    a sequantial, week-by-week forecaster
+    &#34;&#34;&#34;Forecast the data week by week by sequantially generating qnet predictions for the next timestamp and using the filled timestamp to update qnet predictions
     &#34;&#34;&#34;
 
     def __init__(self, qnet_orchestrator):
-        &#34;&#34;&#34;
-        qnet_orchestrator: instance of class QnetOrchestrator
+        &#34;&#34;&#34;Initialization
+
+        Args:
+            qnet_orchestrator (qbiome.QnetOrchestrator): an instance with a trained qnet model
         &#34;&#34;&#34;
         self.qnet_orchestrator = qnet_orchestrator
         self.quantizer = qnet_orchestrator.quantizer
 
     def forecast_data(self, data, start_week, end_week, n_samples=100):
-        &#34;&#34;&#34;
-        data: a label matrix
+        &#34;&#34;&#34;Forecast the data matrix from `start_week` to `end_week`
 
-        returns the forecasted df in plottable format
+        Output format:
+
+        |   subject_id | variable         |   week |    value |
+        |-------------:|:-----------------|-------:|---------:|
+        |            1 | Actinobacteriota |     27 | 0.36665  |
+        |            1 | Bacteroidota     |     27 | 0.507248 |
+        |            1 | Campilobacterota |     27 | 0.002032 |
+
+        Args:
+            data (numpy.ndarray): 2D array of label strings, produced by `self.get_qnet_inputs`
+            start_week (int): start predicting from this week
+            end_week (int): end predicting after this week
+            n_samples (int, optional): the number of times to sample from qnet predictions for one masked entry. Defaults to 100.
+
+        Returns:
+            pandas.DataFrame: see format above
         &#34;&#34;&#34;
         forecasted_matrix = np.empty(data.shape)
         for idx, seq in enumerate(data):
@@ -117,17 +152,77 @@ class Forecaster:
 <span>def <span class="ident">forecast_data</span></span>(<span>self, data, start_week, end_week, n_samples=100)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>data: a label matrix</p>
-<p>returns the forecasted df in plottable format</p></div>
+<div class="desc"><p>Forecast the data matrix from <code>start_week</code> to <code>end_week</code></p>
+<p>Output format:</p>
+<table>
+<thead>
+<tr>
+<th align="right">subject_id</th>
+<th align="left">variable</th>
+<th align="right">week</th>
+<th align="right">value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">1</td>
+<td align="left">Actinobacteriota</td>
+<td align="right">27</td>
+<td align="right">0.36665</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="left">Bacteroidota</td>
+<td align="right">27</td>
+<td align="right">0.507248</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="left">Campilobacterota</td>
+<td align="right">27</td>
+<td align="right">0.002032</td>
+</tr>
+</tbody>
+</table>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>data</code></strong> :&ensp;<code>numpy.ndarray</code></dt>
+<dd>2D array of label strings, produced by <code>self.get_qnet_inputs</code></dd>
+<dt><strong><code>start_week</code></strong> :&ensp;<code>int</code></dt>
+<dd>start predicting from this week</dd>
+<dt><strong><code>end_week</code></strong> :&ensp;<code>int</code></dt>
+<dd>end predicting after this week</dd>
+<dt><strong><code>n_samples</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>the number of times to sample from qnet predictions for one masked entry. Defaults to 100.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>see format above</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def forecast_data(self, data, start_week, end_week, n_samples=100):
-    &#34;&#34;&#34;
-    data: a label matrix
+    &#34;&#34;&#34;Forecast the data matrix from `start_week` to `end_week`
 
-    returns the forecasted df in plottable format
+    Output format:
+
+    |   subject_id | variable         |   week |    value |
+    |-------------:|:-----------------|-------:|---------:|
+    |            1 | Actinobacteriota |     27 | 0.36665  |
+    |            1 | Bacteroidota     |     27 | 0.507248 |
+    |            1 | Campilobacterota |     27 | 0.002032 |
+
+    Args:
+        data (numpy.ndarray): 2D array of label strings, produced by `self.get_qnet_inputs`
+        start_week (int): start predicting from this week
+        end_week (int): end predicting after this week
+        n_samples (int, optional): the number of times to sample from qnet predictions for one masked entry. Defaults to 100.
+
+    Returns:
+        pandas.DataFrame: see format above
     &#34;&#34;&#34;
     forecasted_matrix = np.empty(data.shape)
     for idx, seq in enumerate(data):

@@ -275,7 +275,7 @@ class Quantizer:
             label_seq (numpy.ndarray): 1D array of label strings
 
         Returns:
-            numpy.ndarray: 1D array of float
+            numpy.ndarray: 1D array of floats
         """
         numeric_seq = np.empty(label_seq.shape)
         for idx, label in enumerate(label_seq):

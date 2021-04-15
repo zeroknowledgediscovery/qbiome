@@ -3,22 +3,37 @@ import numpy as np
 from quasinet import qnet
 
 class Forecaster:
-    """
-    a sequantial, week-by-week forecaster
+    """Forecast the data week by week by sequantially generating qnet predictions for the next timestamp and using the filled timestamp to update qnet predictions
     """
 
     def __init__(self, qnet_orchestrator):
-        """
-        qnet_orchestrator: instance of class QnetOrchestrator
+        """Initialization
+
+        Args:
+            qnet_orchestrator (qbiome.QnetOrchestrator): an instance with a trained qnet model
         """
         self.qnet_orchestrator = qnet_orchestrator
         self.quantizer = qnet_orchestrator.quantizer
 
     def forecast_data(self, data, start_week, end_week, n_samples=100):
-        """
-        data: a label matrix
+        """Forecast the data matrix from `start_week` to `end_week`
 
-        returns the forecasted df in plottable format
+        Output format:
+
+        |   subject_id | variable         |   week |    value |
+        |-------------:|:-----------------|-------:|---------:|
+        |            1 | Actinobacteriota |     27 | 0.36665  |
+        |            1 | Bacteroidota     |     27 | 0.507248 |
+        |            1 | Campilobacterota |     27 | 0.002032 |
+
+        Args:
+            data (numpy.ndarray): 2D array of label strings, produced by `self.get_qnet_inputs`
+            start_week (int): start predicting from this week
+            end_week (int): end predicting after this week
+            n_samples (int, optional): the number of times to sample from qnet predictions for one masked entry. Defaults to 100.
+
+        Returns:
+            pandas.DataFrame: see format above
         """
         forecasted_matrix = np.empty(data.shape)
         for idx, seq in enumerate(data):
