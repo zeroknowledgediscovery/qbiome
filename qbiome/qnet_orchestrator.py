@@ -26,12 +26,11 @@ class QnetOrchestrator:
             min_samples_split (int): minimum samples required for a split
             out_fname (str, optional): save file name. Defaults to None.
         """
-        model = qnet.Qnet(feature_names=features, alpha=alpha,
+        self.model = qnet.Qnet(feature_names=features, alpha=alpha,
         min_samples_split=min_samples_split, n_jobs=-1)
-        model.fit(data)
+        self.model.fit(data)
         if out_fname:
             self.save_qnet(out_fname)
-        self.model = model
 
     def load_qnet(self, in_fname):
         """Load `self.model` from file
