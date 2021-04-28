@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from quasinet import qnet
 
@@ -46,7 +47,22 @@ class QnetOrchestrator:
         Args:
             out_fname (str): save file name
         """
+        assert self.model is not None
         qnet.save_qnet(self.model, f=out_fname, low_mem=False)
+
+    def export_qnet_tree_dotfiles(self, out_dirname):
+        """Generate tree dotfiles for each feature of the model
+
+        Args:
+            out_dirname (str): the output directory, make one if doesn't exist
+        """
+        assert self.model is not None
+        if not os.path.exists(out_dirname):
+            os.mkdir(out_dirname)
+        for idx, feature_name in enumerate(self.model.feature_names):
+            qnet.export_qnet_tree(self.model, idx,
+            os.path.join(out_dirname, '{}.dot'.format(feature_name)),
+            outformat='graphviz', detailed_output=True)
 
     # the following functions can only be called when
     # self.model is not None

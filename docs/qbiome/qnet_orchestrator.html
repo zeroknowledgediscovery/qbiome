@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import numpy as np
+<pre><code class="python">import os
+import numpy as np
 from quasinet import qnet
 
 class QnetOrchestrator:
@@ -54,12 +55,11 @@ class QnetOrchestrator:
             min_samples_split (int): minimum samples required for a split
             out_fname (str, optional): save file name. Defaults to None.
         &#34;&#34;&#34;
-        model = qnet.Qnet(feature_names=features, alpha=alpha,
+        self.model = qnet.Qnet(feature_names=features, alpha=alpha,
         min_samples_split=min_samples_split, n_jobs=-1)
-        model.fit(data)
+        self.model.fit(data)
         if out_fname:
             self.save_qnet(out_fname)
-        self.model = model
 
     def load_qnet(self, in_fname):
         &#34;&#34;&#34;Load `self.model` from file
@@ -75,7 +75,22 @@ class QnetOrchestrator:
         Args:
             out_fname (str): save file name
         &#34;&#34;&#34;
+        assert self.model is not None
         qnet.save_qnet(self.model, f=out_fname, low_mem=False)
+
+    def export_qnet_tree_dotfiles(self, out_dirname):
+        &#34;&#34;&#34;Generate tree dotfiles for each feature of the model
+
+        Args:
+            out_dirname (str): the output directory, make one if doesn&#39;t exist
+        &#34;&#34;&#34;
+        assert self.model is not None
+        if not os.path.exists(out_dirname):
+            os.mkdir(out_dirname)
+        for idx, feature_name in enumerate(self.model.feature_names):
+            qnet.export_qnet_tree(self.model, idx,
+            os.path.join(out_dirname, &#39;{}.dot&#39;.format(feature_name)),
+            outformat=&#39;graphviz&#39;, detailed_output=True)
 
     # the following functions can only be called when
     # self.model is not None
@@ -233,12 +248,11 @@ class QnetOrchestrator:
             min_samples_split (int): minimum samples required for a split
             out_fname (str, optional): save file name. Defaults to None.
         &#34;&#34;&#34;
-        model = qnet.Qnet(feature_names=features, alpha=alpha,
+        self.model = qnet.Qnet(feature_names=features, alpha=alpha,
         min_samples_split=min_samples_split, n_jobs=-1)
-        model.fit(data)
+        self.model.fit(data)
         if out_fname:
             self.save_qnet(out_fname)
-        self.model = model
 
     def load_qnet(self, in_fname):
         &#34;&#34;&#34;Load `self.model` from file
@@ -254,7 +268,22 @@ class QnetOrchestrator:
         Args:
             out_fname (str): save file name
         &#34;&#34;&#34;
+        assert self.model is not None
         qnet.save_qnet(self.model, f=out_fname, low_mem=False)
+
+    def export_qnet_tree_dotfiles(self, out_dirname):
+        &#34;&#34;&#34;Generate tree dotfiles for each feature of the model
+
+        Args:
+            out_dirname (str): the output directory, make one if doesn&#39;t exist
+        &#34;&#34;&#34;
+        assert self.model is not None
+        if not os.path.exists(out_dirname):
+            os.mkdir(out_dirname)
+        for idx, feature_name in enumerate(self.model.feature_names):
+            qnet.export_qnet_tree(self.model, idx,
+            os.path.join(out_dirname, &#39;{}.dot&#39;.format(feature_name)),
+            outformat=&#39;graphviz&#39;, detailed_output=True)
 
     # the following functions can only be called when
     # self.model is not None
@@ -370,6 +399,35 @@ class QnetOrchestrator:
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="qbiome.qnet_orchestrator.QnetOrchestrator.export_qnet_tree_dotfiles"><code class="name flex">
+<span>def <span class="ident">export_qnet_tree_dotfiles</span></span>(<span>self, out_dirname)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate tree dotfiles for each feature of the model</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>out_dirname</code></strong> :&ensp;<code>str</code></dt>
+<dd>the output directory, make one if doesn't exist</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def export_qnet_tree_dotfiles(self, out_dirname):
+    &#34;&#34;&#34;Generate tree dotfiles for each feature of the model
+
+    Args:
+        out_dirname (str): the output directory, make one if doesn&#39;t exist
+    &#34;&#34;&#34;
+    assert self.model is not None
+    if not os.path.exists(out_dirname):
+        os.mkdir(out_dirname)
+    for idx, feature_name in enumerate(self.model.feature_names):
+        qnet.export_qnet_tree(self.model, idx,
+        os.path.join(out_dirname, &#39;{}.dot&#39;.format(feature_name)),
+        outformat=&#39;graphviz&#39;, detailed_output=True)</code></pre>
+</details>
+</dd>
 <dt id="qbiome.qnet_orchestrator.QnetOrchestrator.load_qnet"><code class="name flex">
 <span>def <span class="ident">load_qnet</span></span>(<span>self, in_fname)</span>
 </code></dt>
@@ -611,6 +669,7 @@ class QnetOrchestrator:
     Args:
         out_fname (str): save file name
     &#34;&#34;&#34;
+    assert self.model is not None
     qnet.save_qnet(self.model, f=out_fname, low_mem=False)</code></pre>
 </details>
 </dd>
@@ -646,12 +705,11 @@ class QnetOrchestrator:
         min_samples_split (int): minimum samples required for a split
         out_fname (str, optional): save file name. Defaults to None.
     &#34;&#34;&#34;
-    model = qnet.Qnet(feature_names=features, alpha=alpha,
+    self.model = qnet.Qnet(feature_names=features, alpha=alpha,
     min_samples_split=min_samples_split, n_jobs=-1)
-    model.fit(data)
+    self.model.fit(data)
     if out_fname:
-        self.save_qnet(out_fname)
-    self.model = model</code></pre>
+        self.save_qnet(out_fname)</code></pre>
 </details>
 </dd>
 </dl>
@@ -675,6 +733,7 @@ class QnetOrchestrator:
 <li>
 <h4><code><a title="qbiome.qnet_orchestrator.QnetOrchestrator" href="#qbiome.qnet_orchestrator.QnetOrchestrator">QnetOrchestrator</a></code></h4>
 <ul class="">
+<li><code><a title="qbiome.qnet_orchestrator.QnetOrchestrator.export_qnet_tree_dotfiles" href="#qbiome.qnet_orchestrator.QnetOrchestrator.export_qnet_tree_dotfiles">export_qnet_tree_dotfiles</a></code></li>
 <li><code><a title="qbiome.qnet_orchestrator.QnetOrchestrator.load_qnet" href="#qbiome.qnet_orchestrator.QnetOrchestrator.load_qnet">load_qnet</a></code></li>
 <li><code><a title="qbiome.qnet_orchestrator.QnetOrchestrator.model" href="#qbiome.qnet_orchestrator.QnetOrchestrator.model">model</a></code></li>
 <li><code><a title="qbiome.qnet_orchestrator.QnetOrchestrator.predict_sequence" href="#qbiome.qnet_orchestrator.QnetOrchestrator.predict_sequence">predict_sequence</a></code></li>
