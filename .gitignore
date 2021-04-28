@@ -1,6 +1,7 @@
 *.dot
 *.joblib
 *.pkl
+dotfiles
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
