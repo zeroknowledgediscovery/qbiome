@@ -159,31 +159,40 @@ class QnetOrchestrator:
             predicted[idx] = label
         return predicted
 
-    def _mask_at_week(self, seq, week):
-        """Mask out all biome observations at the specified week, write in-place
+    def _mask_at_week(self, seq, week, fill_value=''):
+        """Mask out all biome observations at the specified week
 
         Args:
             seq (numpy.ndarray): 1D array of label strings
             week (int): fill in empty strings for all biome_week column
+            fill_value (str, optional): mask value, can be empty string, None, np.nan etc. Defaults to ''.
+
+        Returns:
+            [type]: [description]
         """
+        masked = seq.copy()
         col_indices = np.where(self.model.feature_names.str.contains(str(week)))[0]
         for idx in col_indices:
-            seq[idx] = ''
+            masked[idx] = fill_value
+        return masked
 
-    def mask_sequence_at_weeks(self, seq, start_week, end_week):
+    def mask_sequence_at_weeks(self, seq, start_week, end_week, fill_value=''):
         """Mask out all biome observations between [start_week, end_week]
 
         Args:
             seq (numpy.ndarray): 1D array of label strings
             start_week (int): start masking from this week
             end_week (int): end masking after this week
+                fill_value (str, optional): mask value, can be empty string, None, np.nan etc. Defaults to ''.
 
         Returns:
             numpy.ndarray: 1D array of label strings
         """
         masked = seq.copy()
         for week in range(start_week, end_week + 1):
-            self._mask_at_week(masked, week)
+            col_indices = np.where(self.model.feature_names.str.contains(str(week)))[0]
+            for idx in col_indices:
+                masked[idx] = fill_value
         return masked
 
     def predict_sequentially_by_week(self, seq, start_week, end_week, n_samples=100):

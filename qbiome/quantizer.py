@@ -82,6 +82,45 @@ class Quantizer:
         self.variable_bin_map = states['variable_bin_map']
         self.random_forest_dict = states['random_forest_dict']
 
+    def pivot_into_quantize_format(self, data):
+        """Pivot the data into a format the quantizer can quantize
+
+        Input data format, produced by `DataFormatter.load_data`:
+
+        | sample_id       |   subject_id | variable         |   week |    value |
+        |:----------------|-------------:|:-----------------|-------:|---------:|
+        | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+        | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+        | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+        | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+        | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
+
+        Output format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | 0.36665              |                  nan |
+        |           10 |                  nan | 0.36665              |                  nan |
+        |           11 |                  nan | 0.36665              |                  nan |
+
+        Args:
+            data (pandas.DataFrame): see format above
+
+        Returns:
+            pandas.DataFrame: see format above
+        """
+        # some hacky intermediate format used by quantizer only
+        # so this probably shouldn't go into DataFormatter
+        melted = pd.concat([
+            data.subject_id,
+            data.variable + '_' + data.week.astype(str),
+            data.value
+        ], axis=1).rename(columns={0: 'variable'})
+
+        to_quantize = melted.pivot_table(
+            index='subject_id', columns='variable', dropna=False)['value'].reset_index()
+        return to_quantize
+
     def quantize_df(self, data):
         """This function must be called before calling any of the dequantization procedures. It populates `self.column_names, self.subject_id_column, self.variable_bin_map`
 
@@ -111,25 +150,23 @@ class Quantizer:
         Returns:
             pandas.DataFrame: see format above
         """
-        # some hacky intermediate format, so this probably shouldn't go into DataFormatter
-        melted = pd.concat([
-            data.subject_id,
-            data.variable + '_' + data.week.astype(str),
-            data.value
-        ], axis=1).rename(columns={0: 'variable'})
-
-        to_quantize = melted.pivot_table(
-            index='subject_id', columns='variable')['value'].reset_index()
+        to_quantize = self.pivot_into_quantize_format(data)
         self.column_names = to_quantize.columns[1:] # skip subject_id, only biome names
         # cache the subject_id column to add back to a dequantized matrix
         self.subject_id_column = to_quantize.subject_id
 
         quantized = pd.DataFrame() # return df
-        for col in self.column_names:
-            cut, bins = pd.cut(to_quantize[col], self.num_levels,
-            labels=list(self.labels.keys()), retbins=True)
-            quantized[col] = cut
-            self.variable_bin_map[col] = bins
+        if not self.variable_bin_map:
+            for col in self.column_names:
+                cut, bins = pd.cut(to_quantize[col], self.num_levels,
+                labels=list(self.labels.keys()), retbins=True)
+                quantized[col] = cut
+                self.variable_bin_map[col] = bins
+        else: # use existing bins
+            for col in self.column_names:
+                cut = pd.cut(to_quantize[col], self.variable_bin_map[col],
+                labels=list(self.labels.keys()))
+                quantized[col] = cut
 
         # sort the columns by name in a natural order
 
@@ -290,12 +327,9 @@ class Quantizer:
 
         |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
         |-------------:|---------------------:|:---------------------|---------------------:|
-        |            1 |                  nan | A                    |                  nan |
-        |           10 |                  nan | A                    |                  nan |
-        |           11 |                  nan | A                    |                  nan |
-        |           12 |                  nan | D                    |                  nan |
-        |           14 |                  nan | A                    |                  nan |
-
+        |            1 |                  nan | 0.36665              |                  nan |
+        |           10 |                  nan | 0.36665              |                  nan |
+        |           11 |                  nan | 0.36665              |                  nan |
 
         Args:
             matrix (numpy.ndarray): 2D matrix of label strings
@@ -310,7 +344,7 @@ class Quantizer:
         df = self.add_meta_to_matrix(numeric_matrix)
         return df
 
-    def add_meta_to_matrix(self, matrix):
+    def add_meta_to_matrix(self, matrix, add_subject_id=True):
         """Add back `self.subject_ud` and `self.column_names` to the data matrix to convert it into a data frame
 
         Output format:
@@ -326,12 +360,14 @@ class Quantizer:
 
         Args:
             matrix (np.ndarray): 2D matrix of either label strings or numeric values
+            add_subject_id (bool, optional): whether to add back the cached subject_id column. Defaults to True.
 
         Returns:
             pandas.DataFrame: see format above
         """
         df = pd.DataFrame(matrix, columns=self.column_names)
-        df = pd.concat([self.subject_id_column, df], axis=1)
+        if add_subject_id:
+            df = pd.concat([self.subject_id_column, df], axis=1)
         return df
 
     def melt_into_plot_format(self, data):
@@ -341,11 +377,9 @@ class Quantizer:
 
         |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
         |-------------:|---------------------:|:---------------------|---------------------:|
-        |            1 |                  nan | A                    |                  nan |
-        |           10 |                  nan | A                    |                  nan |
-        |           11 |                  nan | A                    |                  nan |
-        |           12 |                  nan | D                    |                  nan |
-        |           14 |                  nan | A                    |                  nan |
+        |            1 |                  nan | 0.36665              |                  nan |
+        |           10 |                  nan | 0.36665              |                  nan |
+        |           11 |                  nan | 0.36665              |                  nan |
 
         Output format:
 
@@ -356,7 +390,7 @@ class Quantizer:
         |            1 | Campilobacterota |     27 | 0.002032 |
 
         Args:
-            data (pandas.DataFrame): see format above
+            data (pandas.DataFrame): numeric data, see format above
 
         Returns:
             pandas.DataFrame: see format above
