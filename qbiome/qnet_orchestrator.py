@@ -1,4 +1,5 @@
 import os
+import re
 import numpy as np
 from quasinet import qnet
 
@@ -17,7 +18,7 @@ class QnetOrchestrator:
 
         self.quantizer = quantizer
 
-    def train_qnet(self, features, data, alpha, min_samples_split, out_fname=None):
+    def train_qnet(self, features, data, alpha, min_samples_split, time_column_name='week', out_fname=None):
         """Train the qnet model. If `out_fname` is present, also saves the model. The inputs `features, data` are produced by `Quantizer.get_qnet_inputs`. See [Quasinet documentations](https://zeroknowledgediscovery.github.io/quasinet/build/html/quasinet.html#module-quasinet.qnet) for the other parameters
 
         Args:
@@ -32,6 +33,20 @@ class QnetOrchestrator:
         self.model.fit(data)
         if out_fname:
             self.save_qnet(out_fname)
+
+    def get_max_timestamp(self):
+        """Return the maximum timestamp in qnet model's feature names
+
+        Returns:
+            int: max timestamp
+        """
+        assert self.model is not None
+        pattern = r'[\D|\d]+_(\d+)'
+        timestamps = [
+            int(re.findall(pattern, feature)[0]) for feature
+            in self.model.feature_names
+            ]
+        return max(timestamps)
 
     def load_qnet(self, in_fname):
         """Load `self.model` from file
@@ -144,6 +159,33 @@ class QnetOrchestrator:
             predicted[idx] = label
         return predicted
 
+    def _mask_at_week(self, seq, week):
+        """Mask out all biome observations at the specified week, write in-place
+
+        Args:
+            seq (numpy.ndarray): 1D array of label strings
+            week (int): fill in empty strings for all biome_week column
+        """
+        col_indices = np.where(self.model.feature_names.str.contains(str(week)))[0]
+        for idx in col_indices:
+            seq[idx] = ''
+
+    def mask_sequence_at_weeks(self, seq, start_week, end_week):
+        """Mask out all biome observations between [start_week, end_week]
+
+        Args:
+            seq (numpy.ndarray): 1D array of label strings
+            start_week (int): start masking from this week
+            end_week (int): end masking after this week
+
+        Returns:
+            numpy.ndarray: 1D array of label strings
+        """
+        masked = seq.copy()
+        for week in range(start_week, end_week + 1):
+            self._mask_at_week(masked, week)
+        return masked
+
     def predict_sequentially_by_week(self, seq, start_week, end_week, n_samples=100):
         """Use qnet to generate sequential, iterative prediction of the sequence from `start_week` to `end_week`. This is accomplished by masking the current week to predict, use the qnet to predict a label for this masked entry (after which the qnet can update its prediction for the label distributions), masking the next week, and repeat.
 
@@ -156,11 +198,9 @@ class QnetOrchestrator:
         Returns:
             numpy.ndarray: 1D array of floats
         """
-        masked = seq.copy()
-        for week in range(start_week, end_week + 1):
-            col_indices = np.where(self.model.feature_names.str.contains(str(week)))[0]
-            for idx in col_indices:
-                masked[idx] = ''
+        # apply mask
+        masked = self.mask_sequence_at_weeks(seq, start_week, end_week)
+
         # feed into qnet sequentially, filling one week every iteration
         for week in range(start_week, end_week + 1):
             masked = self.predict_sequence_at_week(masked, week, n_samples=n_samples)

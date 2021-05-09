@@ -15,7 +15,7 @@ class Forecaster:
         self.qnet_orchestrator = qnet_orchestrator
         self.quantizer = qnet_orchestrator.quantizer
 
-    def forecast_data(self, data, start_week, end_week, n_samples=100):
+    def forecast_data(self, data, start_week, end_week=None, n_samples=100):
         """Forecast the data matrix from `start_week` to `end_week`
 
         Output format:
@@ -35,6 +35,8 @@ class Forecaster:
         Returns:
             pandas.DataFrame: see format above
         """
+        if end_week is None:
+            end_week = self.qnet_orchestrator.get_max_timestamp()
         forecasted_matrix = np.empty(data.shape)
         for idx, seq in enumerate(data):
             forecasted_seq = self.qnet_orchestrator.predict_sequentially_by_week(
