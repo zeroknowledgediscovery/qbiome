@@ -183,6 +183,33 @@ class Quantizer:
         # cache the subject_id column to add back to a dequantized matrix
         self.subject_id_column = to_quantize.subject_id
 
+        return self._quantize_df(to_quantize)
+
+    def _quantize_df(self, to_quantize):
+        &#34;&#34;&#34;Quantize a data frame in quantizable format
+
+        Input data format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | 0.36665              |                  nan |
+        |           10 |                  nan | 0.36665              |                  nan |
+        |           11 |                  nan | 0.36665              |                  nan |
+
+        Output data format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | A                    |                  nan |
+        |           10 |                  nan | A                    |                  nan |
+        |           11 |                  nan | A                    |                  nan |
+
+        Args:
+            to_quantize (pd.DataFrame): data frame in quantizable format
+
+        Returns:
+            pandas.DataFrame: see format above
+        &#34;&#34;&#34;
         quantized = pd.DataFrame() # return df
         if not self.variable_bin_map:
             for col in self.column_names:
@@ -197,9 +224,7 @@ class Quantizer:
                 quantized[col] = cut
 
         # sort the columns by name in a natural order
-
-        quantized = quantized.reindex(sorted(quantized.columns, key=_natural_keys),
-        axis=1)
+        quantized = quantized.reindex(sorted(quantized.columns, key=_natural_keys), axis=1)
         quantized.insert(0, &#39;subject_id&#39;, to_quantize.subject_id)
         return quantized
 
@@ -217,6 +242,49 @@ class Quantizer:
         df = quantized_df.drop(columns=&#39;subject_id&#39;)
         matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
         return df.columns, matrix
+
+    def quantize_new_subject(self, subject_data, subject_id=None):
+        &#34;&#34;&#34;Construct and quantize a new subject with missing data
+
+        Input format:
+
+        |   subject_id | variable         |   week |    value |
+        |-------------:|:-----------------|-------:|---------:|
+        |            1 | Actinobacteriota |      1 | 0.36665  |
+        |            1 | Bacteroidota     |      1 | 0.507248 |
+        |            1 | Campilobacterota |      1 | 0.002032 |
+        |            1 | Desulfobacterota |      1 | 0.005058 |
+        |            1 | Firmicutes       |      1 | 0.057767 |
+
+        Output format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | A                    |                  nan |
+        |            1 |                  nan | A                    |                  nan |
+        |            1 |                  nan | A                    |                  nan |
+        |            1 |                  nan | D                    |                  nan |
+
+        Args:
+            subject_data ([type]): subject data frame with some but maybe not all the timestamps
+            subject_id (str, optional): if not None, add the subject_id as a column; if None, assume that the input has a column named subject_id. Defaults to None.
+
+        Returns:
+            pd.DataFrame: quantized subject data frame with complete timestamps, see format above
+        &#34;&#34;&#34;
+        if subject_id is None and not &#39;subject_id&#39; in subject_data.columns:
+            raise Exception(&#39;You must provide a subject_id if there is none in the input data frame&#39;)
+
+        if subject_id is not None:
+            subject_data[&#39;subject_id&#39;] = subject_id
+
+        new_subject = self.pivot_into_quantize_format(subject_data)
+        # add columns that are in self.column_names but not in pivoted as np.nan
+        for column in self.column_names:
+            if column not in new_subject.columns:
+                new_subject[column] = np.nan
+
+        return self._quantize_df(new_subject)
 
     def get_bin_array_of_index(self, idx):
         &#34;&#34;&#34;Return the `pandas.cut` bin array corresponding to the sequence index by looking up `self.variable_bin_map[self.column_names[idx]]`
@@ -629,6 +697,33 @@ class Quantizer:
         # cache the subject_id column to add back to a dequantized matrix
         self.subject_id_column = to_quantize.subject_id
 
+        return self._quantize_df(to_quantize)
+
+    def _quantize_df(self, to_quantize):
+        &#34;&#34;&#34;Quantize a data frame in quantizable format
+
+        Input data format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | 0.36665              |                  nan |
+        |           10 |                  nan | 0.36665              |                  nan |
+        |           11 |                  nan | 0.36665              |                  nan |
+
+        Output data format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | A                    |                  nan |
+        |           10 |                  nan | A                    |                  nan |
+        |           11 |                  nan | A                    |                  nan |
+
+        Args:
+            to_quantize (pd.DataFrame): data frame in quantizable format
+
+        Returns:
+            pandas.DataFrame: see format above
+        &#34;&#34;&#34;
         quantized = pd.DataFrame() # return df
         if not self.variable_bin_map:
             for col in self.column_names:
@@ -643,9 +738,7 @@ class Quantizer:
                 quantized[col] = cut
 
         # sort the columns by name in a natural order
-
-        quantized = quantized.reindex(sorted(quantized.columns, key=_natural_keys),
-        axis=1)
+        quantized = quantized.reindex(sorted(quantized.columns, key=_natural_keys), axis=1)
         quantized.insert(0, &#39;subject_id&#39;, to_quantize.subject_id)
         return quantized
 
@@ -663,6 +756,49 @@ class Quantizer:
         df = quantized_df.drop(columns=&#39;subject_id&#39;)
         matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
         return df.columns, matrix
+
+    def quantize_new_subject(self, subject_data, subject_id=None):
+        &#34;&#34;&#34;Construct and quantize a new subject with missing data
+
+        Input format:
+
+        |   subject_id | variable         |   week |    value |
+        |-------------:|:-----------------|-------:|---------:|
+        |            1 | Actinobacteriota |      1 | 0.36665  |
+        |            1 | Bacteroidota     |      1 | 0.507248 |
+        |            1 | Campilobacterota |      1 | 0.002032 |
+        |            1 | Desulfobacterota |      1 | 0.005058 |
+        |            1 | Firmicutes       |      1 | 0.057767 |
+
+        Output format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | A                    |                  nan |
+        |            1 |                  nan | A                    |                  nan |
+        |            1 |                  nan | A                    |                  nan |
+        |            1 |                  nan | D                    |                  nan |
+
+        Args:
+            subject_data ([type]): subject data frame with some but maybe not all the timestamps
+            subject_id (str, optional): if not None, add the subject_id as a column; if None, assume that the input has a column named subject_id. Defaults to None.
+
+        Returns:
+            pd.DataFrame: quantized subject data frame with complete timestamps, see format above
+        &#34;&#34;&#34;
+        if subject_id is None and not &#39;subject_id&#39; in subject_data.columns:
+            raise Exception(&#39;You must provide a subject_id if there is none in the input data frame&#39;)
+
+        if subject_id is not None:
+            subject_data[&#39;subject_id&#39;] = subject_id
+
+        new_subject = self.pivot_into_quantize_format(subject_data)
+        # add columns that are in self.column_names but not in pivoted as np.nan
+        for column in self.column_names:
+            if column not in new_subject.columns:
+                new_subject[column] = np.nan
+
+        return self._quantize_df(new_subject)
 
     def get_bin_array_of_index(self, idx):
         &#34;&#34;&#34;Return the `pandas.cut` bin array corresponding to the sequence index by looking up `self.variable_bin_map[self.column_names[idx]]`
@@ -1967,25 +2103,152 @@ value |
     # cache the subject_id column to add back to a dequantized matrix
     self.subject_id_column = to_quantize.subject_id
 
-    quantized = pd.DataFrame() # return df
-    if not self.variable_bin_map:
-        for col in self.column_names:
-            cut, bins = pd.cut(to_quantize[col], self.num_levels,
-            labels=list(self.labels.keys()), retbins=True)
-            quantized[col] = cut
-            self.variable_bin_map[col] = bins
-    else: # use existing bins
-        for col in self.column_names:
-            cut = pd.cut(to_quantize[col], self.variable_bin_map[col],
-            labels=list(self.labels.keys()))
-            quantized[col] = cut
+    return self._quantize_df(to_quantize)</code></pre>
+</details>
+</dd>
+<dt id="qbiome.quantizer.Quantizer.quantize_new_subject"><code class="name flex">
+<span>def <span class="ident">quantize_new_subject</span></span>(<span>self, subject_data, subject_id=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Construct and quantize a new subject with missing data</p>
+<p>Input format:</p>
+<table>
+<thead>
+<tr>
+<th align="right">subject_id</th>
+<th align="left">variable</th>
+<th align="right">week</th>
+<th align="right">value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">1</td>
+<td align="left">Actinobacteriota</td>
+<td align="right">1</td>
+<td align="right">0.36665</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="left">Bacteroidota</td>
+<td align="right">1</td>
+<td align="right">0.507248</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="left">Campilobacterota</td>
+<td align="right">1</td>
+<td align="right">0.002032</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="left">Desulfobacterota</td>
+<td align="right">1</td>
+<td align="right">0.005058</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="left">Firmicutes</td>
+<td align="right">1</td>
+<td align="right">0.057767</td>
+</tr>
+</tbody>
+</table>
+<p>Output format:</p>
+<table>
+<thead>
+<tr>
+<th align="right">subject_id</th>
+<th align="right">Acidobacteriota_35</th>
+<th align="left">Actinobacteriota_1</th>
+<th align="right">Actinobacteriota_2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="left">A</td>
+<td align="right">nan</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="left">A</td>
+<td align="right">nan</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="left">A</td>
+<td align="right">nan</td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="right">nan</td>
+<td align="left">D</td>
+<td align="right">nan</td>
+</tr>
+</tbody>
+</table>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>subject_data</code></strong> :&ensp;<code>[type]</code></dt>
+<dd>subject data frame with some but maybe not all the timestamps</dd>
+<dt><strong><code>subject_id</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>if not None, add the subject_id as a column; if None, assume that the input has a column named subject_id. Defaults to None.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>quantized subject data frame with complete timestamps, see format above</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def quantize_new_subject(self, subject_data, subject_id=None):
+    &#34;&#34;&#34;Construct and quantize a new subject with missing data
 
-    # sort the columns by name in a natural order
+    Input format:
 
-    quantized = quantized.reindex(sorted(quantized.columns, key=_natural_keys),
-    axis=1)
-    quantized.insert(0, &#39;subject_id&#39;, to_quantize.subject_id)
-    return quantized</code></pre>
+    |   subject_id | variable         |   week |    value |
+    |-------------:|:-----------------|-------:|---------:|
+    |            1 | Actinobacteriota |      1 | 0.36665  |
+    |            1 | Bacteroidota     |      1 | 0.507248 |
+    |            1 | Campilobacterota |      1 | 0.002032 |
+    |            1 | Desulfobacterota |      1 | 0.005058 |
+    |            1 | Firmicutes       |      1 | 0.057767 |
+
+    Output format:
+
+    |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+    |-------------:|---------------------:|:---------------------|---------------------:|
+    |            1 |                  nan | A                    |                  nan |
+    |            1 |                  nan | A                    |                  nan |
+    |            1 |                  nan | A                    |                  nan |
+    |            1 |                  nan | D                    |                  nan |
+
+    Args:
+        subject_data ([type]): subject data frame with some but maybe not all the timestamps
+        subject_id (str, optional): if not None, add the subject_id as a column; if None, assume that the input has a column named subject_id. Defaults to None.
+
+    Returns:
+        pd.DataFrame: quantized subject data frame with complete timestamps, see format above
+    &#34;&#34;&#34;
+    if subject_id is None and not &#39;subject_id&#39; in subject_data.columns:
+        raise Exception(&#39;You must provide a subject_id if there is none in the input data frame&#39;)
+
+    if subject_id is not None:
+        subject_data[&#39;subject_id&#39;] = subject_id
+
+    new_subject = self.pivot_into_quantize_format(subject_data)
+    # add columns that are in self.column_names but not in pivoted as np.nan
+    for column in self.column_names:
+        if column not in new_subject.columns:
+            new_subject[column] = np.nan
+
+    return self._quantize_df(new_subject)</code></pre>
 </details>
 </dd>
 <dt id="qbiome.quantizer.Quantizer.quantize_value"><code class="name flex">
@@ -2090,6 +2353,7 @@ value |
 <li><code><a title="qbiome.quantizer.Quantizer.num_levels" href="#qbiome.quantizer.Quantizer.num_levels">num_levels</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.pivot_into_quantize_format" href="#qbiome.quantizer.Quantizer.pivot_into_quantize_format">pivot_into_quantize_format</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.quantize_df" href="#qbiome.quantizer.Quantizer.quantize_df">quantize_df</a></code></li>
+<li><code><a title="qbiome.quantizer.Quantizer.quantize_new_subject" href="#qbiome.quantizer.Quantizer.quantize_new_subject">quantize_new_subject</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.quantize_value" href="#qbiome.quantizer.Quantizer.quantize_value">quantize_value</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.random_forest_dict" href="#qbiome.quantizer.Quantizer.random_forest_dict">random_forest_dict</a></code></li>
 <li><code><a title="qbiome.quantizer.Quantizer.save_quantizer_states" href="#qbiome.quantizer.Quantizer.save_quantizer_states">save_quantizer_states</a></code></li>

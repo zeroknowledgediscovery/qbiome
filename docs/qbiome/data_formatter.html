@@ -40,6 +40,16 @@ class DataFormatter:
     k_years=2, k_biomes=15):
         &#34;&#34;&#34;Parse and join the data CSV and the metadata CSV
 
+        Output format:
+
+        | sample_id       |   subject_id | variable         |   week |    value |
+        |:----------------|-------------:|:-----------------|-------:|---------:|
+        | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+        | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+        | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+        | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+        | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
+
         Args:
             fpath_data (str): file path for the data CSV
             fpath_meta (str): file path for the metadata CSV
@@ -51,7 +61,7 @@ class DataFormatter:
             k_biomes (int, optional): in the return data frame, we keep the k most abundant biomes. Defaults to 15.
 
         Returns:
-            pandas.DataFrame: parsed, cleaned data frame
+            pandas.DataFrame: parsed, cleaned data frame, see format above
         &#34;&#34;&#34;
         taxa_raw = pd.read_csv(fpath_data)
         meta_raw = pd.read_csv(fpath_meta)
@@ -68,7 +78,43 @@ class DataFormatter:
 
         if k_biomes is not None:
             data = self._use_top_k_biomes(data, k_biomes)
+
         return data
+
+    def load_meta(self, fpath_meta, property_name=&#39;Antibiotic exposure&#39;,
+    property_column_name_out=&#39;antibiotic&#39;):
+        &#34;&#34;&#34;Return a mapping between sample_id, subject_id and meta data (ex. use antibiotics or not) in a data frame
+
+        Output format:
+
+        | sample_id        | antibiotic   |   subject_id |
+        |:-----------------|:-------------|-------------:|
+        | MBSMPL0020-6-1   | No           |            1 |
+        | MBSMPL0020-6-10  | Yes          |            1 |
+        | MBSMPL0020-6-100 | No           |            5 |
+        | MBSMPL0020-6-101 | No           |            5 |
+        | MBSMPL0020-6-102 | No           |            5 |
+
+        Args:
+            fpath_meta (str): file path for the metadata CSV
+            property_name (str, optional): name of the meta data value in the property column. Defaults to &#39;Antibiotic exposure&#39;.
+            property_column_name_out (str, optional): name of the meta data column in the return data frame. Defaults to &#39;antibiotic&#39;.
+
+        Returns:
+            pandas.DataFrame: sample_id and subject_id to meta data mapping, see format above
+        &#34;&#34;&#34;
+        meta_raw = pd.read_csv(fpath_meta)
+        meta = meta_raw[[&#39;Sample ID&#39;, &#39;Property&#39;, &#39;Value&#39;]]
+
+        meta_property = meta[meta[&#39;Property&#39;] == property_name].drop(columns=&#39;Property&#39;)
+        meta_property.columns = [&#39;sample_id&#39;, property_column_name_out]
+
+        meta_subject_id = meta[meta[&#39;Property&#39;] == &#39;Subject ID&#39;].drop(columns=&#39;Property&#39;)
+        meta_subject_id.columns = [&#39;sample_id&#39;, &#39;subject_id&#39;]
+
+        sample_id_property = pd.merge(meta_property, meta_subject_id, on=&#39;sample_id&#39;, how=&#39;outer&#39;)
+
+        return sample_id_property
 
     def pivot_into_column_format(self, data):
         &#34;&#34;&#34;Pivot the input data frame from this format:
@@ -227,6 +273,16 @@ class DataFormatter:
     k_years=2, k_biomes=15):
         &#34;&#34;&#34;Parse and join the data CSV and the metadata CSV
 
+        Output format:
+
+        | sample_id       |   subject_id | variable         |   week |    value |
+        |:----------------|-------------:|:-----------------|-------:|---------:|
+        | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+        | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+        | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+        | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+        | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
+
         Args:
             fpath_data (str): file path for the data CSV
             fpath_meta (str): file path for the metadata CSV
@@ -238,7 +294,7 @@ class DataFormatter:
             k_biomes (int, optional): in the return data frame, we keep the k most abundant biomes. Defaults to 15.
 
         Returns:
-            pandas.DataFrame: parsed, cleaned data frame
+            pandas.DataFrame: parsed, cleaned data frame, see format above
         &#34;&#34;&#34;
         taxa_raw = pd.read_csv(fpath_data)
         meta_raw = pd.read_csv(fpath_meta)
@@ -255,7 +311,43 @@ class DataFormatter:
 
         if k_biomes is not None:
             data = self._use_top_k_biomes(data, k_biomes)
+
         return data
+
+    def load_meta(self, fpath_meta, property_name=&#39;Antibiotic exposure&#39;,
+    property_column_name_out=&#39;antibiotic&#39;):
+        &#34;&#34;&#34;Return a mapping between sample_id, subject_id and meta data (ex. use antibiotics or not) in a data frame
+
+        Output format:
+
+        | sample_id        | antibiotic   |   subject_id |
+        |:-----------------|:-------------|-------------:|
+        | MBSMPL0020-6-1   | No           |            1 |
+        | MBSMPL0020-6-10  | Yes          |            1 |
+        | MBSMPL0020-6-100 | No           |            5 |
+        | MBSMPL0020-6-101 | No           |            5 |
+        | MBSMPL0020-6-102 | No           |            5 |
+
+        Args:
+            fpath_meta (str): file path for the metadata CSV
+            property_name (str, optional): name of the meta data value in the property column. Defaults to &#39;Antibiotic exposure&#39;.
+            property_column_name_out (str, optional): name of the meta data column in the return data frame. Defaults to &#39;antibiotic&#39;.
+
+        Returns:
+            pandas.DataFrame: sample_id and subject_id to meta data mapping, see format above
+        &#34;&#34;&#34;
+        meta_raw = pd.read_csv(fpath_meta)
+        meta = meta_raw[[&#39;Sample ID&#39;, &#39;Property&#39;, &#39;Value&#39;]]
+
+        meta_property = meta[meta[&#39;Property&#39;] == property_name].drop(columns=&#39;Property&#39;)
+        meta_property.columns = [&#39;sample_id&#39;, property_column_name_out]
+
+        meta_subject_id = meta[meta[&#39;Property&#39;] == &#39;Subject ID&#39;].drop(columns=&#39;Property&#39;)
+        meta_subject_id.columns = [&#39;sample_id&#39;, &#39;subject_id&#39;]
+
+        sample_id_property = pd.merge(meta_property, meta_subject_id, on=&#39;sample_id&#39;, how=&#39;outer&#39;)
+
+        return sample_id_property
 
     def pivot_into_column_format(self, data):
         &#34;&#34;&#34;Pivot the input data frame from this format:
@@ -390,6 +482,55 @@ class DataFormatter:
 </code></dt>
 <dd>
 <div class="desc"><p>Parse and join the data CSV and the metadata CSV</p>
+<p>Output format:</p>
+<table>
+<thead>
+<tr>
+<th align="left">sample_id</th>
+<th align="right">subject_id</th>
+<th align="left">variable</th>
+<th align="right">week</th>
+<th align="right">value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Actinobacteriota</td>
+<td align="right">27</td>
+<td align="right">0.36665</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Bacteroidota</td>
+<td align="right">27</td>
+<td align="right">0.507248</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Campilobacterota</td>
+<td align="right">27</td>
+<td align="right">0.002032</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Desulfobacterota</td>
+<td align="right">27</td>
+<td align="right">0.005058</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="right">1</td>
+<td align="left">Firmicutes</td>
+<td align="right">27</td>
+<td align="right">0.057767</td>
+</tr>
+</tbody>
+</table>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>fpath_data</code></strong> :&ensp;<code>str</code></dt>
@@ -411,7 +552,7 @@ class DataFormatter:
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>pandas.DataFrame</code></dt>
-<dd>parsed, cleaned data frame</dd>
+<dd>parsed, cleaned data frame, see format above</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -421,6 +562,16 @@ class DataFormatter:
 time_column_name=&#39;Age (days)&#39;, time_column_name_out=&#39;day&#39;,
 k_years=2, k_biomes=15):
     &#34;&#34;&#34;Parse and join the data CSV and the metadata CSV
+
+    Output format:
+
+    | sample_id       |   subject_id | variable         |   week |    value |
+    |:----------------|-------------:|:-----------------|-------:|---------:|
+    | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+    | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+    | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+    | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+    | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
 
     Args:
         fpath_data (str): file path for the data CSV
@@ -433,7 +584,7 @@ k_years=2, k_biomes=15):
         k_biomes (int, optional): in the return data frame, we keep the k most abundant biomes. Defaults to 15.
 
     Returns:
-        pandas.DataFrame: parsed, cleaned data frame
+        pandas.DataFrame: parsed, cleaned data frame, see format above
     &#34;&#34;&#34;
     taxa_raw = pd.read_csv(fpath_data)
     meta_raw = pd.read_csv(fpath_meta)
@@ -450,7 +601,104 @@ k_years=2, k_biomes=15):
 
     if k_biomes is not None:
         data = self._use_top_k_biomes(data, k_biomes)
+
     return data</code></pre>
+</details>
+</dd>
+<dt id="qbiome.data_formatter.DataFormatter.load_meta"><code class="name flex">
+<span>def <span class="ident">load_meta</span></span>(<span>self, fpath_meta, property_name='Antibiotic exposure', property_column_name_out='antibiotic')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a mapping between sample_id, subject_id and meta data (ex. use antibiotics or not) in a data frame</p>
+<p>Output format:</p>
+<table>
+<thead>
+<tr>
+<th align="left">sample_id</th>
+<th align="left">antibiotic</th>
+<th align="right">subject_id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">MBSMPL0020-6-1</td>
+<td align="left">No</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-10</td>
+<td align="left">Yes</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-100</td>
+<td align="left">No</td>
+<td align="right">5</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-101</td>
+<td align="left">No</td>
+<td align="right">5</td>
+</tr>
+<tr>
+<td align="left">MBSMPL0020-6-102</td>
+<td align="left">No</td>
+<td align="right">5</td>
+</tr>
+</tbody>
+</table>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>fpath_meta</code></strong> :&ensp;<code>str</code></dt>
+<dd>file path for the metadata CSV</dd>
+<dt><strong><code>property_name</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>name of the meta data value in the property column. Defaults to 'Antibiotic exposure'.</dd>
+<dt><strong><code>property_column_name_out</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>name of the meta data column in the return data frame. Defaults to 'antibiotic'.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>sample_id and subject_id to meta data mapping, see format above</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_meta(self, fpath_meta, property_name=&#39;Antibiotic exposure&#39;,
+property_column_name_out=&#39;antibiotic&#39;):
+    &#34;&#34;&#34;Return a mapping between sample_id, subject_id and meta data (ex. use antibiotics or not) in a data frame
+
+    Output format:
+
+    | sample_id        | antibiotic   |   subject_id |
+    |:-----------------|:-------------|-------------:|
+    | MBSMPL0020-6-1   | No           |            1 |
+    | MBSMPL0020-6-10  | Yes          |            1 |
+    | MBSMPL0020-6-100 | No           |            5 |
+    | MBSMPL0020-6-101 | No           |            5 |
+    | MBSMPL0020-6-102 | No           |            5 |
+
+    Args:
+        fpath_meta (str): file path for the metadata CSV
+        property_name (str, optional): name of the meta data value in the property column. Defaults to &#39;Antibiotic exposure&#39;.
+        property_column_name_out (str, optional): name of the meta data column in the return data frame. Defaults to &#39;antibiotic&#39;.
+
+    Returns:
+        pandas.DataFrame: sample_id and subject_id to meta data mapping, see format above
+    &#34;&#34;&#34;
+    meta_raw = pd.read_csv(fpath_meta)
+    meta = meta_raw[[&#39;Sample ID&#39;, &#39;Property&#39;, &#39;Value&#39;]]
+
+    meta_property = meta[meta[&#39;Property&#39;] == property_name].drop(columns=&#39;Property&#39;)
+    meta_property.columns = [&#39;sample_id&#39;, property_column_name_out]
+
+    meta_subject_id = meta[meta[&#39;Property&#39;] == &#39;Subject ID&#39;].drop(columns=&#39;Property&#39;)
+    meta_subject_id.columns = [&#39;sample_id&#39;, &#39;subject_id&#39;]
+
+    sample_id_property = pd.merge(meta_property, meta_subject_id, on=&#39;sample_id&#39;, how=&#39;outer&#39;)
+
+    return sample_id_property</code></pre>
 </details>
 </dd>
 <dt id="qbiome.data_formatter.DataFormatter.melt_into_plot_format"><code class="name flex">
@@ -769,6 +1017,7 @@ From format:</p>
 <h4><code><a title="qbiome.data_formatter.DataFormatter" href="#qbiome.data_formatter.DataFormatter">DataFormatter</a></code></h4>
 <ul class="">
 <li><code><a title="qbiome.data_formatter.DataFormatter.load_data" href="#qbiome.data_formatter.DataFormatter.load_data">load_data</a></code></li>
+<li><code><a title="qbiome.data_formatter.DataFormatter.load_meta" href="#qbiome.data_formatter.DataFormatter.load_meta">load_meta</a></code></li>
 <li><code><a title="qbiome.data_formatter.DataFormatter.melt_into_plot_format" href="#qbiome.data_formatter.DataFormatter.melt_into_plot_format">melt_into_plot_format</a></code></li>
 <li><code><a title="qbiome.data_formatter.DataFormatter.pivot_into_column_format" href="#qbiome.data_formatter.DataFormatter.pivot_into_column_format">pivot_into_column_format</a></code></li>
 </ul>
