@@ -10,9 +10,9 @@ def saveFIG(filename='tmp.pdf',
     """save fig for publication
 
     Args:
-      filename (str): filename to save figure. (Default value = 'tmp.pdf')
-      axis (bool): if True then show axis. (Default value = False)
-      transparent (bool): if True background is transparent. (Default value = True)
+      filename (str, optional): filename to save figure. (Default value = 'tmp.pdf')
+      axis (bool, optional): if True then show axis. (Default value = False)
+      transparent (bool, optional): if True background is transparent. (Default value = True)
 
     Returns:
 
@@ -51,28 +51,29 @@ def qplot(df,
     """plot dataframes after pivoting and slicing
 
     Args:
-      df (pandas.DataFrame): dataframe in long format 
-      preindex (str): if not None, set index to preindex 
-      index (str): pivot index 
-      columns (str): pivot columns 
-      timeunit (str): label for unit of time. If None, set to index (Default value = None) 
-      var (list[str]): list of variables to plot (Default value = None) 
-      interpolate (bool): remove Nans by spline fit (Default value = False)
-      alpha (float): parameter passed to exponential smoothing (Default value = .9)
-      lowess_fraction:  (Default value = 0.6)
-      normalize:  (Default value = True)
-      ax:  (Default value = None)
-      xlim0 (float): left limit of x axis (Default value = None)
-      xlim1 (float): right limit of x axis (Default value = None)
-      legend_label (str): optional suffix added to  legend (Default value = None)
-      filename (str):  output filename including extension (Default value = None)
-      transparent (bool): if True background is transparent (Default value = True)
-      save (bool): if True save file  (Default value = True)
-      fontsize (int): fontsize  (Default value = 18)
-      title (str): title string (Default value = None)
+      df (pandas.DataFrame): dataframe in long format
+      preindex (str): if not None, set index to preindex
+      index (str): pivot index
+      columns (str): pivot columns
+      timeunit (str, optional): label for unit of time. If None, set to index (Default value = None)
+      var (list[str], optional): list of variables to plot (Default value = None)
+      interpolate (bool, optional): remove Nans by spline fit (Default value = False)
+      alpha (float, optional): parameter passed to exponential smoothing (Default value = .9)
+      lowess_fraction (float): smoothing coefficient for LOWESS (Default value = 0.6)
+      normalize (bool): if True normalize (Default value = True)
+      ax (axis handle): If None generate figure and axes (Default value = None)
+      xlim0 (float, optional): left limit of x axis (Default value = None)
+      xlim1 (float, optional): right limit of x axis (Default value = None)
+      legend_label (str, optional): optional suffix added to  legend (Default value = None)
+      filename (str, optional): output filename including extension (Default value = None)
+      transparent (bool, optional): if True background is transparent (Default value = True)
+      save (bool, optional): if True save file  (Default value = True)
+      fontsize (int, optional): fontsize  (Default value = 18)
+      title (str, optional): title string (Default value = None)
 
     Returns:
       pandas.DataFrame: concatenated dataframe plotted
+
     """
 
     if timeunit is None:
@@ -132,3 +133,39 @@ def qplot(df,
         saveFIG(filename,axis=True,transparent=transparent)
         
     return DF.set_index(timeunit)
+
+
+def customDataFormatter(datafile,
+                        metafile,
+                        META_PROP,
+                        COL_SELECT,
+                        BIOMES=None,
+                        sample_id_col_names=['Samples','sequence_barcode']):
+    """custom data formatter. See example.
+
+    Args:
+      datafile (str): path to datafile 
+      metafile (str): path to metadatafile
+      META_PROP (list[str]): list of meta properties in metaddata file
+      COL_SELECT (dict[str,str]): dict to rename columns for sample_id, subject_id, timeunit
+      BIOMES (list[str]):  list of biomes of interest (Default value = None)
+      sample_id_col_names:  (Default value = ['Samples','sequence_barcode']): 
+
+    Returns:
+      pandas.DataFrame,pandas.DataFrame: data and subject_id vs meta properties
+    """ 
+    
+    df_=pd.read_csv(datafile).set_index(sample_id_col_names[0])
+    mf=pd.read_csv(metafile).set_index(sample_id_col_names[1])
+    mf.index.name='Samples'
+    mf=mf.reset_index()
+    df=df_.merge(mf,on='Samples')
+    df=df.rename(columns=COL_SELECT)
+    if BIOMES is None:
+        BIOMES=list(df_.columns.values[1:])
+    df1=df[['sample_id','subject_id','week']+BIOMES].drop(['subject_id','week'],axis=1)
+    df2=df[['sample_id','subject_id','week']]
+    data=df1.melt(id_vars='sample_id',value_vars=BIOMES).merge(df2,on='sample_id')
+    property_map=df[['subject_id']+META_PROP]
+    
+    return data,property_map
