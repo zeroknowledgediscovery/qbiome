@@ -155,6 +155,33 @@ class Quantizer:
         # cache the subject_id column to add back to a dequantized matrix
         self.subject_id_column = to_quantize.subject_id
 
+        return self._quantize_df(to_quantize)
+
+    def _quantize_df(self, to_quantize):
+        """Quantize a data frame in quantizable format
+
+        Input data format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | 0.36665              |                  nan |
+        |           10 |                  nan | 0.36665              |                  nan |
+        |           11 |                  nan | 0.36665              |                  nan |
+
+        Output data format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | A                    |                  nan |
+        |           10 |                  nan | A                    |                  nan |
+        |           11 |                  nan | A                    |                  nan |
+
+        Args:
+            to_quantize (pd.DataFrame): data frame in quantizable format
+
+        Returns:
+            pandas.DataFrame: see format above
+        """
         quantized = pd.DataFrame() # return df
         if not self.variable_bin_map:
             for col in self.column_names:
@@ -169,9 +196,7 @@ class Quantizer:
                 quantized[col] = cut
 
         # sort the columns by name in a natural order
-
-        quantized = quantized.reindex(sorted(quantized.columns, key=_natural_keys),
-        axis=1)
+        quantized = quantized.reindex(sorted(quantized.columns, key=_natural_keys), axis=1)
         quantized.insert(0, 'subject_id', to_quantize.subject_id)
         return quantized
 
@@ -189,6 +214,49 @@ class Quantizer:
         df = quantized_df.drop(columns='subject_id')
         matrix = df.astype(str).replace('nan', '').to_numpy(dtype=str)
         return df.columns, matrix
+
+    def quantize_new_subject(self, subject_data, subject_id=None):
+        """Construct and quantize a new subject with missing data
+
+        Input format:
+
+        |   subject_id | variable         |   week |    value |
+        |-------------:|:-----------------|-------:|---------:|
+        |            1 | Actinobacteriota |      1 | 0.36665  |
+        |            1 | Bacteroidota     |      1 | 0.507248 |
+        |            1 | Campilobacterota |      1 | 0.002032 |
+        |            1 | Desulfobacterota |      1 | 0.005058 |
+        |            1 | Firmicutes       |      1 | 0.057767 |
+
+        Output format:
+
+        |   subject_id |   Acidobacteriota_35 | Actinobacteriota_1   |   Actinobacteriota_2 |
+        |-------------:|---------------------:|:---------------------|---------------------:|
+        |            1 |                  nan | A                    |                  nan |
+        |            1 |                  nan | A                    |                  nan |
+        |            1 |                  nan | A                    |                  nan |
+        |            1 |                  nan | D                    |                  nan |
+
+        Args:
+            subject_data ([type]): subject data frame with some but maybe not all the timestamps
+            subject_id (str, optional): if not None, add the subject_id as a column; if None, assume that the input has a column named subject_id. Defaults to None.
+
+        Returns:
+            pd.DataFrame: quantized subject data frame with complete timestamps, see format above
+        """
+        if subject_id is None and not 'subject_id' in subject_data.columns:
+            raise Exception('You must provide a subject_id if there is none in the input data frame')
+
+        if subject_id is not None:
+            subject_data['subject_id'] = subject_id
+
+        new_subject = self.pivot_into_quantize_format(subject_data)
+        # add columns that are in self.column_names but not in pivoted as np.nan
+        for column in self.column_names:
+            if column not in new_subject.columns:
+                new_subject[column] = np.nan
+
+        return self._quantize_df(new_subject)
 
     def get_bin_array_of_index(self, idx):
         """Return the `pandas.cut` bin array corresponding to the sequence index by looking up `self.variable_bin_map[self.column_names[idx]]`

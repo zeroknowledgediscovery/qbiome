@@ -12,6 +12,16 @@ class DataFormatter:
     k_years=2, k_biomes=15):
         """Parse and join the data CSV and the metadata CSV
 
+        Output format:
+
+        | sample_id       |   subject_id | variable         |   week |    value |
+        |:----------------|-------------:|:-----------------|-------:|---------:|
+        | MBSMPL0020-6-10 |            1 | Actinobacteriota |     27 | 0.36665  |
+        | MBSMPL0020-6-10 |            1 | Bacteroidota     |     27 | 0.507248 |
+        | MBSMPL0020-6-10 |            1 | Campilobacterota |     27 | 0.002032 |
+        | MBSMPL0020-6-10 |            1 | Desulfobacterota |     27 | 0.005058 |
+        | MBSMPL0020-6-10 |            1 | Firmicutes       |     27 | 0.057767 |
+
         Args:
             fpath_data (str): file path for the data CSV
             fpath_meta (str): file path for the metadata CSV
@@ -23,7 +33,7 @@ class DataFormatter:
             k_biomes (int, optional): in the return data frame, we keep the k most abundant biomes. Defaults to 15.
 
         Returns:
-            pandas.DataFrame: parsed, cleaned data frame
+            pandas.DataFrame: parsed, cleaned data frame, see format above
         """
         taxa_raw = pd.read_csv(fpath_data)
         meta_raw = pd.read_csv(fpath_meta)
@@ -40,7 +50,43 @@ class DataFormatter:
 
         if k_biomes is not None:
             data = self._use_top_k_biomes(data, k_biomes)
+
         return data
+
+    def load_meta(self, fpath_meta, property_name='Antibiotic exposure',
+    property_column_name_out='antibiotic'):
+        """Return a mapping between sample_id, subject_id and meta data (ex. use antibiotics or not) in a data frame
+
+        Output format:
+
+        | sample_id        | antibiotic   |   subject_id |
+        |:-----------------|:-------------|-------------:|
+        | MBSMPL0020-6-1   | No           |            1 |
+        | MBSMPL0020-6-10  | Yes          |            1 |
+        | MBSMPL0020-6-100 | No           |            5 |
+        | MBSMPL0020-6-101 | No           |            5 |
+        | MBSMPL0020-6-102 | No           |            5 |
+
+        Args:
+            fpath_meta (str): file path for the metadata CSV
+            property_name (str, optional): name of the meta data value in the property column. Defaults to 'Antibiotic exposure'.
+            property_column_name_out (str, optional): name of the meta data column in the return data frame. Defaults to 'antibiotic'.
+
+        Returns:
+            pandas.DataFrame: sample_id and subject_id to meta data mapping, see format above
+        """
+        meta_raw = pd.read_csv(fpath_meta)
+        meta = meta_raw[['Sample ID', 'Property', 'Value']]
+
+        meta_property = meta[meta['Property'] == property_name].drop(columns='Property')
+        meta_property.columns = ['sample_id', property_column_name_out]
+
+        meta_subject_id = meta[meta['Property'] == 'Subject ID'].drop(columns='Property')
+        meta_subject_id.columns = ['sample_id', 'subject_id']
+
+        sample_id_property = pd.merge(meta_property, meta_subject_id, on='sample_id', how='outer')
+
+        return sample_id_property
 
     def pivot_into_column_format(self, data):
         """Pivot the input data frame from this format:
