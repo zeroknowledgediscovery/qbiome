@@ -212,7 +212,8 @@ class Quantizer:
         """
         # skip subject_id column
         df = quantized_df.drop(columns='subject_id')
-        matrix = df.astype(str).replace('nan', '').to_numpy(dtype=str)
+        # matrix = df.astype(str).replace('nan', '').to_numpy(dtype=str)
+        matrix = df.astype(str).fillna('').to_numpy(dtype=str)
         return df.columns, matrix
 
     def quantize_new_subject(self, subject_data, subject_id=None):
