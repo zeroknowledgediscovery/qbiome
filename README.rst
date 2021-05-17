@@ -13,13 +13,6 @@ Qbiome
    :alt: qbiome logo
    :align: center
 
-.. image:: http://zed.uchicago.edu/logo/logozed1.png
-   :height: 200px
-   :scale: 30 %
-   :alt: zed lab logo
-   :align: center
-
-
 .. class:: no-web no-pdf
 
 :Info: Draft link will be posted here
