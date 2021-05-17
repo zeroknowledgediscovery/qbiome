@@ -7,10 +7,16 @@ Qbiome
 .. figure:: https://img.shields.io/pypi/v/qbiome.svg
    :alt: qbiome curent version
 
+.. image:: http://zed.uchicago.edu/logo/qbiome.png
+   :height: 400px
+   :scale: 30 %
+   :alt: qbiome logo
+   :align: center
+
 .. image:: http://zed.uchicago.edu/logo/logozed1.png
    :height: 400px
-   :scale: 50 %
-   :alt: alternate text
+   :scale: 30 %
+   :alt: zed lab logo
    :align: center
 
 
