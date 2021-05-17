@@ -8,13 +8,13 @@ Qbiome
    :alt: qbiome curent version
 
 .. image:: http://zed.uchicago.edu/logo/qbiome.png
-   :height: 400px
+   :height: 200px
    :scale: 30 %
    :alt: qbiome logo
    :align: center
 
 .. image:: http://zed.uchicago.edu/logo/logozed1.png
-   :height: 400px
+   :height: 200px
    :scale: 30 %
    :alt: zed lab logo
    :align: center
