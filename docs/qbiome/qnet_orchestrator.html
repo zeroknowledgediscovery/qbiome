@@ -176,7 +176,7 @@ class QnetOrchestrator:
         &#34;&#34;&#34;
         predicted = seq.copy()
         distribs = self.model.predict_distributions(seq)
-        col_indices = np.where(self.model.feature_names.str.contains(str(week)))[0]
+        col_indices = np.where(self.model.feature_names.str.endswith(&#39;_&#39;+str(week)))[0]
         for idx in col_indices:
             # predict
             num = self.predict_value_given_distributions(seq, idx, distribs, n_samples=n_samples)
@@ -417,7 +417,7 @@ class QnetOrchestrator:
         &#34;&#34;&#34;
         predicted = seq.copy()
         distribs = self.model.predict_distributions(seq)
-        col_indices = np.where(self.model.feature_names.str.contains(str(week)))[0]
+        col_indices = np.where(self.model.feature_names.str.endswith(&#39;_&#39;+str(week)))[0]
         for idx in col_indices:
             # predict
             num = self.predict_value_given_distributions(seq, idx, distribs, n_samples=n_samples)
@@ -706,7 +706,7 @@ fill_value (str, optional): mask value, can be empty string, None, np.nan etc. D
     &#34;&#34;&#34;
     predicted = seq.copy()
     distribs = self.model.predict_distributions(seq)
-    col_indices = np.where(self.model.feature_names.str.contains(str(week)))[0]
+    col_indices = np.where(self.model.feature_names.str.endswith(&#39;_&#39;+str(week)))[0]
     for idx in col_indices:
         # predict
         num = self.predict_value_given_distributions(seq, idx, distribs, n_samples=n_samples)

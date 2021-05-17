@@ -148,7 +148,7 @@ class QnetOrchestrator:
         """
         predicted = seq.copy()
         distribs = self.model.predict_distributions(seq)
-        col_indices = np.where(self.model.feature_names.str.contains(str(week)))[0]
+        col_indices = np.where(self.model.feature_names.str.endswith('_'+str(week)))[0]
         for idx in col_indices:
             # predict
             num = self.predict_value_given_distributions(seq, idx, distribs, n_samples=n_samples)

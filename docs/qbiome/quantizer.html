@@ -240,7 +240,8 @@ class Quantizer:
         &#34;&#34;&#34;
         # skip subject_id column
         df = quantized_df.drop(columns=&#39;subject_id&#39;)
-        matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
+        # matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
+        matrix = df.astype(str).fillna(&#39;&#39;).to_numpy(dtype=str)
         return df.columns, matrix
 
     def quantize_new_subject(self, subject_data, subject_id=None):
@@ -754,7 +755,8 @@ class Quantizer:
         &#34;&#34;&#34;
         # skip subject_id column
         df = quantized_df.drop(columns=&#39;subject_id&#39;)
-        matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
+        # matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
+        matrix = df.astype(str).fillna(&#39;&#39;).to_numpy(dtype=str)
         return df.columns, matrix
 
     def quantize_new_subject(self, subject_data, subject_id=None):
@@ -1669,7 +1671,8 @@ value |
     &#34;&#34;&#34;
     # skip subject_id column
     df = quantized_df.drop(columns=&#39;subject_id&#39;)
-    matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
+    # matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
+    matrix = df.astype(str).fillna(&#39;&#39;).to_numpy(dtype=str)
     return df.columns, matrix</code></pre>
 </details>
 </dd>
