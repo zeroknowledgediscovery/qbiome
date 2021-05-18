@@ -83,7 +83,6 @@ def qsmooth(df,
 
     &#34;&#34;&#34;
     timeunit=index
-    print(timeunit)
     df=df.pivot(index=index,columns=columns)
     df.columns=[x[1] for x in df.columns]
     if interpolate:
@@ -549,7 +548,6 @@ legend (Default value = None)</dd>
 
     &#34;&#34;&#34;
     timeunit=index
-    print(timeunit)
     df=df.pivot(index=index,columns=columns)
     df.columns=[x[1] for x in df.columns]
     if interpolate:

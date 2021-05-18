@@ -54,7 +54,6 @@ def qsmooth(df,
 
     """
     timeunit=index
-    print(timeunit)
     df=df.pivot(index=index,columns=columns)
     df.columns=[x[1] for x in df.columns]
     if interpolate:
