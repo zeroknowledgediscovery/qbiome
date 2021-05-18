@@ -83,6 +83,7 @@ def qsmooth(df,
 
     &#34;&#34;&#34;
     timeunit=index
+    print(timeunit)
     df=df.pivot(index=index,columns=columns)
     df.columns=[x[1] for x in df.columns]
     if interpolate:
@@ -92,7 +93,7 @@ def qsmooth(df,
             warning(&#39;var needs to be a list&#39;)
             var=[var]
         df_=df[var]
-        biomes=var
+        biomes=var 
     else:
         df_=df.copy()
         biomes=df.columns
@@ -548,6 +549,7 @@ legend (Default value = None)</dd>
 
     &#34;&#34;&#34;
     timeunit=index
+    print(timeunit)
     df=df.pivot(index=index,columns=columns)
     df.columns=[x[1] for x in df.columns]
     if interpolate:
@@ -557,7 +559,7 @@ legend (Default value = None)</dd>
             warning(&#39;var needs to be a list&#39;)
             var=[var]
         df_=df[var]
-        biomes=var
+        biomes=var 
     else:
         df_=df.copy()
         biomes=df.columns
