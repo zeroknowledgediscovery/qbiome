@@ -58,6 +58,60 @@ def saveFIG(filename=&#39;tmp.pdf&#39;,
     return
 
 
+def qsmooth(df,
+          index,
+          columns,
+          var=None,
+          interpolate=False,
+          alpha=.9,
+          lowess_fraction=0.6,
+          normalize=True):
+    &#34;&#34;&#34;smooth dataframes after pivoting and slicing
+
+    Args:
+      df (pandas.DataFrame): dataframe in long format
+      index (str): pivot index
+      columns (str): pivot columns
+      var (list[str], optional): list of variables to plot (Default value = None)
+      interpolate (bool, optional): remove Nans by spline fit (Default value = False)
+      alpha (float, optional): parameter passed to exponential smoothing (Default value = .9)
+      lowess_fraction (float): smoothing coefficient for LOWESS (Default value = 0.6)
+      normalize (bool): if True normalize (Default value = True)
+
+    Returns:
+      pandas.DataFrame: smooth dataframe
+
+    &#34;&#34;&#34;
+        
+    df=df.pivot(index=index,columns=columns)
+    df.columns=[x[1] for x in df.columns]
+    if interpolate:
+        df=df.interpolate(method=&#39;spline&#39;,order=2,limit_direction=&#39;both&#39;)
+    if var is not None:
+        if not isinstance(var, list):
+            warning(&#39;var needs to be a list&#39;)
+            var=[var]
+        df_=df[var]
+        biomes=var
+    else:
+        df_=df.copy()
+        biomes=df.columns
+
+    DF=None
+    for i in biomes:
+        df__=df_[i].ewm(alpha=alpha).mean()        
+        w = lowess(df__.values,df__.index.values, frac=lowess_fraction)
+        df__=pd.DataFrame(w,columns=[timeunit,i]).set_index(timeunit)
+        if normalize:
+            df__=(df__-df__.min())/(df__.max()-df__.min())
+        if DF is None:
+            DF=df__.reset_index()
+        else:
+            DF=DF.merge(df__.reset_index(),on=timeunit)
+        
+        
+    return DF
+
 def qplot(df,
           preindex,
           index,
@@ -436,6 +490,94 @@ legend (Default value = None)</dd>
     return DF.set_index(timeunit)</code></pre>
 </details>
 </dd>
+<dt id="qbiome.qutil.qsmooth"><code class="name flex">
+<span>def <span class="ident">qsmooth</span></span>(<span>df, index, columns, var=None, interpolate=False, alpha=0.9, lowess_fraction=0.6, normalize=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>smooth dataframes after pivoting and slicing</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>dataframe in long format</dd>
+<dt><strong><code>index</code></strong> :&ensp;<code>str</code></dt>
+<dd>pivot index</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code></dt>
+<dd>pivot columns</dd>
+<dt><strong><code>var</code></strong> :&ensp;<code>list[str]</code>, optional</dt>
+<dd>list of variables to plot (Default value = None)</dd>
+<dt><strong><code>interpolate</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>remove Nans by spline fit (Default value = False)</dd>
+<dt><strong><code>alpha</code></strong> :&ensp;<code>float</code>, optional</dt>
+<dd>parameter passed to exponential smoothing (Default value = .9)</dd>
+<dt><strong><code>lowess_fraction</code></strong> :&ensp;<code>float</code></dt>
+<dd>smoothing coefficient for LOWESS (Default value = 0.6)</dd>
+<dt><strong><code>normalize</code></strong> :&ensp;<code>bool</code></dt>
+<dd>if True normalize (Default value = True)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>smooth dataframe</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def qsmooth(df,
+          index,
+          columns,
+          var=None,
+          interpolate=False,
+          alpha=.9,
+          lowess_fraction=0.6,
+          normalize=True):
+    &#34;&#34;&#34;smooth dataframes after pivoting and slicing
+
+    Args:
+      df (pandas.DataFrame): dataframe in long format
+      index (str): pivot index
+      columns (str): pivot columns
+      var (list[str], optional): list of variables to plot (Default value = None)
+      interpolate (bool, optional): remove Nans by spline fit (Default value = False)
+      alpha (float, optional): parameter passed to exponential smoothing (Default value = .9)
+      lowess_fraction (float): smoothing coefficient for LOWESS (Default value = 0.6)
+      normalize (bool): if True normalize (Default value = True)
+
+    Returns:
+      pandas.DataFrame: smooth dataframe
+
+    &#34;&#34;&#34;
+        
+    df=df.pivot(index=index,columns=columns)
+    df.columns=[x[1] for x in df.columns]
+    if interpolate:
+        df=df.interpolate(method=&#39;spline&#39;,order=2,limit_direction=&#39;both&#39;)
+    if var is not None:
+        if not isinstance(var, list):
+            warning(&#39;var needs to be a list&#39;)
+            var=[var]
+        df_=df[var]
+        biomes=var
+    else:
+        df_=df.copy()
+        biomes=df.columns
+
+    DF=None
+    for i in biomes:
+        df__=df_[i].ewm(alpha=alpha).mean()        
+        w = lowess(df__.values,df__.index.values, frac=lowess_fraction)
+        df__=pd.DataFrame(w,columns=[timeunit,i]).set_index(timeunit)
+        if normalize:
+            df__=(df__-df__.min())/(df__.max()-df__.min())
+        if DF is None:
+            DF=df__.reset_index()
+        else:
+            DF=DF.merge(df__.reset_index(),on=timeunit)
+        
+        
+    return DF</code></pre>
+</details>
+</dd>
 <dt id="qbiome.qutil.saveFIG"><code class="name flex">
 <span>def <span class="ident">saveFIG</span></span>(<span>filename='tmp.pdf', axis=False, transparent=True)</span>
 </code></dt>
@@ -501,6 +643,7 @@ legend (Default value = None)</dd>
 <ul class="">
 <li><code><a title="qbiome.qutil.customDataFormatter" href="#qbiome.qutil.customDataFormatter">customDataFormatter</a></code></li>
 <li><code><a title="qbiome.qutil.qplot" href="#qbiome.qutil.qplot">qplot</a></code></li>
+<li><code><a title="qbiome.qutil.qsmooth" href="#qbiome.qutil.qsmooth">qsmooth</a></code></li>
 <li><code><a title="qbiome.qutil.saveFIG" href="#qbiome.qutil.saveFIG">saveFIG</a></code></li>
 </ul>
 </li>

@@ -29,6 +29,60 @@ def saveFIG(filename='tmp.pdf',
     return
 
 
+def qsmooth(df,
+          index,
+          columns,
+          var=None,
+          interpolate=False,
+          alpha=.9,
+          lowess_fraction=0.6,
+          normalize=True):
+    """smooth dataframes after pivoting and slicing
+
+    Args:
+      df (pandas.DataFrame): dataframe in long format
+      index (str): pivot index
+      columns (str): pivot columns
+      var (list[str], optional): list of variables to plot (Default value = None)
+      interpolate (bool, optional): remove Nans by spline fit (Default value = False)
+      alpha (float, optional): parameter passed to exponential smoothing (Default value = .9)
+      lowess_fraction (float): smoothing coefficient for LOWESS (Default value = 0.6)
+      normalize (bool): if True normalize (Default value = True)
+
+    Returns:
+      pandas.DataFrame: smooth dataframe
+
+    """
+        
+    df=df.pivot(index=index,columns=columns)
+    df.columns=[x[1] for x in df.columns]
+    if interpolate:
+        df=df.interpolate(method='spline',order=2,limit_direction='both')
+    if var is not None:
+        if not isinstance(var, list):
+            warning('var needs to be a list')
+            var=[var]
+        df_=df[var]
+        biomes=var
+    else:
+        df_=df.copy()
+        biomes=df.columns
+
+    DF=None
+    for i in biomes:
+        df__=df_[i].ewm(alpha=alpha).mean()        
+        w = lowess(df__.values,df__.index.values, frac=lowess_fraction)
+        df__=pd.DataFrame(w,columns=[timeunit,i]).set_index(timeunit)
+        if normalize:
+            df__=(df__-df__.min())/(df__.max()-df__.min())
+        if DF is None:
+            DF=df__.reset_index()
+        else:
+            DF=DF.merge(df__.reset_index(),on=timeunit)
+        
+        
+    return DF
+
 def qplot(df,
           preindex,
           index,
