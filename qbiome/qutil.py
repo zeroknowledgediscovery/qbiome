@@ -81,7 +81,7 @@ def qsmooth(df,
             DF=DF.merge(df__.reset_index(),on=timeunit)
         
         
-    return DF
+    return DF.set_index(timeunit)
 
 def qplot(df,
           preindex,

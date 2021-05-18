@@ -110,7 +110,7 @@ def qsmooth(df,
             DF=DF.merge(df__.reset_index(),on=timeunit)
         
         
-    return DF
+    return DF.set_index(timeunit)
 
 def qplot(df,
           preindex,
@@ -575,7 +575,7 @@ legend (Default value = None)</dd>
             DF=DF.merge(df__.reset_index(),on=timeunit)
         
         
-    return DF</code></pre>
+    return DF.set_index(timeunit)</code></pre>
 </details>
 </dd>
 <dt id="qbiome.qutil.saveFIG"><code class="name flex">
