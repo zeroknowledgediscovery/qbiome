@@ -82,7 +82,7 @@ def qsmooth(df,
       pandas.DataFrame: smooth dataframe
 
     &#34;&#34;&#34;
-        
+    timeunit=index
     df=df.pivot(index=index,columns=columns)
     df.columns=[x[1] for x in df.columns]
     if interpolate:
@@ -547,7 +547,7 @@ legend (Default value = None)</dd>
       pandas.DataFrame: smooth dataframe
 
     &#34;&#34;&#34;
-        
+    timeunit=index
     df=df.pivot(index=index,columns=columns)
     df.columns=[x[1] for x in df.columns]
     if interpolate:
