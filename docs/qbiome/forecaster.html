@@ -44,7 +44,12 @@ class Forecaster:
         self.qnet_orchestrator = qnet_orchestrator
         self.quantizer = qnet_orchestrator.quantizer
 
-    def forecast_data(self, data, start_week, end_week=None, n_samples=100):
+    def forecast_data(self,
+                      data,
+                      start_week,
+                      end_week=None,
+                      n_samples=100,
+                      subject_id=None):
         &#34;&#34;&#34;Forecast the data matrix from `start_week` to `end_week`
 
         Output format:
@@ -58,8 +63,9 @@ class Forecaster:
         Args:
             data (numpy.ndarray): 2D array of label strings, produced by `self.get_qnet_inputs`
             start_week (int): start predicting from this week
-            end_week (int): end predicting after this week
+            end_week (int, optional): end predicting after this week
             n_samples (int, optional): the number of times to sample from qnet predictions for one masked entry. Defaults to 100.
+            subject_id (list[str], optional): subject id for each row of data. If None, we assume data has as many rows as quantized originally. This must be set for new patient data.
 
         Returns:
             pandas.DataFrame: see format above
@@ -73,7 +79,13 @@ class Forecaster:
             )
             forecasted_matrix[idx] = forecasted_seq
 
-        df = self.quantizer.add_meta_to_matrix(forecasted_matrix)
+        if sample_id is None:
+            df = self.quantizer.add_meta_to_matrix(forecasted_matrix)
+        else:
+            df = self.quantizer.add_meta_to_matrix(forecasted_matrix, add_subject_id=False)
+            if len(subject_id) != df.index.size:
+                raise(&#39;Subject_id list must match in length to number of rows in input data matrix in forecaster&#39;)
+            df[&#39;subject_id&#39;]=subject_id
         # convert to plottable format
         plot_df = self.quantizer.melt_into_plot_format(df)
         return plot_df</code></pre>
@@ -117,7 +129,12 @@ class Forecaster:
         self.qnet_orchestrator = qnet_orchestrator
         self.quantizer = qnet_orchestrator.quantizer
 
-    def forecast_data(self, data, start_week, end_week=None, n_samples=100):
+    def forecast_data(self,
+                      data,
+                      start_week,
+                      end_week=None,
+                      n_samples=100,
+                      subject_id=None):
         &#34;&#34;&#34;Forecast the data matrix from `start_week` to `end_week`
 
         Output format:
@@ -131,8 +148,9 @@ class Forecaster:
         Args:
             data (numpy.ndarray): 2D array of label strings, produced by `self.get_qnet_inputs`
             start_week (int): start predicting from this week
-            end_week (int): end predicting after this week
+            end_week (int, optional): end predicting after this week
             n_samples (int, optional): the number of times to sample from qnet predictions for one masked entry. Defaults to 100.
+            subject_id (list[str], optional): subject id for each row of data. If None, we assume data has as many rows as quantized originally. This must be set for new patient data.
 
         Returns:
             pandas.DataFrame: see format above
@@ -146,7 +164,13 @@ class Forecaster:
             )
             forecasted_matrix[idx] = forecasted_seq
 
-        df = self.quantizer.add_meta_to_matrix(forecasted_matrix)
+        if sample_id is None:
+            df = self.quantizer.add_meta_to_matrix(forecasted_matrix)
+        else:
+            df = self.quantizer.add_meta_to_matrix(forecasted_matrix, add_subject_id=False)
+            if len(subject_id) != df.index.size:
+                raise(&#39;Subject_id list must match in length to number of rows in input data matrix in forecaster&#39;)
+            df[&#39;subject_id&#39;]=subject_id
         # convert to plottable format
         plot_df = self.quantizer.melt_into_plot_format(df)
         return plot_df</code></pre>
@@ -154,7 +178,7 @@ class Forecaster:
 <h3>Methods</h3>
 <dl>
 <dt id="qbiome.forecaster.Forecaster.forecast_data"><code class="name flex">
-<span>def <span class="ident">forecast_data</span></span>(<span>self, data, start_week, end_week=None, n_samples=100)</span>
+<span>def <span class="ident">forecast_data</span></span>(<span>self, data, start_week, end_week=None, n_samples=100, subject_id=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Forecast the data matrix from <code>start_week</code> to <code>end_week</code></p>
@@ -195,10 +219,12 @@ class Forecaster:
 <dd>2D array of label strings, produced by <code>self.get_qnet_inputs</code></dd>
 <dt><strong><code>start_week</code></strong> :&ensp;<code>int</code></dt>
 <dd>start predicting from this week</dd>
-<dt><strong><code>end_week</code></strong> :&ensp;<code>int</code></dt>
+<dt><strong><code>end_week</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>end predicting after this week</dd>
 <dt><strong><code>n_samples</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>the number of times to sample from qnet predictions for one masked entry. Defaults to 100.</dd>
+<dt><strong><code>subject_id</code></strong> :&ensp;<code>list[str]</code>, optional</dt>
+<dd>subject id for each row of data. If None, we assume data has as many rows as quantized originally. This must be set for new patient data.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -209,7 +235,12 @@ class Forecaster:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def forecast_data(self, data, start_week, end_week=None, n_samples=100):
+<pre><code class="python">def forecast_data(self,
+                  data,
+                  start_week,
+                  end_week=None,
+                  n_samples=100,
+                  subject_id=None):
     &#34;&#34;&#34;Forecast the data matrix from `start_week` to `end_week`
 
     Output format:
@@ -223,8 +254,9 @@ class Forecaster:
     Args:
         data (numpy.ndarray): 2D array of label strings, produced by `self.get_qnet_inputs`
         start_week (int): start predicting from this week
-        end_week (int): end predicting after this week
+        end_week (int, optional): end predicting after this week
         n_samples (int, optional): the number of times to sample from qnet predictions for one masked entry. Defaults to 100.
+        subject_id (list[str], optional): subject id for each row of data. If None, we assume data has as many rows as quantized originally. This must be set for new patient data.
 
     Returns:
         pandas.DataFrame: see format above
@@ -238,7 +270,13 @@ class Forecaster:
         )
         forecasted_matrix[idx] = forecasted_seq
 
-    df = self.quantizer.add_meta_to_matrix(forecasted_matrix)
+    if sample_id is None:
+        df = self.quantizer.add_meta_to_matrix(forecasted_matrix)
+    else:
+        df = self.quantizer.add_meta_to_matrix(forecasted_matrix, add_subject_id=False)
+        if len(subject_id) != df.index.size:
+            raise(&#39;Subject_id list must match in length to number of rows in input data matrix in forecaster&#39;)
+        df[&#39;subject_id&#39;]=subject_id
     # convert to plottable format
     plot_df = self.quantizer.melt_into_plot_format(df)
     return plot_df</code></pre>
