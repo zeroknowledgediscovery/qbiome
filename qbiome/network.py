@@ -135,7 +135,7 @@ class Network(object):
                 self.network, directed=True, prune=True)
 
         if self.removeselfloops:
-            self.network=gt.remove_self_loops(self.network)
+            gt.remove_self_loops(self.network)
 
         self.nm = self.network.new_vertex_property("string")
         nm2 = self.network.new_vertex_property("string")
