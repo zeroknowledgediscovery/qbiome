@@ -1,0 +1,1077 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>qbiome.network API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#666666;background-color:black;//mix-blend-mode:difference;color:#bbbbbb;z-index:3}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#66bb66;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#66FF66}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:transparent;padding:1px 4px;color:#FFA500;overflow-wrap:break-word}h1 code{background:transparent}pre{overflow-wrap:break-word;background:#111111;word-wrap:break-word;border:0;border-top:1px solid #666;border-bottom:1px solid #666;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#333333;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#aaeeaa;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;color:#bbbbbb;background-color:black;overflow-wrap:break-word}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>qbiome.network</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import pandas as pd
+import graph_tool.all as gt
+import numpy as np
+import matplotlib as mpl
+import matplotlib.cm as cm
+from matplotlib.colors import LinearSegmentedColormap
+from tqdm import tqdm
+
+
+class Network(object):
+    
+    def __init__(self,
+                 input_dotfile,
+                 cmap=cm.Spectral_r,
+                 edgecolmap=None,
+                 preflen=None,
+                 alpha=.7,
+                 minsize=5,
+                 edgealpha=.2,
+                 exponent=1,
+                 edgecollim=2,
+                 strongcomponent=True,
+                 removeselfloops=True,
+                 exponentialscaling=True,
+                 outfile=None):
+        &#34;&#34;&#34;Process hypothesis generated dotfile for network visualization
+
+        Args:
+          input_dotfile (str): dotfile generated from hypothesis module
+          cmap (matplotlib colormap):  color map for nodes (Default value = cm.Spectral_r)
+          edgecolmap (matplotlib colormap):  edge color map (Default value = None)
+          preflen (int):  max length of node names (Default value = None)
+          alpha (float):  alpha for nodes (Default value = .7)
+          minsize (int):  minimum soze of nodes (Default value = 5)
+          edgealpha (float):  edge alpha (Default value = .2)
+          exponent (int):  exponent in exponential scaling (Default value = 1)
+          edgecollim (int):  range for colomap on edges (Default value = 2)
+          strongcomponent (bool):  if True only show strong component (Default value = True)
+          removeselfloops (bool):  if True remove self loops (Default value = True)
+          exponentialscaling (bool):  if True use exponential scaling (Default value = True)
+          outfile (str):  output filename (Default value = None)
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if edgecolmap is None:
+            self.edgecolmap=LinearSegmentedColormap.from_list(
+                &#39;edgecolmap&#39;,
+                [&#39;#0000ff&#39;,
+                 &#39;#888888&#39;,
+                 &#39;#ff0000&#39;])
+        else:
+            self.edgecolmap=edgecolmap
+        self.minsize=minsize
+        self.cmap=cmap
+        self.network=None
+        self.dotfile=input_dotfile
+        self.preflen=preflen
+        self.edgealpha=edgealpha
+        self.exponent=exponent
+        self.edgecollim=edgecollim
+        self.strongcomponent=strongcomponent
+        self.removeselfloops=removeselfloops
+        self.exponentialscaling=exponentialscaling
+        self.alpha=alpha
+        self.nm=None
+        self.od=None
+        self.pos=None
+        self.hl=None
+        self.ew_pen=None
+        self.e_marker=None
+        self.deg=None
+        self.control=None
+        self.ods=None
+        self.varclass=None
+        self.ecol=None
+        self.outfile=outfile
+        
+    def short_name(self,s,LEN):
+        &#34;&#34;&#34;
+
+        Args:
+          s (str): string
+          LEN (nt): length of short name
+
+        Returns:
+          str: short name
+
+        &#34;&#34;&#34;
+        if any([s.split(&#39;_&#39;)[0][:4] in x for x in [&#39;Firmicutes&#39;,&#39;Chloroflex&#39;,&#39;Desulfobacterota&#39;,&#39;Bacilli&#39;]]):
+            if len(s.split(&#39;_&#39;))&gt;1 and s.split(&#39;_&#39;)[1] in [&#39;A&#39;,&#39;C&#39;,&#39;K&#39;,&#39;I&#39;]:
+                return s.split(&#39;_&#39;)[0][:LEN]+&#39;_&#39;+s.split(&#39;_&#39;)[1]
+            else:
+                return s.split(&#39;_&#39;)[0][:LEN]
+        else:
+            return s.split(&#39;_&#39;)[0][:LEN]
+        
+    def f(self,x,A=0,E=True,exponent=2.0):
+        &#34;&#34;&#34;adjust node sizes
+
+        Args:
+          x: 
+          A:  (Default value = 0)
+          E:  (Default value = True)
+          exponent:  (Default value = 2.0)
+
+        Returns:
+          float
+        &#34;&#34;&#34;
+        if E:
+            return exponent**x + A
+        return x+A
+
+    def sfunc(self,val,SIGN=False):
+        &#34;&#34;&#34;
+
+        Args:
+          val: 
+          SIGN:  (Default value = False)
+
+        Returns:
+          float
+        &#34;&#34;&#34;
+        if SIGN:
+            return np.sign(val)
+        return val
+
+ 
+    def get(self):
+        &#34;&#34;&#34;Set graph-tool network for drawing&#34;&#34;&#34;
+        self.network = gt.load_graph(self.dotfile)
+
+        if self.strongcomponent:
+            self.network=gt.extract_largest_component(
+                self.network, directed=True, prune=True)
+
+        if self.removeselfloops:
+            gt.remove_self_loops(self.network)
+
+        self.nm = self.network.new_vertex_property(&#34;string&#34;)
+        nm2 = self.network.new_vertex_property(&#34;string&#34;)
+        self.hl = self.network.new_vertex_property(&#34;bool&#34;)
+        self.network.vertex_properties[&#34;text&#34;] = self.nm
+        self.network.vertex_properties[&#34;text&#34;] = nm2
+        names=[]
+        for v in self.network.vertices():
+            if v.out_degree() &gt; -1:
+                self.nm[v]=self.short_name(
+                    self.network.vp.vertex_name[v],self.preflen)
+                nm2[v]=self.short_name(
+                    self.network.vp.vertex_name[v],self.preflen)
+                self.hl[v]=False
+            else:
+                nm2[v]=self.short_name(
+                    self.network.vp.vertex_name[v],self.preflen)
+                self.nm[v]=&#39;&#39;
+                self.hl[v]=False
+            names=names+[nm2[v]]
+
+        NAMES=pd.Series(list(set(names)),
+                        name=&#39;varclass&#39;).reset_index().set_index(&#39;varclass&#39;)
+        self.varclass = self.network.new_vertex_property(&#34;float&#34;)
+        self.network.vertex_properties[&#34;varclass&#34;] = self.varclass
+        for v in self.network.vertices():
+            self.varclass[v]=NAMES.loc[nm2[v]].values[0]
+
+        self.od = self.network.new_vertex_property(&#34;float&#34;)
+        self.network.vertex_properties[&#34;size&#34;] = self.od
+        for v in self.network.vertices():
+            self.od[v]=self.f(v.out_degree(),
+                              A=self.minsize,
+                              E=self.exponentialscaling,
+                              exponent=self.exponent)+5
+        self.ods = self.network.new_vertex_property(&#34;float&#34;)
+        self.network.vertex_properties[&#34;size&#34;] = self.ods
+        for v in self.network.vertices():
+            self.ods[v]=1*self.f(v.out_degree(),
+                                 A=self.minsize,
+                                 E=self.exponentialscaling,
+                                 exponent=1)+2
+
+        self.ew = self.network.new_edge_property(&#34;float&#34;)
+        self.network.edge_properties[&#34;eweight&#34;] = self.ew
+        for e in self.network.edges():
+            self.ew[e]=float(self.network.ep.weight[e])**1
+
+        self.ew_pen = self.network.new_edge_property(&#34;float&#34;)
+        self.network.edge_properties[&#34;eweight_pen&#34;] = self.ew_pen
+        for e in self.network.edges():
+            self.ew_pen[e]=4/(1 + np.exp(-.05-np.fabs(float(self.network.ep.weight[e]))))
+
+        self.e_marker = self.network.new_edge_property(&#34;string&#34;)
+        self.network.edge_properties[&#34;e_marker&#34;] = self.e_marker
+        for e in self.network.edges():
+            if float(self.network.ep.weight[e]) &lt; 0:
+                self.e_marker[e]=&#39;bar&#39;
+            else:
+                self.e_marker[e]=&#39;arrow&#39;
+
+        self.deg = self.network.degree_property_map(&#34;out&#34;)
+
+        self.ecol = self.network.new_edge_property(&#34;vector&lt;double&gt;&#34;)
+        self.network.edge_properties[&#34;ecol&#34;] = self.ecol
+        for e in self.network.edges():
+            col=cm.ScalarMappable(mpl.colors.Normalize(vmin=-self.edgecollim,
+                                                       vmax=self.edgecollim),
+                                  cmap=self.edgecolmap).to_rgba(float(self.ew[e]))
+            col=list(col)
+            col[3]=self.edgealpha
+            self.ecol[e]=tuple(col)
+
+        self.pos = gt.graphviz_draw(self.network,
+                                    overlap=False,
+                                    vsize=20,
+                                    sep=20,
+                                    output=None)
+
+        self.control = self.network.new_edge_property(&#34;vector&lt;double&gt;&#34;)
+        for e in self.network.edges():
+            d = np.sqrt(np.sum((self.pos[e.source()].a
+                                - self.pos[e.target()].a) ** 2))
+            d=d/2
+            self.control[e] = [0.0,0.0,0, .2*d, 0.5, d,1,0]
+
+        if self.outfile is not None:
+            gt.graph_draw(self.network,nodesfirst=False,
+                          pos=self.pos,
+                          vertex_halo=self.hl,
+                          vertex_halo_color=[.2,.2,.2,.1],
+                          edge_pen_width=self.ew_pen,
+                          edge_end_marker=self.e_marker,
+                          vorder=self.deg,
+                          edge_marker_size=10,
+                          vertex_color=self.varclass,#[.5,.5,.5,.3],
+                          edge_color=self.ecol,#[.5,.5,.5,.5],
+                          vertex_pen_width=1.5,
+                          vertex_size=self.od,
+                          vertex_text=self.nm,
+                          vcmap=(self.cmap,self.alpha),
+                          edge_control_points=self.control,
+                          vertex_fill_color=self.varclass,#deg,
+                          vertex_font_size=self.ods,
+                          vertex_text_color=[.1,.1,.1,.8],
+                          #vertex_text_position=0,
+                          output=self.outfile)
+
+    def draw(self,
+             pen_width=None,
+             cmap=None,
+             alpha=None,
+             text_pos=None):
+        &#34;&#34;&#34;Draw  network
+
+        Args:
+          pen_width (float):  (Default value = None)
+          cmap (matplotlib colormap):  (Default value = None)
+          alpha (float):  (Default value = None)
+          text_pos (float): if not None, puts node text below node (Default value = None)
+
+        Returns:
+
+        &#34;&#34;&#34;
+
+        if pen_width is None:
+            edge_pen_width=self.ew_pen
+        else:
+            edge_pen_width=pen_width
+            
+        if cmap is None:
+            cmap=self.cmap
+            
+        if alpha is None:
+            alpha=self.alpha
+
+        if text_pos is None:
+            gt.graph_draw(self.network,nodesfirst=False,
+                          pos=self.pos,
+                          vertex_halo=self.hl,
+                          vertex_halo_color=[.2,.2,.2,.1],
+                          edge_pen_width=pen_width,
+                          edge_end_marker=self.e_marker,
+                          vorder=self.deg,
+                          edge_marker_size=10,
+                          vertex_color=self.varclass,#[.5,.5,.5,.3],
+                          edge_color=self.ecol,#[.5,.5,.5,.5],
+                          vertex_pen_width=1.5,
+                          vertex_size=self.od,
+                          vertex_text=self.nm,
+                          vcmap=(cmap,alpha),
+                          edge_control_points=self.control,
+                          vertex_fill_color=self.varclass,#deg,
+                          vertex_font_size=self.ods,
+                          vertex_text_color=[.1,.1,.1,.8],
+                          output=self.outfile)
+        else:
+            gt.graph_draw(self.network,nodesfirst=False,
+                          pos=self.pos,
+                          vertex_halo=self.hl,
+                          vertex_halo_color=[.2,.2,.2,.1],
+                          edge_pen_width=pen_width,
+                          edge_end_marker=self.e_marker,
+                          vorder=self.deg,
+                          edge_marker_size=10,
+                          vertex_color=self.varclass,#[.5,.5,.5,.3],
+                          edge_color=self.ecol,#[.5,.5,.5,.5],
+                          vertex_pen_width=1.5,
+                          vertex_size=self.od,
+                          vertex_text=self.nm,
+                          vcmap=(cmap,alpha),
+                          edge_control_points=self.control,
+                          vertex_fill_color=self.varclass,#deg,
+                          vertex_font_size=self.ods,
+                          vertex_text_color=[.1,.1,.1,.8],
+                          vertex_text_position=text_pos,
+                          output=self.outfile)
+             </code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="qbiome.network.Network"><code class="flex name class">
+<span>class <span class="ident">Network</span></span>
+<span>(</span><span>input_dotfile, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, edgecolmap=None, preflen=None, alpha=0.7, minsize=5, edgealpha=0.2, exponent=1, edgecollim=2, strongcomponent=True, removeselfloops=True, exponentialscaling=True, outfile=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Process hypothesis generated dotfile for network visualization</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>input_dotfile</code></strong> :&ensp;<code>str</code></dt>
+<dd>dotfile generated from hypothesis module</dd>
+<dt><strong><code>cmap</code></strong> :&ensp;<code>matplotlib colormap</code></dt>
+<dd>color map for nodes (Default value = cm.Spectral_r)</dd>
+<dt><strong><code>edgecolmap</code></strong> :&ensp;<code>matplotlib colormap</code></dt>
+<dd>edge color map (Default value = None)</dd>
+<dt><strong><code>preflen</code></strong> :&ensp;<code>int</code></dt>
+<dd>max length of node names (Default value = None)</dd>
+<dt><strong><code>alpha</code></strong> :&ensp;<code>float</code></dt>
+<dd>alpha for nodes (Default value = .7)</dd>
+<dt><strong><code>minsize</code></strong> :&ensp;<code>int</code></dt>
+<dd>minimum soze of nodes (Default value = 5)</dd>
+<dt><strong><code>edgealpha</code></strong> :&ensp;<code>float</code></dt>
+<dd>edge alpha (Default value = .2)</dd>
+<dt><strong><code>exponent</code></strong> :&ensp;<code>int</code></dt>
+<dd>exponent in exponential scaling (Default value = 1)</dd>
+<dt><strong><code>edgecollim</code></strong> :&ensp;<code>int</code></dt>
+<dd>range for colomap on edges (Default value = 2)</dd>
+<dt><strong><code>strongcomponent</code></strong> :&ensp;<code>bool</code></dt>
+<dd>if True only show strong component (Default value = True)</dd>
+<dt><strong><code>removeselfloops</code></strong> :&ensp;<code>bool</code></dt>
+<dd>if True remove self loops (Default value = True)</dd>
+<dt><strong><code>exponentialscaling</code></strong> :&ensp;<code>bool</code></dt>
+<dd>if True use exponential scaling (Default value = True)</dd>
+<dt><strong><code>outfile</code></strong> :&ensp;<code>str</code></dt>
+<dd>output filename (Default value = None)</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Network(object):
+    
+    def __init__(self,
+                 input_dotfile,
+                 cmap=cm.Spectral_r,
+                 edgecolmap=None,
+                 preflen=None,
+                 alpha=.7,
+                 minsize=5,
+                 edgealpha=.2,
+                 exponent=1,
+                 edgecollim=2,
+                 strongcomponent=True,
+                 removeselfloops=True,
+                 exponentialscaling=True,
+                 outfile=None):
+        &#34;&#34;&#34;Process hypothesis generated dotfile for network visualization
+
+        Args:
+          input_dotfile (str): dotfile generated from hypothesis module
+          cmap (matplotlib colormap):  color map for nodes (Default value = cm.Spectral_r)
+          edgecolmap (matplotlib colormap):  edge color map (Default value = None)
+          preflen (int):  max length of node names (Default value = None)
+          alpha (float):  alpha for nodes (Default value = .7)
+          minsize (int):  minimum soze of nodes (Default value = 5)
+          edgealpha (float):  edge alpha (Default value = .2)
+          exponent (int):  exponent in exponential scaling (Default value = 1)
+          edgecollim (int):  range for colomap on edges (Default value = 2)
+          strongcomponent (bool):  if True only show strong component (Default value = True)
+          removeselfloops (bool):  if True remove self loops (Default value = True)
+          exponentialscaling (bool):  if True use exponential scaling (Default value = True)
+          outfile (str):  output filename (Default value = None)
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if edgecolmap is None:
+            self.edgecolmap=LinearSegmentedColormap.from_list(
+                &#39;edgecolmap&#39;,
+                [&#39;#0000ff&#39;,
+                 &#39;#888888&#39;,
+                 &#39;#ff0000&#39;])
+        else:
+            self.edgecolmap=edgecolmap
+        self.minsize=minsize
+        self.cmap=cmap
+        self.network=None
+        self.dotfile=input_dotfile
+        self.preflen=preflen
+        self.edgealpha=edgealpha
+        self.exponent=exponent
+        self.edgecollim=edgecollim
+        self.strongcomponent=strongcomponent
+        self.removeselfloops=removeselfloops
+        self.exponentialscaling=exponentialscaling
+        self.alpha=alpha
+        self.nm=None
+        self.od=None
+        self.pos=None
+        self.hl=None
+        self.ew_pen=None
+        self.e_marker=None
+        self.deg=None
+        self.control=None
+        self.ods=None
+        self.varclass=None
+        self.ecol=None
+        self.outfile=outfile
+        
+    def short_name(self,s,LEN):
+        &#34;&#34;&#34;
+
+        Args:
+          s (str): string
+          LEN (nt): length of short name
+
+        Returns:
+          str: short name
+
+        &#34;&#34;&#34;
+        if any([s.split(&#39;_&#39;)[0][:4] in x for x in [&#39;Firmicutes&#39;,&#39;Chloroflex&#39;,&#39;Desulfobacterota&#39;,&#39;Bacilli&#39;]]):
+            if len(s.split(&#39;_&#39;))&gt;1 and s.split(&#39;_&#39;)[1] in [&#39;A&#39;,&#39;C&#39;,&#39;K&#39;,&#39;I&#39;]:
+                return s.split(&#39;_&#39;)[0][:LEN]+&#39;_&#39;+s.split(&#39;_&#39;)[1]
+            else:
+                return s.split(&#39;_&#39;)[0][:LEN]
+        else:
+            return s.split(&#39;_&#39;)[0][:LEN]
+        
+    def f(self,x,A=0,E=True,exponent=2.0):
+        &#34;&#34;&#34;adjust node sizes
+
+        Args:
+          x: 
+          A:  (Default value = 0)
+          E:  (Default value = True)
+          exponent:  (Default value = 2.0)
+
+        Returns:
+          float
+        &#34;&#34;&#34;
+        if E:
+            return exponent**x + A
+        return x+A
+
+    def sfunc(self,val,SIGN=False):
+        &#34;&#34;&#34;
+
+        Args:
+          val: 
+          SIGN:  (Default value = False)
+
+        Returns:
+          float
+        &#34;&#34;&#34;
+        if SIGN:
+            return np.sign(val)
+        return val
+
+ 
+    def get(self):
+        &#34;&#34;&#34;Set graph-tool network for drawing&#34;&#34;&#34;
+        self.network = gt.load_graph(self.dotfile)
+
+        if self.strongcomponent:
+            self.network=gt.extract_largest_component(
+                self.network, directed=True, prune=True)
+
+        if self.removeselfloops:
+            gt.remove_self_loops(self.network)
+
+        self.nm = self.network.new_vertex_property(&#34;string&#34;)
+        nm2 = self.network.new_vertex_property(&#34;string&#34;)
+        self.hl = self.network.new_vertex_property(&#34;bool&#34;)
+        self.network.vertex_properties[&#34;text&#34;] = self.nm
+        self.network.vertex_properties[&#34;text&#34;] = nm2
+        names=[]
+        for v in self.network.vertices():
+            if v.out_degree() &gt; -1:
+                self.nm[v]=self.short_name(
+                    self.network.vp.vertex_name[v],self.preflen)
+                nm2[v]=self.short_name(
+                    self.network.vp.vertex_name[v],self.preflen)
+                self.hl[v]=False
+            else:
+                nm2[v]=self.short_name(
+                    self.network.vp.vertex_name[v],self.preflen)
+                self.nm[v]=&#39;&#39;
+                self.hl[v]=False
+            names=names+[nm2[v]]
+
+        NAMES=pd.Series(list(set(names)),
+                        name=&#39;varclass&#39;).reset_index().set_index(&#39;varclass&#39;)
+        self.varclass = self.network.new_vertex_property(&#34;float&#34;)
+        self.network.vertex_properties[&#34;varclass&#34;] = self.varclass
+        for v in self.network.vertices():
+            self.varclass[v]=NAMES.loc[nm2[v]].values[0]
+
+        self.od = self.network.new_vertex_property(&#34;float&#34;)
+        self.network.vertex_properties[&#34;size&#34;] = self.od
+        for v in self.network.vertices():
+            self.od[v]=self.f(v.out_degree(),
+                              A=self.minsize,
+                              E=self.exponentialscaling,
+                              exponent=self.exponent)+5
+        self.ods = self.network.new_vertex_property(&#34;float&#34;)
+        self.network.vertex_properties[&#34;size&#34;] = self.ods
+        for v in self.network.vertices():
+            self.ods[v]=1*self.f(v.out_degree(),
+                                 A=self.minsize,
+                                 E=self.exponentialscaling,
+                                 exponent=1)+2
+
+        self.ew = self.network.new_edge_property(&#34;float&#34;)
+        self.network.edge_properties[&#34;eweight&#34;] = self.ew
+        for e in self.network.edges():
+            self.ew[e]=float(self.network.ep.weight[e])**1
+
+        self.ew_pen = self.network.new_edge_property(&#34;float&#34;)
+        self.network.edge_properties[&#34;eweight_pen&#34;] = self.ew_pen
+        for e in self.network.edges():
+            self.ew_pen[e]=4/(1 + np.exp(-.05-np.fabs(float(self.network.ep.weight[e]))))
+
+        self.e_marker = self.network.new_edge_property(&#34;string&#34;)
+        self.network.edge_properties[&#34;e_marker&#34;] = self.e_marker
+        for e in self.network.edges():
+            if float(self.network.ep.weight[e]) &lt; 0:
+                self.e_marker[e]=&#39;bar&#39;
+            else:
+                self.e_marker[e]=&#39;arrow&#39;
+
+        self.deg = self.network.degree_property_map(&#34;out&#34;)
+
+        self.ecol = self.network.new_edge_property(&#34;vector&lt;double&gt;&#34;)
+        self.network.edge_properties[&#34;ecol&#34;] = self.ecol
+        for e in self.network.edges():
+            col=cm.ScalarMappable(mpl.colors.Normalize(vmin=-self.edgecollim,
+                                                       vmax=self.edgecollim),
+                                  cmap=self.edgecolmap).to_rgba(float(self.ew[e]))
+            col=list(col)
+            col[3]=self.edgealpha
+            self.ecol[e]=tuple(col)
+
+        self.pos = gt.graphviz_draw(self.network,
+                                    overlap=False,
+                                    vsize=20,
+                                    sep=20,
+                                    output=None)
+
+        self.control = self.network.new_edge_property(&#34;vector&lt;double&gt;&#34;)
+        for e in self.network.edges():
+            d = np.sqrt(np.sum((self.pos[e.source()].a
+                                - self.pos[e.target()].a) ** 2))
+            d=d/2
+            self.control[e] = [0.0,0.0,0, .2*d, 0.5, d,1,0]
+
+        if self.outfile is not None:
+            gt.graph_draw(self.network,nodesfirst=False,
+                          pos=self.pos,
+                          vertex_halo=self.hl,
+                          vertex_halo_color=[.2,.2,.2,.1],
+                          edge_pen_width=self.ew_pen,
+                          edge_end_marker=self.e_marker,
+                          vorder=self.deg,
+                          edge_marker_size=10,
+                          vertex_color=self.varclass,#[.5,.5,.5,.3],
+                          edge_color=self.ecol,#[.5,.5,.5,.5],
+                          vertex_pen_width=1.5,
+                          vertex_size=self.od,
+                          vertex_text=self.nm,
+                          vcmap=(self.cmap,self.alpha),
+                          edge_control_points=self.control,
+                          vertex_fill_color=self.varclass,#deg,
+                          vertex_font_size=self.ods,
+                          vertex_text_color=[.1,.1,.1,.8],
+                          #vertex_text_position=0,
+                          output=self.outfile)
+
+    def draw(self,
+             pen_width=None,
+             cmap=None,
+             alpha=None,
+             text_pos=None):
+        &#34;&#34;&#34;Draw  network
+
+        Args:
+          pen_width (float):  (Default value = None)
+          cmap (matplotlib colormap):  (Default value = None)
+          alpha (float):  (Default value = None)
+          text_pos (float): if not None, puts node text below node (Default value = None)
+
+        Returns:
+
+        &#34;&#34;&#34;
+
+        if pen_width is None:
+            edge_pen_width=self.ew_pen
+        else:
+            edge_pen_width=pen_width
+            
+        if cmap is None:
+            cmap=self.cmap
+            
+        if alpha is None:
+            alpha=self.alpha
+
+        if text_pos is None:
+            gt.graph_draw(self.network,nodesfirst=False,
+                          pos=self.pos,
+                          vertex_halo=self.hl,
+                          vertex_halo_color=[.2,.2,.2,.1],
+                          edge_pen_width=pen_width,
+                          edge_end_marker=self.e_marker,
+                          vorder=self.deg,
+                          edge_marker_size=10,
+                          vertex_color=self.varclass,#[.5,.5,.5,.3],
+                          edge_color=self.ecol,#[.5,.5,.5,.5],
+                          vertex_pen_width=1.5,
+                          vertex_size=self.od,
+                          vertex_text=self.nm,
+                          vcmap=(cmap,alpha),
+                          edge_control_points=self.control,
+                          vertex_fill_color=self.varclass,#deg,
+                          vertex_font_size=self.ods,
+                          vertex_text_color=[.1,.1,.1,.8],
+                          output=self.outfile)
+        else:
+            gt.graph_draw(self.network,nodesfirst=False,
+                          pos=self.pos,
+                          vertex_halo=self.hl,
+                          vertex_halo_color=[.2,.2,.2,.1],
+                          edge_pen_width=pen_width,
+                          edge_end_marker=self.e_marker,
+                          vorder=self.deg,
+                          edge_marker_size=10,
+                          vertex_color=self.varclass,#[.5,.5,.5,.3],
+                          edge_color=self.ecol,#[.5,.5,.5,.5],
+                          vertex_pen_width=1.5,
+                          vertex_size=self.od,
+                          vertex_text=self.nm,
+                          vcmap=(cmap,alpha),
+                          edge_control_points=self.control,
+                          vertex_fill_color=self.varclass,#deg,
+                          vertex_font_size=self.ods,
+                          vertex_text_color=[.1,.1,.1,.8],
+                          vertex_text_position=text_pos,
+                          output=self.outfile)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="qbiome.network.Network.draw"><code class="name flex">
+<span>def <span class="ident">draw</span></span>(<span>self, pen_width=None, cmap=None, alpha=None, text_pos=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Draw
+network</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pen_width</code></strong> :&ensp;<code>float</code></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>cmap</code></strong> :&ensp;<code>matplotlib colormap</code></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>alpha</code></strong> :&ensp;<code>float</code></dt>
+<dd>(Default value = None)</dd>
+<dt><strong><code>text_pos</code></strong> :&ensp;<code>float</code></dt>
+<dd>if not None, puts node text below node (Default value = None)</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def draw(self,
+         pen_width=None,
+         cmap=None,
+         alpha=None,
+         text_pos=None):
+    &#34;&#34;&#34;Draw  network
+
+    Args:
+      pen_width (float):  (Default value = None)
+      cmap (matplotlib colormap):  (Default value = None)
+      alpha (float):  (Default value = None)
+      text_pos (float): if not None, puts node text below node (Default value = None)
+
+    Returns:
+
+    &#34;&#34;&#34;
+
+    if pen_width is None:
+        edge_pen_width=self.ew_pen
+    else:
+        edge_pen_width=pen_width
+        
+    if cmap is None:
+        cmap=self.cmap
+        
+    if alpha is None:
+        alpha=self.alpha
+
+    if text_pos is None:
+        gt.graph_draw(self.network,nodesfirst=False,
+                      pos=self.pos,
+                      vertex_halo=self.hl,
+                      vertex_halo_color=[.2,.2,.2,.1],
+                      edge_pen_width=pen_width,
+                      edge_end_marker=self.e_marker,
+                      vorder=self.deg,
+                      edge_marker_size=10,
+                      vertex_color=self.varclass,#[.5,.5,.5,.3],
+                      edge_color=self.ecol,#[.5,.5,.5,.5],
+                      vertex_pen_width=1.5,
+                      vertex_size=self.od,
+                      vertex_text=self.nm,
+                      vcmap=(cmap,alpha),
+                      edge_control_points=self.control,
+                      vertex_fill_color=self.varclass,#deg,
+                      vertex_font_size=self.ods,
+                      vertex_text_color=[.1,.1,.1,.8],
+                      output=self.outfile)
+    else:
+        gt.graph_draw(self.network,nodesfirst=False,
+                      pos=self.pos,
+                      vertex_halo=self.hl,
+                      vertex_halo_color=[.2,.2,.2,.1],
+                      edge_pen_width=pen_width,
+                      edge_end_marker=self.e_marker,
+                      vorder=self.deg,
+                      edge_marker_size=10,
+                      vertex_color=self.varclass,#[.5,.5,.5,.3],
+                      edge_color=self.ecol,#[.5,.5,.5,.5],
+                      vertex_pen_width=1.5,
+                      vertex_size=self.od,
+                      vertex_text=self.nm,
+                      vcmap=(cmap,alpha),
+                      edge_control_points=self.control,
+                      vertex_fill_color=self.varclass,#deg,
+                      vertex_font_size=self.ods,
+                      vertex_text_color=[.1,.1,.1,.8],
+                      vertex_text_position=text_pos,
+                      output=self.outfile)</code></pre>
+</details>
+</dd>
+<dt id="qbiome.network.Network.f"><code class="name flex">
+<span>def <span class="ident">f</span></span>(<span>self, x, A=0, E=True, exponent=2.0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>adjust node sizes</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>A</code></strong></dt>
+<dd>(Default value = 0)</dd>
+<dt><strong><code>E</code></strong></dt>
+<dd>(Default value = True)</dd>
+<dt><strong><code>exponent</code></strong></dt>
+<dd>(Default value = 2.0)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>float</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def f(self,x,A=0,E=True,exponent=2.0):
+    &#34;&#34;&#34;adjust node sizes
+
+    Args:
+      x: 
+      A:  (Default value = 0)
+      E:  (Default value = True)
+      exponent:  (Default value = 2.0)
+
+    Returns:
+      float
+    &#34;&#34;&#34;
+    if E:
+        return exponent**x + A
+    return x+A</code></pre>
+</details>
+</dd>
+<dt id="qbiome.network.Network.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set graph-tool network for drawing</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get(self):
+    &#34;&#34;&#34;Set graph-tool network for drawing&#34;&#34;&#34;
+    self.network = gt.load_graph(self.dotfile)
+
+    if self.strongcomponent:
+        self.network=gt.extract_largest_component(
+            self.network, directed=True, prune=True)
+
+    if self.removeselfloops:
+        gt.remove_self_loops(self.network)
+
+    self.nm = self.network.new_vertex_property(&#34;string&#34;)
+    nm2 = self.network.new_vertex_property(&#34;string&#34;)
+    self.hl = self.network.new_vertex_property(&#34;bool&#34;)
+    self.network.vertex_properties[&#34;text&#34;] = self.nm
+    self.network.vertex_properties[&#34;text&#34;] = nm2
+    names=[]
+    for v in self.network.vertices():
+        if v.out_degree() &gt; -1:
+            self.nm[v]=self.short_name(
+                self.network.vp.vertex_name[v],self.preflen)
+            nm2[v]=self.short_name(
+                self.network.vp.vertex_name[v],self.preflen)
+            self.hl[v]=False
+        else:
+            nm2[v]=self.short_name(
+                self.network.vp.vertex_name[v],self.preflen)
+            self.nm[v]=&#39;&#39;
+            self.hl[v]=False
+        names=names+[nm2[v]]
+
+    NAMES=pd.Series(list(set(names)),
+                    name=&#39;varclass&#39;).reset_index().set_index(&#39;varclass&#39;)
+    self.varclass = self.network.new_vertex_property(&#34;float&#34;)
+    self.network.vertex_properties[&#34;varclass&#34;] = self.varclass
+    for v in self.network.vertices():
+        self.varclass[v]=NAMES.loc[nm2[v]].values[0]
+
+    self.od = self.network.new_vertex_property(&#34;float&#34;)
+    self.network.vertex_properties[&#34;size&#34;] = self.od
+    for v in self.network.vertices():
+        self.od[v]=self.f(v.out_degree(),
+                          A=self.minsize,
+                          E=self.exponentialscaling,
+                          exponent=self.exponent)+5
+    self.ods = self.network.new_vertex_property(&#34;float&#34;)
+    self.network.vertex_properties[&#34;size&#34;] = self.ods
+    for v in self.network.vertices():
+        self.ods[v]=1*self.f(v.out_degree(),
+                             A=self.minsize,
+                             E=self.exponentialscaling,
+                             exponent=1)+2
+
+    self.ew = self.network.new_edge_property(&#34;float&#34;)
+    self.network.edge_properties[&#34;eweight&#34;] = self.ew
+    for e in self.network.edges():
+        self.ew[e]=float(self.network.ep.weight[e])**1
+
+    self.ew_pen = self.network.new_edge_property(&#34;float&#34;)
+    self.network.edge_properties[&#34;eweight_pen&#34;] = self.ew_pen
+    for e in self.network.edges():
+        self.ew_pen[e]=4/(1 + np.exp(-.05-np.fabs(float(self.network.ep.weight[e]))))
+
+    self.e_marker = self.network.new_edge_property(&#34;string&#34;)
+    self.network.edge_properties[&#34;e_marker&#34;] = self.e_marker
+    for e in self.network.edges():
+        if float(self.network.ep.weight[e]) &lt; 0:
+            self.e_marker[e]=&#39;bar&#39;
+        else:
+            self.e_marker[e]=&#39;arrow&#39;
+
+    self.deg = self.network.degree_property_map(&#34;out&#34;)
+
+    self.ecol = self.network.new_edge_property(&#34;vector&lt;double&gt;&#34;)
+    self.network.edge_properties[&#34;ecol&#34;] = self.ecol
+    for e in self.network.edges():
+        col=cm.ScalarMappable(mpl.colors.Normalize(vmin=-self.edgecollim,
+                                                   vmax=self.edgecollim),
+                              cmap=self.edgecolmap).to_rgba(float(self.ew[e]))
+        col=list(col)
+        col[3]=self.edgealpha
+        self.ecol[e]=tuple(col)
+
+    self.pos = gt.graphviz_draw(self.network,
+                                overlap=False,
+                                vsize=20,
+                                sep=20,
+                                output=None)
+
+    self.control = self.network.new_edge_property(&#34;vector&lt;double&gt;&#34;)
+    for e in self.network.edges():
+        d = np.sqrt(np.sum((self.pos[e.source()].a
+                            - self.pos[e.target()].a) ** 2))
+        d=d/2
+        self.control[e] = [0.0,0.0,0, .2*d, 0.5, d,1,0]
+
+    if self.outfile is not None:
+        gt.graph_draw(self.network,nodesfirst=False,
+                      pos=self.pos,
+                      vertex_halo=self.hl,
+                      vertex_halo_color=[.2,.2,.2,.1],
+                      edge_pen_width=self.ew_pen,
+                      edge_end_marker=self.e_marker,
+                      vorder=self.deg,
+                      edge_marker_size=10,
+                      vertex_color=self.varclass,#[.5,.5,.5,.3],
+                      edge_color=self.ecol,#[.5,.5,.5,.5],
+                      vertex_pen_width=1.5,
+                      vertex_size=self.od,
+                      vertex_text=self.nm,
+                      vcmap=(self.cmap,self.alpha),
+                      edge_control_points=self.control,
+                      vertex_fill_color=self.varclass,#deg,
+                      vertex_font_size=self.ods,
+                      vertex_text_color=[.1,.1,.1,.8],
+                      #vertex_text_position=0,
+                      output=self.outfile)</code></pre>
+</details>
+</dd>
+<dt id="qbiome.network.Network.sfunc"><code class="name flex">
+<span>def <span class="ident">sfunc</span></span>(<span>self, val, SIGN=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>val</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>SIGN</code></strong></dt>
+<dd>(Default value = False)</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>float</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sfunc(self,val,SIGN=False):
+    &#34;&#34;&#34;
+
+    Args:
+      val: 
+      SIGN:  (Default value = False)
+
+    Returns:
+      float
+    &#34;&#34;&#34;
+    if SIGN:
+        return np.sign(val)
+    return val</code></pre>
+</details>
+</dd>
+<dt id="qbiome.network.Network.short_name"><code class="name flex">
+<span>def <span class="ident">short_name</span></span>(<span>self, s, LEN)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>s</code></strong> :&ensp;<code>str</code></dt>
+<dd>string</dd>
+<dt><strong><code>LEN</code></strong> :&ensp;<code>nt</code></dt>
+<dd>length of short name</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>short name</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def short_name(self,s,LEN):
+    &#34;&#34;&#34;
+
+    Args:
+      s (str): string
+      LEN (nt): length of short name
+
+    Returns:
+      str: short name
+
+    &#34;&#34;&#34;
+    if any([s.split(&#39;_&#39;)[0][:4] in x for x in [&#39;Firmicutes&#39;,&#39;Chloroflex&#39;,&#39;Desulfobacterota&#39;,&#39;Bacilli&#39;]]):
+        if len(s.split(&#39;_&#39;))&gt;1 and s.split(&#39;_&#39;)[1] in [&#39;A&#39;,&#39;C&#39;,&#39;K&#39;,&#39;I&#39;]:
+            return s.split(&#39;_&#39;)[0][:LEN]+&#39;_&#39;+s.split(&#39;_&#39;)[1]
+        else:
+            return s.split(&#39;_&#39;)[0][:LEN]
+    else:
+        return s.split(&#39;_&#39;)[0][:LEN]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<img src="logozed_nowhite.png" alt="drawing" style="width:400px;"/>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="qbiome" href="index.html">qbiome</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="qbiome.network.Network" href="#qbiome.network.Network">Network</a></code></h4>
+<ul class="">
+<li><code><a title="qbiome.network.Network.draw" href="#qbiome.network.Network.draw">draw</a></code></li>
+<li><code><a title="qbiome.network.Network.f" href="#qbiome.network.Network.f">f</a></code></li>
+<li><code><a title="qbiome.network.Network.get" href="#qbiome.network.Network.get">get</a></code></li>
+<li><code><a title="qbiome.network.Network.sfunc" href="#qbiome.network.Network.sfunc">sfunc</a></code></li>
+<li><code><a title="qbiome.network.Network.short_name" href="#qbiome.network.Network.short_name">short_name</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+Author: Lynn Zheng, Jin Li and Ishanu Chattopadhyay <a href="https://zed.uchicago.edu"> Zero Knowledge Discovery, University of Chicago</a>. Email: ishanu@uchicago.edu
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
