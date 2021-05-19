@@ -42,7 +42,7 @@ class Network(object):
                  input_dotfile,
                  cmap=cm.Spectral_r,
                  edgecolmap=None,
-                 preflen=None,
+                 preflen=8,
                  alpha=.7,
                  minsize=5,
                  edgealpha=.2,
@@ -116,13 +116,12 @@ class Network(object):
           str: short name
 
         &#34;&#34;&#34;
-        if any([s.split(&#39;_&#39;)[0][:4] in x for x in [&#39;Firmicutes&#39;,&#39;Chloroflex&#39;,&#39;Desulfobacterota&#39;,&#39;Bacilli&#39;]]):
-            if len(s.split(&#39;_&#39;))&gt;1 and s.split(&#39;_&#39;)[1] in [&#39;A&#39;,&#39;C&#39;,&#39;K&#39;,&#39;I&#39;]:
-                return s.split(&#39;_&#39;)[0][:LEN]+&#39;_&#39;+s.split(&#39;_&#39;)[1]
-            else:
-                return s.split(&#39;_&#39;)[0][:LEN]
-        else:
-            return s.split(&#39;_&#39;)[0][:LEN]
+        num=len(s.split(&#39;_&#39;))
+        if num&gt;1:
+            LEN=int(LEN//num) + 1
+            
+        return &#39;_&#39;.join([x[:LEN] for x in s.split(&#39;_&#39;)])
+        
         
     def f(self,x,A=0,E=True,exponent=2.0):
         &#34;&#34;&#34;adjust node sizes
@@ -356,7 +355,7 @@ class Network(object):
 <dl>
 <dt id="qbiome.network.Network"><code class="flex name class">
 <span>class <span class="ident">Network</span></span>
-<span>(</span><span>input_dotfile, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, edgecolmap=None, preflen=None, alpha=0.7, minsize=5, edgealpha=0.2, exponent=1, edgecollim=2, strongcomponent=True, removeselfloops=True, exponentialscaling=True, outfile=None)</span>
+<span>(</span><span>input_dotfile, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, edgecolmap=None, preflen=8, alpha=0.7, minsize=5, edgealpha=0.2, exponent=1, edgecollim=2, strongcomponent=True, removeselfloops=True, exponentialscaling=True, outfile=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Process hypothesis generated dotfile for network visualization</p>
@@ -400,7 +399,7 @@ class Network(object):
                  input_dotfile,
                  cmap=cm.Spectral_r,
                  edgecolmap=None,
-                 preflen=None,
+                 preflen=8,
                  alpha=.7,
                  minsize=5,
                  edgealpha=.2,
@@ -474,13 +473,12 @@ class Network(object):
           str: short name
 
         &#34;&#34;&#34;
-        if any([s.split(&#39;_&#39;)[0][:4] in x for x in [&#39;Firmicutes&#39;,&#39;Chloroflex&#39;,&#39;Desulfobacterota&#39;,&#39;Bacilli&#39;]]):
-            if len(s.split(&#39;_&#39;))&gt;1 and s.split(&#39;_&#39;)[1] in [&#39;A&#39;,&#39;C&#39;,&#39;K&#39;,&#39;I&#39;]:
-                return s.split(&#39;_&#39;)[0][:LEN]+&#39;_&#39;+s.split(&#39;_&#39;)[1]
-            else:
-                return s.split(&#39;_&#39;)[0][:LEN]
-        else:
-            return s.split(&#39;_&#39;)[0][:LEN]
+        num=len(s.split(&#39;_&#39;))
+        if num&gt;1:
+            LEN=int(LEN//num) + 1
+            
+        return &#39;_&#39;.join([x[:LEN] for x in s.split(&#39;_&#39;)])
+        
         
     def f(self,x,A=0,E=True,exponent=2.0):
         &#34;&#34;&#34;adjust node sizes
@@ -1026,13 +1024,11 @@ network</p>
       str: short name
 
     &#34;&#34;&#34;
-    if any([s.split(&#39;_&#39;)[0][:4] in x for x in [&#39;Firmicutes&#39;,&#39;Chloroflex&#39;,&#39;Desulfobacterota&#39;,&#39;Bacilli&#39;]]):
-        if len(s.split(&#39;_&#39;))&gt;1 and s.split(&#39;_&#39;)[1] in [&#39;A&#39;,&#39;C&#39;,&#39;K&#39;,&#39;I&#39;]:
-            return s.split(&#39;_&#39;)[0][:LEN]+&#39;_&#39;+s.split(&#39;_&#39;)[1]
-        else:
-            return s.split(&#39;_&#39;)[0][:LEN]
-    else:
-        return s.split(&#39;_&#39;)[0][:LEN]</code></pre>
+    num=len(s.split(&#39;_&#39;))
+    if num&gt;1:
+        LEN=int(LEN//num) + 1
+        
+    return &#39;_&#39;.join([x[:LEN] for x in s.split(&#39;_&#39;)])</code></pre>
 </details>
 </dd>
 </dl>

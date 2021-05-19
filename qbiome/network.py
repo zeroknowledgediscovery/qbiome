@@ -13,7 +13,7 @@ class Network(object):
                  input_dotfile,
                  cmap=cm.Spectral_r,
                  edgecolmap=None,
-                 preflen=None,
+                 preflen=8,
                  alpha=.7,
                  minsize=5,
                  edgealpha=.2,
@@ -87,13 +87,12 @@ class Network(object):
           str: short name
 
         """
-        if any([s.split('_')[0][:4] in x for x in ['Firmicutes','Chloroflex','Desulfobacterota','Bacilli']]):
-            if len(s.split('_'))>1 and s.split('_')[1] in ['A','C','K','I']:
-                return s.split('_')[0][:LEN]+'_'+s.split('_')[1]
-            else:
-                return s.split('_')[0][:LEN]
-        else:
-            return s.split('_')[0][:LEN]
+        num=len(s.split('_'))
+        if num>1:
+            LEN=int(LEN//num) + 1
+            
+        return '_'.join([x[:LEN] for x in s.split('_')])
+        
         
     def f(self,x,A=0,E=True,exponent=2.0):
         """adjust node sizes
