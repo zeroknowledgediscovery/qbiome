@@ -1,3 +1,5 @@
+tmp*
+exmples/tmp*
 *.dot
 *.joblib
 *.pkl
