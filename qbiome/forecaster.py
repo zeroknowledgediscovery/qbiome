@@ -50,7 +50,7 @@ class Forecaster:
             )
             forecasted_matrix[idx] = forecasted_seq
 
-        if sample_id is None:
+        if subject_id is None:
             df = self.quantizer.add_meta_to_matrix(forecasted_matrix)
         else:
             df = self.quantizer.add_meta_to_matrix(forecasted_matrix, add_subject_id=False)
