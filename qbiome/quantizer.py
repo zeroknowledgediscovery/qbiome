@@ -214,6 +214,11 @@ class Quantizer:
         df = quantized_df.drop(columns='subject_id')
         # matrix = df.astype(str).replace('nan', '').to_numpy(dtype=str)
         matrix = df.astype(str).fillna('').to_numpy(dtype=str)
+        # sanity-check matrix contains only empty strings and label strings
+        valid_labels = list(self.labels.keys()) + ['']
+        is_valid = np.isin(np.unique(matrix), valid_labels).all()
+        if not is_valid:
+            raise Exception('The label matrix contains strings that are neither the empty string nor the label strings')
         return df.columns, matrix
 
     def quantize_new_subject(self, subject_data, subject_id=None):
@@ -501,6 +506,9 @@ class Quantizer:
         dataframes = []
         for biome in avg_data.variable.unique():
             x = avg_data[avg_data.variable == biome].value
+            # check if there is NaN
+            if x.isnull().any():
+                raise Exception('There are NaNs in the inputs. Please run the forecaster to fill in all the NaNs first')
             x = x.to_numpy()[:, np.newaxis]
             model = self.random_forest_dict[biome]
             pred = model.predict(x)

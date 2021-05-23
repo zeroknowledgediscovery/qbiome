@@ -85,6 +85,8 @@ class DataFormatter:
         meta_subject_id.columns = ['sample_id', 'subject_id']
 
         sample_id_property = pd.merge(meta_property, meta_subject_id, on='sample_id', how='outer')
+        # make sure subject_id are strings
+        sample_id_property.subject_id = sample_id_property.subject_id.astype(str)
 
         return sample_id_property
 
