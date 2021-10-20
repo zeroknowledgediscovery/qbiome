@@ -114,6 +114,8 @@ class DataFormatter:
         meta_subject_id.columns = [&#39;sample_id&#39;, &#39;subject_id&#39;]
 
         sample_id_property = pd.merge(meta_property, meta_subject_id, on=&#39;sample_id&#39;, how=&#39;outer&#39;)
+        # make sure subject_id are strings
+        sample_id_property.subject_id = sample_id_property.subject_id.astype(str)
 
         return sample_id_property
 
@@ -347,6 +349,8 @@ class DataFormatter:
         meta_subject_id.columns = [&#39;sample_id&#39;, &#39;subject_id&#39;]
 
         sample_id_property = pd.merge(meta_property, meta_subject_id, on=&#39;sample_id&#39;, how=&#39;outer&#39;)
+        # make sure subject_id are strings
+        sample_id_property.subject_id = sample_id_property.subject_id.astype(str)
 
         return sample_id_property
 
@@ -698,6 +702,8 @@ property_column_name_out=&#39;antibiotic&#39;):
     meta_subject_id.columns = [&#39;sample_id&#39;, &#39;subject_id&#39;]
 
     sample_id_property = pd.merge(meta_property, meta_subject_id, on=&#39;sample_id&#39;, how=&#39;outer&#39;)
+    # make sure subject_id are strings
+    sample_id_property.subject_id = sample_id_property.subject_id.astype(str)
 
     return sample_id_property</code></pre>
 </details>

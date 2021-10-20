@@ -242,7 +242,13 @@ class Quantizer:
         # skip subject_id column
         df = quantized_df.drop(columns=&#39;subject_id&#39;)
         # matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
-        matrix = df.astype(str).fillna(&#39;&#39;).to_numpy(dtype=str)
+        # matrix = df.astype(str).fillna(&#39;&#39;).to_numpy(dtype=str)
+        matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).fillna(&#39;&#39;).to_numpy(dtype=str)
+        # sanity-check matrix contains only empty strings and label strings
+        valid_labels = list(self.labels.keys()) + [&#39;&#39;]
+        is_valid = np.isin(np.unique(matrix), valid_labels).all()
+        #if not is_valid:
+        #    raise Exception(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
         return df.columns, matrix
 
     def quantize_new_subject(self, subject_data, subject_id=None):
@@ -530,6 +536,9 @@ class Quantizer:
         dataframes = []
         for biome in avg_data.variable.unique():
             x = avg_data[avg_data.variable == biome].value
+            # check if there is NaN
+            if x.isnull().any():
+                raise Exception(&#39;There are NaNs in the inputs. Please run the forecaster to fill in all the NaNs first&#39;)
             x = x.to_numpy()[:, np.newaxis]
             model = self.random_forest_dict[biome]
             pred = model.predict(x)
@@ -757,7 +766,13 @@ class Quantizer:
         # skip subject_id column
         df = quantized_df.drop(columns=&#39;subject_id&#39;)
         # matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
-        matrix = df.astype(str).fillna(&#39;&#39;).to_numpy(dtype=str)
+        # matrix = df.astype(str).fillna(&#39;&#39;).to_numpy(dtype=str)
+        matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).fillna(&#39;&#39;).to_numpy(dtype=str)
+        # sanity-check matrix contains only empty strings and label strings
+        valid_labels = list(self.labels.keys()) + [&#39;&#39;]
+        is_valid = np.isin(np.unique(matrix), valid_labels).all()
+        #if not is_valid:
+        #    raise Exception(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
         return df.columns, matrix
 
     def quantize_new_subject(self, subject_data, subject_id=None):
@@ -1045,6 +1060,9 @@ class Quantizer:
         dataframes = []
         for biome in avg_data.variable.unique():
             x = avg_data[avg_data.variable == biome].value
+            # check if there is NaN
+            if x.isnull().any():
+                raise Exception(&#39;There are NaNs in the inputs. Please run the forecaster to fill in all the NaNs first&#39;)
             x = x.to_numpy()[:, np.newaxis]
             model = self.random_forest_dict[biome]
             pred = model.predict(x)
@@ -1254,6 +1272,9 @@ class Quantizer:
     dataframes = []
     for biome in avg_data.variable.unique():
         x = avg_data[avg_data.variable == biome].value
+        # check if there is NaN
+        if x.isnull().any():
+            raise Exception(&#39;There are NaNs in the inputs. Please run the forecaster to fill in all the NaNs first&#39;)
         x = x.to_numpy()[:, np.newaxis]
         model = self.random_forest_dict[biome]
         pred = model.predict(x)
@@ -1673,7 +1694,13 @@ value |
     # skip subject_id column
     df = quantized_df.drop(columns=&#39;subject_id&#39;)
     # matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).to_numpy(dtype=str)
-    matrix = df.astype(str).fillna(&#39;&#39;).to_numpy(dtype=str)
+    # matrix = df.astype(str).fillna(&#39;&#39;).to_numpy(dtype=str)
+    matrix = df.astype(str).replace(&#39;nan&#39;, &#39;&#39;).fillna(&#39;&#39;).to_numpy(dtype=str)
+    # sanity-check matrix contains only empty strings and label strings
+    valid_labels = list(self.labels.keys()) + [&#39;&#39;]
+    is_valid = np.isin(np.unique(matrix), valid_labels).all()
+    #if not is_valid:
+    #    raise Exception(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
     return df.columns, matrix</code></pre>
 </details>
 </dd>
