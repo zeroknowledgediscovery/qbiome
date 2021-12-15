@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 class DataFormatter:
     """Parse raw data into usable format by the Quasinet
@@ -7,8 +8,7 @@ class DataFormatter:
     def __init__(self):
         pass
 
-    def load_data(self, fpath_data, fpath_meta, taxon_name='Phylum',
-    time_column_name='Age (days)', time_column_name_out='day',
+    def load_data(self, fpath_data, fpath_meta, taxon_name='Phylum', tax_dict={'Class':'dummy'}, time_column_name='Age (days)', time_column_name_out='day',
     k_years=2, k_biomes=15):
         """Parse and join the data CSV and the metadata CSV
 
@@ -25,8 +25,9 @@ class DataFormatter:
         Args:
             fpath_data (str): file path for the data CSV
             fpath_meta (str): file path for the metadata CSV
-            taxon_name (str, optional): name of the taxon column exactly as in the data CSV.
+            taxon_name (str, optional): name of the taxon column exactly as in the data CSV. this is the base taxonomic level for qnet construction.
             Defaults to 'Phylum'.
+            tax_dict (dict, optional): dictionary of biomes/taxonomic levels for deviations from taxon_name. entities are considered at the level specified rather than taxon_name. Caution: no validation is performed.
             time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to 'Age (days)'.
             time_column_name_out (str, optional): name of the timestamp column in the return data frame. Defaults to 'day'.
             k_years (int, optional): in the return data frame, we keep timestamps up to the number of years specified. Defaults to 2.
@@ -37,7 +38,7 @@ class DataFormatter:
         """
         taxa_raw = pd.read_csv(fpath_data)
         meta_raw = pd.read_csv(fpath_meta)
-        taxa_sum = self._sum_taxon(taxa_raw, taxon_name)
+        taxa_sum = self._sum_taxon(taxa_raw, taxon_name, tax_dict)
         meta = self._parse_meta(meta_raw, time_column_name, time_column_name_out)
         data = self._join_data_meta(taxa_sum, meta, time_column_name_out)
 
@@ -155,9 +156,16 @@ class DataFormatter:
         melted = data.melt(id_vars=['sample_id', 'week'])
         return melted
 
-    def _sum_taxon(self, taxa_raw, taxon_name):
-        taxa = taxa_raw[['Sample ID', taxon_name, 'Relative Abundance']]
-        taxa_sum = taxa.groupby(by=['Sample ID', taxon_name]).sum()
+    def _sum_taxon(self, taxa_raw, taxon_name, tax_dict):
+        #taxa = taxa_raw[['Sample ID', taxon_name, 'Relative Abundance']]
+        #taxa_sum = taxa.groupby(by=['Sample ID', taxon_name]).sum()
+
+        taxa_raw['tmp'] = taxa_raw[taxon_name]
+        for x in list(tax_dict):
+            taxa_raw['tmp'] = np.where(taxa_raw[x].isin(tax_dict[x]), taxa_raw[x], taxa_raw['tmp'])
+        taxa = taxa_raw[['Sample ID', 'tmp', 'Relative Abundance']]
+        taxa_sum = taxa.groupby(by=['Sample ID', 'tmp']).sum()
+
         taxa_sum.reset_index(inplace=True)
         taxa_sum.columns = ['sample_id', 'variable', 'value']
         print('There are {} unique biomes and {} unique samples'.format(
