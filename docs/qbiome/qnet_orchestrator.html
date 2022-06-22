@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>qbiome.qnet_orchestrator API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -47,7 +47,7 @@ class QnetOrchestrator:
 
         self.quantizer = quantizer
 
-    def train_qnet(self, features, data, alpha, min_samples_split, time_column_name=&#39;week&#39;, out_fname=None):
+    def train_qnet(self, features, data, alpha, min_samples_split, time_column_name=&#39;week&#39;, out_fname=None, PACK_QUANTIZER=True):
         &#34;&#34;&#34;Train the qnet model. If `out_fname` is present, also saves the model. The inputs `features, data` are produced by `Quantizer.get_qnet_inputs`. See [Quasinet documentations](https://zeroknowledgediscovery.github.io/quasinet/build/html/quasinet.html#module-quasinet.qnet) for the other parameters
 
         Args:
@@ -56,10 +56,15 @@ class QnetOrchestrator:
             alpha (float): threshold value for selecting feature with permutation tests. Smaller values correspond to shallower trees
             min_samples_split (int): minimum samples required for a split
             out_fname (str, optional): save file name. Defaults to None.
+            PACK_QUANTIZER (bool, optional): pack quantizer within qnet data structure with attribute &#34;quantizer&#34;
         &#34;&#34;&#34;
         self.model = qnet.Qnet(feature_names=features, alpha=alpha,
-        min_samples_split=min_samples_split, n_jobs=-1)
+        min_samples_split = min_samples_split, n_jobs=-1)
         self.model.fit(data)
+
+        if PACK_QUANTIZER:
+            self.model.quantizer = self.quantizer
+            self.model.train_data = data
         if out_fname:
             self.save_qnet(out_fname)
 
@@ -77,22 +82,40 @@ class QnetOrchestrator:
             ]
         return max(timestamps)
 
-    def load_qnet(self, in_fname):
+    def load_qnet(self, in_fname, GZIP=False):
         &#34;&#34;&#34;Load `self.model` from file
 
         Args:
             in_fname (str): input file containing a saved qnet model
+            gzip (bool): file is gunzipped, and must be decompressed (default: False)
         &#34;&#34;&#34;
+        if GZIP:
+            import gzip, shutil
+            with gzip.open(in_fname, &#39;r&#39;) as f_in, open(in_fname.replace(&#39;.gz&#39;,&#39;&#39;), &#39;wb&#39;) as f_out:
+                shutil.copyfileobj(f_in, f_out)
         self.model = qnet.load_qnet(in_fname)
+        if GZIP:
+            import os
+            os.remove(in_fname.replace(&#39;.gz&#39;,&#39;&#39;))
 
-    def save_qnet(self, out_fname):
+    def save_qnet(self, out_fname, GZIP=False):
         &#34;&#34;&#34;Save `self.model` to file
 
         Args:
             out_fname (str): save file name
+            gzip (bool): gzip outfile if True (default: False)
         &#34;&#34;&#34;
         assert self.model is not None
         qnet.save_qnet(self.model, f=out_fname, low_mem=False)
+        if GZIP:
+            import gzip
+            def gzip_file(src_path, dst_path):
+                with open(src_path, &#39;rb&#39;) as src, gzip.open(dst_path, &#39;wb&#39;) as dst:
+                    for chunk in iter(lambda: src.read(4096), b&#34;&#34;):
+                        dst.write(chunk)
+            gzip_file(out_fname,out_fname+&#39;.gz&#39;)
+
+        
 
     def export_qnet_tree_dotfiles(self, out_dirname):
         &#34;&#34;&#34;Generate tree dotfiles for each feature of the model
@@ -288,7 +311,7 @@ class QnetOrchestrator:
 
         self.quantizer = quantizer
 
-    def train_qnet(self, features, data, alpha, min_samples_split, time_column_name=&#39;week&#39;, out_fname=None):
+    def train_qnet(self, features, data, alpha, min_samples_split, time_column_name=&#39;week&#39;, out_fname=None, PACK_QUANTIZER=True):
         &#34;&#34;&#34;Train the qnet model. If `out_fname` is present, also saves the model. The inputs `features, data` are produced by `Quantizer.get_qnet_inputs`. See [Quasinet documentations](https://zeroknowledgediscovery.github.io/quasinet/build/html/quasinet.html#module-quasinet.qnet) for the other parameters
 
         Args:
@@ -297,10 +320,15 @@ class QnetOrchestrator:
             alpha (float): threshold value for selecting feature with permutation tests. Smaller values correspond to shallower trees
             min_samples_split (int): minimum samples required for a split
             out_fname (str, optional): save file name. Defaults to None.
+            PACK_QUANTIZER (bool, optional): pack quantizer within qnet data structure with attribute &#34;quantizer&#34;
         &#34;&#34;&#34;
         self.model = qnet.Qnet(feature_names=features, alpha=alpha,
-        min_samples_split=min_samples_split, n_jobs=-1)
+        min_samples_split = min_samples_split, n_jobs=-1)
         self.model.fit(data)
+
+        if PACK_QUANTIZER:
+            self.model.quantizer = self.quantizer
+            self.model.train_data = data
         if out_fname:
             self.save_qnet(out_fname)
 
@@ -318,22 +346,40 @@ class QnetOrchestrator:
             ]
         return max(timestamps)
 
-    def load_qnet(self, in_fname):
+    def load_qnet(self, in_fname, GZIP=False):
         &#34;&#34;&#34;Load `self.model` from file
 
         Args:
             in_fname (str): input file containing a saved qnet model
+            gzip (bool): file is gunzipped, and must be decompressed (default: False)
         &#34;&#34;&#34;
+        if GZIP:
+            import gzip, shutil
+            with gzip.open(in_fname, &#39;r&#39;) as f_in, open(in_fname.replace(&#39;.gz&#39;,&#39;&#39;), &#39;wb&#39;) as f_out:
+                shutil.copyfileobj(f_in, f_out)
         self.model = qnet.load_qnet(in_fname)
+        if GZIP:
+            import os
+            os.remove(in_fname.replace(&#39;.gz&#39;,&#39;&#39;))
 
-    def save_qnet(self, out_fname):
+    def save_qnet(self, out_fname, GZIP=False):
         &#34;&#34;&#34;Save `self.model` to file
 
         Args:
             out_fname (str): save file name
+            gzip (bool): gzip outfile if True (default: False)
         &#34;&#34;&#34;
         assert self.model is not None
         qnet.save_qnet(self.model, f=out_fname, low_mem=False)
+        if GZIP:
+            import gzip
+            def gzip_file(src_path, dst_path):
+                with open(src_path, &#39;rb&#39;) as src, gzip.open(dst_path, &#39;wb&#39;) as dst:
+                    for chunk in iter(lambda: src.read(4096), b&#34;&#34;):
+                        dst.write(chunk)
+            gzip_file(out_fname,out_fname+&#39;.gz&#39;)
+
+        
 
     def export_qnet_tree_dotfiles(self, out_dirname):
         &#34;&#34;&#34;Generate tree dotfiles for each feature of the model
@@ -556,7 +602,7 @@ class QnetOrchestrator:
 </details>
 </dd>
 <dt id="qbiome.qnet_orchestrator.QnetOrchestrator.load_qnet"><code class="name flex">
-<span>def <span class="ident">load_qnet</span></span>(<span>self, in_fname)</span>
+<span>def <span class="ident">load_qnet</span></span>(<span>self, in_fname, GZIP=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Load <code>self.model</code> from file</p>
@@ -564,18 +610,28 @@ class QnetOrchestrator:
 <dl>
 <dt><strong><code>in_fname</code></strong> :&ensp;<code>str</code></dt>
 <dd>input file containing a saved qnet model</dd>
+<dt><strong><code>gzip</code></strong> :&ensp;<code>bool</code></dt>
+<dd>file is gunzipped, and must be decompressed (default: False)</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def load_qnet(self, in_fname):
+<pre><code class="python">def load_qnet(self, in_fname, GZIP=False):
     &#34;&#34;&#34;Load `self.model` from file
 
     Args:
         in_fname (str): input file containing a saved qnet model
+        gzip (bool): file is gunzipped, and must be decompressed (default: False)
     &#34;&#34;&#34;
-    self.model = qnet.load_qnet(in_fname)</code></pre>
+    if GZIP:
+        import gzip, shutil
+        with gzip.open(in_fname, &#39;r&#39;) as f_in, open(in_fname.replace(&#39;.gz&#39;,&#39;&#39;), &#39;wb&#39;) as f_out:
+            shutil.copyfileobj(f_in, f_out)
+    self.model = qnet.load_qnet(in_fname)
+    if GZIP:
+        import os
+        os.remove(in_fname.replace(&#39;.gz&#39;,&#39;&#39;))</code></pre>
 </details>
 </dd>
 <dt id="qbiome.qnet_orchestrator.QnetOrchestrator.mask_sequence_at_weeks"><code class="name flex">
@@ -819,7 +875,7 @@ fill_value (str, optional): mask value, can be empty string, None, np.nan etc. D
 </details>
 </dd>
 <dt id="qbiome.qnet_orchestrator.QnetOrchestrator.save_qnet"><code class="name flex">
-<span>def <span class="ident">save_qnet</span></span>(<span>self, out_fname)</span>
+<span>def <span class="ident">save_qnet</span></span>(<span>self, out_fname, GZIP=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Save <code>self.model</code> to file</p>
@@ -827,23 +883,33 @@ fill_value (str, optional): mask value, can be empty string, None, np.nan etc. D
 <dl>
 <dt><strong><code>out_fname</code></strong> :&ensp;<code>str</code></dt>
 <dd>save file name</dd>
+<dt><strong><code>gzip</code></strong> :&ensp;<code>bool</code></dt>
+<dd>gzip outfile if True (default: False)</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def save_qnet(self, out_fname):
+<pre><code class="python">def save_qnet(self, out_fname, GZIP=False):
     &#34;&#34;&#34;Save `self.model` to file
 
     Args:
         out_fname (str): save file name
+        gzip (bool): gzip outfile if True (default: False)
     &#34;&#34;&#34;
     assert self.model is not None
-    qnet.save_qnet(self.model, f=out_fname, low_mem=False)</code></pre>
+    qnet.save_qnet(self.model, f=out_fname, low_mem=False)
+    if GZIP:
+        import gzip
+        def gzip_file(src_path, dst_path):
+            with open(src_path, &#39;rb&#39;) as src, gzip.open(dst_path, &#39;wb&#39;) as dst:
+                for chunk in iter(lambda: src.read(4096), b&#34;&#34;):
+                    dst.write(chunk)
+        gzip_file(out_fname,out_fname+&#39;.gz&#39;)</code></pre>
 </details>
 </dd>
 <dt id="qbiome.qnet_orchestrator.QnetOrchestrator.train_qnet"><code class="name flex">
-<span>def <span class="ident">train_qnet</span></span>(<span>self, features, data, alpha, min_samples_split, time_column_name='week', out_fname=None)</span>
+<span>def <span class="ident">train_qnet</span></span>(<span>self, features, data, alpha, min_samples_split, time_column_name='week', out_fname=None, PACK_QUANTIZER=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Train the qnet model. If <code>out_fname</code> is present, also saves the model. The inputs <code>features, data</code> are produced by <code>Quantizer.get_qnet_inputs</code>. See <a href="https://zeroknowledgediscovery.github.io/quasinet/build/html/quasinet.html#module-quasinet.qnet">Quasinet documentations</a> for the other parameters</p>
@@ -859,12 +925,14 @@ fill_value (str, optional): mask value, can be empty string, None, np.nan etc. D
 <dd>minimum samples required for a split</dd>
 <dt><strong><code>out_fname</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>save file name. Defaults to None.</dd>
+<dt><strong><code>PACK_QUANTIZER</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>pack quantizer within qnet data structure with attribute "quantizer"</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def train_qnet(self, features, data, alpha, min_samples_split, time_column_name=&#39;week&#39;, out_fname=None):
+<pre><code class="python">def train_qnet(self, features, data, alpha, min_samples_split, time_column_name=&#39;week&#39;, out_fname=None, PACK_QUANTIZER=True):
     &#34;&#34;&#34;Train the qnet model. If `out_fname` is present, also saves the model. The inputs `features, data` are produced by `Quantizer.get_qnet_inputs`. See [Quasinet documentations](https://zeroknowledgediscovery.github.io/quasinet/build/html/quasinet.html#module-quasinet.qnet) for the other parameters
 
     Args:
@@ -873,10 +941,15 @@ fill_value (str, optional): mask value, can be empty string, None, np.nan etc. D
         alpha (float): threshold value for selecting feature with permutation tests. Smaller values correspond to shallower trees
         min_samples_split (int): minimum samples required for a split
         out_fname (str, optional): save file name. Defaults to None.
+        PACK_QUANTIZER (bool, optional): pack quantizer within qnet data structure with attribute &#34;quantizer&#34;
     &#34;&#34;&#34;
     self.model = qnet.Qnet(feature_names=features, alpha=alpha,
-    min_samples_split=min_samples_split, n_jobs=-1)
+    min_samples_split = min_samples_split, n_jobs=-1)
     self.model.fit(data)
+
+    if PACK_QUANTIZER:
+        self.model.quantizer = self.quantizer
+        self.model.train_data = data
     if out_fname:
         self.save_qnet(out_fname)</code></pre>
 </details>
@@ -923,7 +996,7 @@ fill_value (str, optional): mask value, can be empty string, None, np.nan etc. D
 </main>
 <footer id="footer">
 Author: Lynn Zheng, Jin Li and Ishanu Chattopadhyay <a href="https://zed.uchicago.edu"> Zero Knowledge Discovery, University of Chicago</a>. Email: ishanu@uchicago.edu
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

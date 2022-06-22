@@ -55,7 +55,8 @@ class Quantizer:
         """key-value pairs `{biome_name: sklearn.ensemble.RandomForestRegressor}`"""
 
     def save_quantizer_states(self, out_fname):
-        """Save `self.column_names, self.subject_id_column, self.variable_bin_map, self.random_forest_dict`. Call this after calling `self.quantize_df`
+        """Save `self.column_names, self.subject_id_column, self.variable_bin_map,
+        self.random_forest_dict`. Call this after calling `self.quantize_df`
 
         Args:
             out_fname (str): output file name
@@ -218,8 +219,10 @@ class Quantizer:
         # sanity-check matrix contains only empty strings and label strings
         valid_labels = list(self.labels.keys()) + ['']
         is_valid = np.isin(np.unique(matrix), valid_labels).all()
-        #if not is_valid:
-        #    raise Exception('The label matrix contains strings that are neither the empty string nor the label strings')
+        if not is_valid:
+            import warnings
+            #raise Exception('The label matrix contains strings that are neither the empty string nor the label strings')
+            warnings.warn('The label matrix contains strings that are neither the empty string nor the label strings')
         return df.columns, matrix
 
     def quantize_new_subject(self, subject_data, subject_id=None):

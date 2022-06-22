@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>qbiome.network API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -48,6 +48,7 @@ class Network(object):
                  edgealpha=.2,
                  exponent=1,
                  edgecollim=2,
+                 nodesep=10,
                  strongcomponent=True,
                  removeselfloops=True,
                  exponentialscaling=True,
@@ -61,6 +62,7 @@ class Network(object):
           preflen (int):  max length of node names (Default value = None)
           alpha (float):  alpha for nodes (Default value = .7)
           minsize (int):  minimum soze of nodes (Default value = 5)
+          nodesep (int):  node separation in position calculation (Default value = 10)
           edgealpha (float):  edge alpha (Default value = .2)
           exponent (int):  exponent in exponential scaling (Default value = 1)
           edgecollim (int):  range for colomap on edges (Default value = 2)
@@ -75,7 +77,7 @@ class Network(object):
         if edgecolmap is None:
             self.edgecolmap=LinearSegmentedColormap.from_list(
                 &#39;edgecolmap&#39;,
-                [&#39;#0000ff&#39;,
+                [&#39;#0000ff&#39;, 
                  &#39;#888888&#39;,
                  &#39;#ff0000&#39;])
         else:
@@ -92,6 +94,7 @@ class Network(object):
         self.removeselfloops=removeselfloops
         self.exponentialscaling=exponentialscaling
         self.alpha=alpha
+        self.nodesep=nodesep
         self.nm=None
         self.od=None
         self.pos=None
@@ -240,7 +243,7 @@ class Network(object):
         self.pos = gt.graphviz_draw(self.network,
                                     overlap=False,
                                     vsize=20,
-                                    sep=20,
+                                    sep=self.nodesep,
                                     output=None)
 
         self.control = self.network.new_edge_property(&#34;vector&lt;double&gt;&#34;)
@@ -355,7 +358,7 @@ class Network(object):
 <dl>
 <dt id="qbiome.network.Network"><code class="flex name class">
 <span>class <span class="ident">Network</span></span>
-<span>(</span><span>input_dotfile, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, edgecolmap=None, preflen=8, alpha=0.7, minsize=5, edgealpha=0.2, exponent=1, edgecollim=2, strongcomponent=True, removeselfloops=True, exponentialscaling=True, outfile=None)</span>
+<span>(</span><span>input_dotfile, cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, edgecolmap=None, preflen=8, alpha=0.7, minsize=5, edgealpha=0.2, exponent=1, edgecollim=2, nodesep=10, strongcomponent=True, removeselfloops=True, exponentialscaling=True, outfile=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Process hypothesis generated dotfile for network visualization</p>
@@ -373,6 +376,8 @@ class Network(object):
 <dd>alpha for nodes (Default value = .7)</dd>
 <dt><strong><code>minsize</code></strong> :&ensp;<code>int</code></dt>
 <dd>minimum soze of nodes (Default value = 5)</dd>
+<dt><strong><code>nodesep</code></strong> :&ensp;<code>int</code></dt>
+<dd>node separation in position calculation (Default value = 10)</dd>
 <dt><strong><code>edgealpha</code></strong> :&ensp;<code>float</code></dt>
 <dd>edge alpha (Default value = .2)</dd>
 <dt><strong><code>exponent</code></strong> :&ensp;<code>int</code></dt>
@@ -405,6 +410,7 @@ class Network(object):
                  edgealpha=.2,
                  exponent=1,
                  edgecollim=2,
+                 nodesep=10,
                  strongcomponent=True,
                  removeselfloops=True,
                  exponentialscaling=True,
@@ -418,6 +424,7 @@ class Network(object):
           preflen (int):  max length of node names (Default value = None)
           alpha (float):  alpha for nodes (Default value = .7)
           minsize (int):  minimum soze of nodes (Default value = 5)
+          nodesep (int):  node separation in position calculation (Default value = 10)
           edgealpha (float):  edge alpha (Default value = .2)
           exponent (int):  exponent in exponential scaling (Default value = 1)
           edgecollim (int):  range for colomap on edges (Default value = 2)
@@ -432,7 +439,7 @@ class Network(object):
         if edgecolmap is None:
             self.edgecolmap=LinearSegmentedColormap.from_list(
                 &#39;edgecolmap&#39;,
-                [&#39;#0000ff&#39;,
+                [&#39;#0000ff&#39;, 
                  &#39;#888888&#39;,
                  &#39;#ff0000&#39;])
         else:
@@ -449,6 +456,7 @@ class Network(object):
         self.removeselfloops=removeselfloops
         self.exponentialscaling=exponentialscaling
         self.alpha=alpha
+        self.nodesep=nodesep
         self.nm=None
         self.od=None
         self.pos=None
@@ -597,7 +605,7 @@ class Network(object):
         self.pos = gt.graphviz_draw(self.network,
                                     overlap=False,
                                     vsize=20,
-                                    sep=20,
+                                    sep=self.nodesep,
                                     output=None)
 
         self.control = self.network.new_edge_property(&#34;vector&lt;double&gt;&#34;)
@@ -928,7 +936,7 @@ network</p>
     self.pos = gt.graphviz_draw(self.network,
                                 overlap=False,
                                 vsize=20,
-                                sep=20,
+                                sep=self.nodesep,
                                 output=None)
 
     self.control = self.network.new_edge_property(&#34;vector&lt;double&gt;&#34;)
@@ -1067,7 +1075,7 @@ network</p>
 </main>
 <footer id="footer">
 Author: Lynn Zheng, Jin Li and Ishanu Chattopadhyay <a href="https://zed.uchicago.edu"> Zero Knowledge Discovery, University of Chicago</a>. Email: ishanu@uchicago.edu
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

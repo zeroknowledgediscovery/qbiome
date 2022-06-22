@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>qbiome.quantizer API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -84,7 +84,8 @@ class Quantizer:
         &#34;&#34;&#34;key-value pairs `{biome_name: sklearn.ensemble.RandomForestRegressor}`&#34;&#34;&#34;
 
     def save_quantizer_states(self, out_fname):
-        &#34;&#34;&#34;Save `self.column_names, self.subject_id_column, self.variable_bin_map, self.random_forest_dict`. Call this after calling `self.quantize_df`
+        &#34;&#34;&#34;Save `self.column_names, self.subject_id_column, self.variable_bin_map,
+        self.random_forest_dict`. Call this after calling `self.quantize_df`
 
         Args:
             out_fname (str): output file name
@@ -247,8 +248,10 @@ class Quantizer:
         # sanity-check matrix contains only empty strings and label strings
         valid_labels = list(self.labels.keys()) + [&#39;&#39;]
         is_valid = np.isin(np.unique(matrix), valid_labels).all()
-        #if not is_valid:
-        #    raise Exception(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
+        if not is_valid:
+            import warnings
+            #raise Exception(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
+            warnings.warn(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
         return df.columns, matrix
 
     def quantize_new_subject(self, subject_data, subject_id=None):
@@ -608,7 +611,8 @@ class Quantizer:
         &#34;&#34;&#34;key-value pairs `{biome_name: sklearn.ensemble.RandomForestRegressor}`&#34;&#34;&#34;
 
     def save_quantizer_states(self, out_fname):
-        &#34;&#34;&#34;Save `self.column_names, self.subject_id_column, self.variable_bin_map, self.random_forest_dict`. Call this after calling `self.quantize_df`
+        &#34;&#34;&#34;Save `self.column_names, self.subject_id_column, self.variable_bin_map,
+        self.random_forest_dict`. Call this after calling `self.quantize_df`
 
         Args:
             out_fname (str): output file name
@@ -771,8 +775,10 @@ class Quantizer:
         # sanity-check matrix contains only empty strings and label strings
         valid_labels = list(self.labels.keys()) + [&#39;&#39;]
         is_valid = np.isin(np.unique(matrix), valid_labels).all()
-        #if not is_valid:
-        #    raise Exception(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
+        if not is_valid:
+            import warnings
+            #raise Exception(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
+            warnings.warn(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
         return df.columns, matrix
 
     def quantize_new_subject(self, subject_data, subject_id=None):
@@ -1699,8 +1705,10 @@ value |
     # sanity-check matrix contains only empty strings and label strings
     valid_labels = list(self.labels.keys()) + [&#39;&#39;]
     is_valid = np.isin(np.unique(matrix), valid_labels).all()
-    #if not is_valid:
-    #    raise Exception(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
+    if not is_valid:
+        import warnings
+        #raise Exception(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
+        warnings.warn(&#39;The label matrix contains strings that are neither the empty string nor the label strings&#39;)
     return df.columns, matrix</code></pre>
 </details>
 </dd>
@@ -2321,7 +2329,8 @@ value |
 <span>def <span class="ident">save_quantizer_states</span></span>(<span>self, out_fname)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Save <code>self.column_names, self.subject_id_column, self.variable_bin_map, self.random_forest_dict</code>. Call this after calling <code>self.quantize_df</code></p>
+<div class="desc"><p>Save <code>self.column_names, self.subject_id_column, self.variable_bin_map,
+self.random_forest_dict&lt;code&gt;. Call this after calling &lt;/code&gt;self.quantize_df</code></p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>out_fname</code></strong> :&ensp;<code>str</code></dt>
@@ -2332,7 +2341,8 @@ value |
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def save_quantizer_states(self, out_fname):
-    &#34;&#34;&#34;Save `self.column_names, self.subject_id_column, self.variable_bin_map, self.random_forest_dict`. Call this after calling `self.quantize_df`
+    &#34;&#34;&#34;Save `self.column_names, self.subject_id_column, self.variable_bin_map,
+    self.random_forest_dict`. Call this after calling `self.quantize_df`
 
     Args:
         out_fname (str): output file name
@@ -2400,7 +2410,7 @@ value |
 </main>
 <footer id="footer">
 Author: Lynn Zheng, Jin Li and Ishanu Chattopadhyay <a href="https://zed.uchicago.edu"> Zero Knowledge Discovery, University of Chicago</a>. Email: ishanu@uchicago.edu
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

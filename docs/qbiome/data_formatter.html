@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>qbiome.data_formatter API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -28,6 +28,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import pandas as pd
+import numpy as np
 
 class DataFormatter:
     &#34;&#34;&#34;Parse raw data into usable format by the Quasinet
@@ -36,8 +37,7 @@ class DataFormatter:
     def __init__(self):
         pass
 
-    def load_data(self, fpath_data, fpath_meta, taxon_name=&#39;Phylum&#39;,
-    time_column_name=&#39;Age (days)&#39;, time_column_name_out=&#39;day&#39;,
+    def load_data(self, fpath_data, fpath_meta, taxon_name=&#39;Phylum&#39;, tax_dict={&#39;Class&#39;:&#39;dummy&#39;}, time_column_name=&#39;Age (days)&#39;, time_column_name_out=&#39;day&#39;,
     k_years=2, k_biomes=15):
         &#34;&#34;&#34;Parse and join the data CSV and the metadata CSV
 
@@ -54,8 +54,9 @@ class DataFormatter:
         Args:
             fpath_data (str): file path for the data CSV
             fpath_meta (str): file path for the metadata CSV
-            taxon_name (str, optional): name of the taxon column exactly as in the data CSV.
+            taxon_name (str, optional): name of the taxon column exactly as in the data CSV. this is the base taxonomic level for qnet construction.
             Defaults to &#39;Phylum&#39;.
+            tax_dict (dict, optional): dictionary of biomes/taxonomic levels for deviations from taxon_name. entities are considered at the level specified rather than taxon_name. Caution: no validation is performed.
             time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to &#39;Age (days)&#39;.
             time_column_name_out (str, optional): name of the timestamp column in the return data frame. Defaults to &#39;day&#39;.
             k_years (int, optional): in the return data frame, we keep timestamps up to the number of years specified. Defaults to 2.
@@ -66,7 +67,7 @@ class DataFormatter:
         &#34;&#34;&#34;
         taxa_raw = pd.read_csv(fpath_data)
         meta_raw = pd.read_csv(fpath_meta)
-        taxa_sum = self._sum_taxon(taxa_raw, taxon_name)
+        taxa_sum = self._sum_taxon(taxa_raw, taxon_name, tax_dict)
         meta = self._parse_meta(meta_raw, time_column_name, time_column_name_out)
         data = self._join_data_meta(taxa_sum, meta, time_column_name_out)
 
@@ -184,9 +185,16 @@ class DataFormatter:
         melted = data.melt(id_vars=[&#39;sample_id&#39;, &#39;week&#39;])
         return melted
 
-    def _sum_taxon(self, taxa_raw, taxon_name):
-        taxa = taxa_raw[[&#39;Sample ID&#39;, taxon_name, &#39;Relative Abundance&#39;]]
-        taxa_sum = taxa.groupby(by=[&#39;Sample ID&#39;, taxon_name]).sum()
+    def _sum_taxon(self, taxa_raw, taxon_name, tax_dict):
+        #taxa = taxa_raw[[&#39;Sample ID&#39;, taxon_name, &#39;Relative Abundance&#39;]]
+        #taxa_sum = taxa.groupby(by=[&#39;Sample ID&#39;, taxon_name]).sum()
+
+        taxa_raw[&#39;tmp&#39;] = taxa_raw[taxon_name]
+        for x in list(tax_dict):
+            taxa_raw[&#39;tmp&#39;] = np.where(taxa_raw[x].isin(tax_dict[x]), taxa_raw[x], taxa_raw[&#39;tmp&#39;])
+        taxa = taxa_raw[[&#39;Sample ID&#39;, &#39;tmp&#39;, &#39;Relative Abundance&#39;]]
+        taxa_sum = taxa.groupby(by=[&#39;Sample ID&#39;, &#39;tmp&#39;]).sum()
+
         taxa_sum.reset_index(inplace=True)
         taxa_sum.columns = [&#39;sample_id&#39;, &#39;variable&#39;, &#39;value&#39;]
         print(&#39;There are {} unique biomes and {} unique samples&#39;.format(
@@ -271,8 +279,7 @@ class DataFormatter:
     def __init__(self):
         pass
 
-    def load_data(self, fpath_data, fpath_meta, taxon_name=&#39;Phylum&#39;,
-    time_column_name=&#39;Age (days)&#39;, time_column_name_out=&#39;day&#39;,
+    def load_data(self, fpath_data, fpath_meta, taxon_name=&#39;Phylum&#39;, tax_dict={&#39;Class&#39;:&#39;dummy&#39;}, time_column_name=&#39;Age (days)&#39;, time_column_name_out=&#39;day&#39;,
     k_years=2, k_biomes=15):
         &#34;&#34;&#34;Parse and join the data CSV and the metadata CSV
 
@@ -289,8 +296,9 @@ class DataFormatter:
         Args:
             fpath_data (str): file path for the data CSV
             fpath_meta (str): file path for the metadata CSV
-            taxon_name (str, optional): name of the taxon column exactly as in the data CSV.
+            taxon_name (str, optional): name of the taxon column exactly as in the data CSV. this is the base taxonomic level for qnet construction.
             Defaults to &#39;Phylum&#39;.
+            tax_dict (dict, optional): dictionary of biomes/taxonomic levels for deviations from taxon_name. entities are considered at the level specified rather than taxon_name. Caution: no validation is performed.
             time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to &#39;Age (days)&#39;.
             time_column_name_out (str, optional): name of the timestamp column in the return data frame. Defaults to &#39;day&#39;.
             k_years (int, optional): in the return data frame, we keep timestamps up to the number of years specified. Defaults to 2.
@@ -301,7 +309,7 @@ class DataFormatter:
         &#34;&#34;&#34;
         taxa_raw = pd.read_csv(fpath_data)
         meta_raw = pd.read_csv(fpath_meta)
-        taxa_sum = self._sum_taxon(taxa_raw, taxon_name)
+        taxa_sum = self._sum_taxon(taxa_raw, taxon_name, tax_dict)
         meta = self._parse_meta(meta_raw, time_column_name, time_column_name_out)
         data = self._join_data_meta(taxa_sum, meta, time_column_name_out)
 
@@ -419,9 +427,16 @@ class DataFormatter:
         melted = data.melt(id_vars=[&#39;sample_id&#39;, &#39;week&#39;])
         return melted
 
-    def _sum_taxon(self, taxa_raw, taxon_name):
-        taxa = taxa_raw[[&#39;Sample ID&#39;, taxon_name, &#39;Relative Abundance&#39;]]
-        taxa_sum = taxa.groupby(by=[&#39;Sample ID&#39;, taxon_name]).sum()
+    def _sum_taxon(self, taxa_raw, taxon_name, tax_dict):
+        #taxa = taxa_raw[[&#39;Sample ID&#39;, taxon_name, &#39;Relative Abundance&#39;]]
+        #taxa_sum = taxa.groupby(by=[&#39;Sample ID&#39;, taxon_name]).sum()
+
+        taxa_raw[&#39;tmp&#39;] = taxa_raw[taxon_name]
+        for x in list(tax_dict):
+            taxa_raw[&#39;tmp&#39;] = np.where(taxa_raw[x].isin(tax_dict[x]), taxa_raw[x], taxa_raw[&#39;tmp&#39;])
+        taxa = taxa_raw[[&#39;Sample ID&#39;, &#39;tmp&#39;, &#39;Relative Abundance&#39;]]
+        taxa_sum = taxa.groupby(by=[&#39;Sample ID&#39;, &#39;tmp&#39;]).sum()
+
         taxa_sum.reset_index(inplace=True)
         taxa_sum.columns = [&#39;sample_id&#39;, &#39;variable&#39;, &#39;value&#39;]
         print(&#39;There are {} unique biomes and {} unique samples&#39;.format(
@@ -483,7 +498,7 @@ class DataFormatter:
 <h3>Methods</h3>
 <dl>
 <dt id="qbiome.data_formatter.DataFormatter.load_data"><code class="name flex">
-<span>def <span class="ident">load_data</span></span>(<span>self, fpath_data, fpath_meta, taxon_name='Phylum', time_column_name='Age (days)', time_column_name_out='day', k_years=2, k_biomes=15)</span>
+<span>def <span class="ident">load_data</span></span>(<span>self, fpath_data, fpath_meta, taxon_name='Phylum', tax_dict={'Class': 'dummy'}, time_column_name='Age (days)', time_column_name_out='day', k_years=2, k_biomes=15)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Parse and join the data CSV and the metadata CSV</p>
@@ -543,8 +558,10 @@ class DataFormatter:
 <dt><strong><code>fpath_meta</code></strong> :&ensp;<code>str</code></dt>
 <dd>file path for the metadata CSV</dd>
 <dt><strong><code>taxon_name</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>name of the taxon column exactly as in the data CSV.</dd>
+<dd>name of the taxon column exactly as in the data CSV. this is the base taxonomic level for qnet construction.</dd>
 <dt>Defaults to 'Phylum'.</dt>
+<dt><strong><code>tax_dict</code></strong> :&ensp;<code>dict</code>, optional</dt>
+<dd>dictionary of biomes/taxonomic levels for deviations from taxon_name. entities are considered at the level specified rather than taxon_name. Caution: no validation is performed.</dd>
 <dt><strong><code>time_column_name</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>name of the timestamp column exactly as in the metadata CSV. Defaults to 'Age (days)'.</dd>
 <dt><strong><code>time_column_name_out</code></strong> :&ensp;<code>str</code>, optional</dt>
@@ -563,8 +580,7 @@ class DataFormatter:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def load_data(self, fpath_data, fpath_meta, taxon_name=&#39;Phylum&#39;,
-time_column_name=&#39;Age (days)&#39;, time_column_name_out=&#39;day&#39;,
+<pre><code class="python">def load_data(self, fpath_data, fpath_meta, taxon_name=&#39;Phylum&#39;, tax_dict={&#39;Class&#39;:&#39;dummy&#39;}, time_column_name=&#39;Age (days)&#39;, time_column_name_out=&#39;day&#39;,
 k_years=2, k_biomes=15):
     &#34;&#34;&#34;Parse and join the data CSV and the metadata CSV
 
@@ -581,8 +597,9 @@ k_years=2, k_biomes=15):
     Args:
         fpath_data (str): file path for the data CSV
         fpath_meta (str): file path for the metadata CSV
-        taxon_name (str, optional): name of the taxon column exactly as in the data CSV.
+        taxon_name (str, optional): name of the taxon column exactly as in the data CSV. this is the base taxonomic level for qnet construction.
         Defaults to &#39;Phylum&#39;.
+        tax_dict (dict, optional): dictionary of biomes/taxonomic levels for deviations from taxon_name. entities are considered at the level specified rather than taxon_name. Caution: no validation is performed.
         time_column_name (str, optional): name of the timestamp column exactly as in the metadata CSV. Defaults to &#39;Age (days)&#39;.
         time_column_name_out (str, optional): name of the timestamp column in the return data frame. Defaults to &#39;day&#39;.
         k_years (int, optional): in the return data frame, we keep timestamps up to the number of years specified. Defaults to 2.
@@ -593,7 +610,7 @@ k_years=2, k_biomes=15):
     &#34;&#34;&#34;
     taxa_raw = pd.read_csv(fpath_data)
     meta_raw = pd.read_csv(fpath_meta)
-    taxa_sum = self._sum_taxon(taxa_raw, taxon_name)
+    taxa_sum = self._sum_taxon(taxa_raw, taxon_name, tax_dict)
     meta = self._parse_meta(meta_raw, time_column_name, time_column_name_out)
     data = self._join_data_meta(taxa_sum, meta, time_column_name_out)
 
@@ -1037,7 +1054,7 @@ From format:</p>
 </main>
 <footer id="footer">
 Author: Lynn Zheng, Jin Li and Ishanu Chattopadhyay <a href="https://zed.uchicago.edu"> Zero Knowledge Discovery, University of Chicago</a>. Email: ishanu@uchicago.edu
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

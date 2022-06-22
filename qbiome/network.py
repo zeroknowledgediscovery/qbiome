@@ -19,6 +19,7 @@ class Network(object):
                  edgealpha=.2,
                  exponent=1,
                  edgecollim=2,
+                 nodesep=10,
                  strongcomponent=True,
                  removeselfloops=True,
                  exponentialscaling=True,
@@ -32,6 +33,7 @@ class Network(object):
           preflen (int):  max length of node names (Default value = None)
           alpha (float):  alpha for nodes (Default value = .7)
           minsize (int):  minimum soze of nodes (Default value = 5)
+          nodesep (int):  node separation in position calculation (Default value = 10)
           edgealpha (float):  edge alpha (Default value = .2)
           exponent (int):  exponent in exponential scaling (Default value = 1)
           edgecollim (int):  range for colomap on edges (Default value = 2)
@@ -46,7 +48,7 @@ class Network(object):
         if edgecolmap is None:
             self.edgecolmap=LinearSegmentedColormap.from_list(
                 'edgecolmap',
-                ['#0000ff',
+                ['#0000ff', 
                  '#888888',
                  '#ff0000'])
         else:
@@ -63,6 +65,7 @@ class Network(object):
         self.removeselfloops=removeselfloops
         self.exponentialscaling=exponentialscaling
         self.alpha=alpha
+        self.nodesep=nodesep
         self.nm=None
         self.od=None
         self.pos=None
@@ -211,7 +214,7 @@ class Network(object):
         self.pos = gt.graphviz_draw(self.network,
                                     overlap=False,
                                     vsize=20,
-                                    sep=20,
+                                    sep=self.nodesep,
                                     output=None)
 
         self.control = self.network.new_edge_property("vector<double>")
