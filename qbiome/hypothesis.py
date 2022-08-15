@@ -675,6 +675,10 @@ class Hypothesis(object):
             xf['x']=dataframe_x_y_sigmay.x[i]
             RES.append(xf)
         RES=pd.concat(RES).dropna()
+        
+        if RES.x.max() == RES.x.min():
+            return 0,1.0
+
 
         lr=stats.linregress(RES.x,RES.y)
         return lr.slope,lr.pvalue
