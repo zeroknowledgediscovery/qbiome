@@ -1,3 +1,3 @@
 include version.py
-recursive-include qbiome/examples *
-recursive-include qbiome *.ipynb *.joblib *.c *.so *.pyx
+recursive-include qbiome/examples qbiome/publication_examples *
+recursive-include qbiome *.ipynb *.joblib *.c *.so *.pyx *.pkl *.csv *.txt

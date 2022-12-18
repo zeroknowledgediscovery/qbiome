@@ -704,6 +704,10 @@ class Hypothesis(object):
             xf[&#39;x&#39;]=dataframe_x_y_sigmay.x[i]
             RES.append(xf)
         RES=pd.concat(RES).dropna()
+        
+        if RES.x.max() == RES.x.min():
+            return 0,1.0
+
 
         lr=stats.linregress(RES.x,RES.y)
         return lr.slope,lr.pvalue
@@ -1460,6 +1464,10 @@ Also assume that dotname or decision tree name format is biome_timestamp.dot</p>
             xf[&#39;x&#39;]=dataframe_x_y_sigmay.x[i]
             RES.append(xf)
         RES=pd.concat(RES).dropna()
+        
+        if RES.x.max() == RES.x.min():
+            return 0,1.0
+
 
         lr=stats.linregress(RES.x,RES.y)
         return lr.slope,lr.pvalue
@@ -1818,6 +1826,10 @@ The slope and p-value of a linear regression fit is returned</p>
         xf[&#39;x&#39;]=dataframe_x_y_sigmay.x[i]
         RES.append(xf)
     RES=pd.concat(RES).dropna()
+    
+    if RES.x.max() == RES.x.min():
+        return 0,1.0
+
 
     lr=stats.linregress(RES.x,RES.y)
     return lr.slope,lr.pvalue</code></pre>
