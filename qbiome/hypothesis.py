@@ -546,13 +546,15 @@ class Hypothesis(object):
                         RES.x.values)
 
             ns_ = re.split(r'(.*)_(\d+)', self.TGT)
-            self.hypotheses = self.hypotheses.append(
-                {'src':self.SRC,
-                 'tgt':''.join(ns_[:-2]),
-                 'time_tgt':float(ns_[-2]),
-                 'lomar':float(grad),
-                 'pvalue':pvalue},
-                ignore_index = True)
+            
+            self.hypotheses = pd.concat([self.hypotheses, 
+                                         pd.DataFrame([{'src':self.SRC,
+                                                        'tgt':''.join(ns_[:-2]),
+                                                        'time_tgt':float(ns_[-2]),
+                                                        'lomar':float(grad),
+                                                        'pvalue':pvalue}])],
+                                        ignore_index=True)
+            
         return
 
 
