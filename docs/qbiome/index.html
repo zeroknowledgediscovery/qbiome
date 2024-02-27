@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>qbiome API documentation</title>
 <meta name="description" content="Microbiome Analysis Powered By Recursive Quasi-species Networks: …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -27,34 +27,33 @@
 <h2 id="description">Description</h2>
 <p>Uncovering rules of organization, competition, succession and exploitation</p>
 <hr>
-<h2 id="installation">Installation</h2>
-<pre><code>   pip install qbiome 
-</code></pre>
-<p>or</p>
-<pre><code>   pip3 install qbiome --user 
-</code></pre>
-<h2 id="notes">Notes</h2>
+<h2 id="installation">Installation:</h2>
+<p><code>pip install qbiome</code>
+or
+<code>pip3 install qbiome --user</code></p>
+<h2 id="notes">Notes:</h2>
 <p>Depends on the <code>quasinet</code> package, which is
 installed automatically. For visualization, the <a href="https://graph-tool.skewed.de/">graph-tool</a> package is required, which is not installed automatically. Please install graph-tool separately for full functionality with directions from <a href="https://graph-tool.skewed.de/download">here</a>.</p>
 <hr>
-<h2 id="quickstart">Quickstart</h2>
-<p>Data format</p>
-<h2 id="examples">Examples</h2>
+<h2 id="examples">Examples:</h2>
 <ul>
-<li>Examples directory on github repo</li>
-<li><a href="https://medium.com/@ruolinzheng/18cb7da2baa5">Medium article</a></li>
+<li>Basic usage: (<a href="https://github.com/zeroknowledgediscovery/qbiome/tree/main/examples">https://github.com/zeroknowledgediscovery/qbiome/tree/main/examples</a>)<ul>
+<li>See also: <a href="https://medium.com/@ruolinzheng/18cb7da2baa5">Medium article</a></li>
+</ul>
+</li>
+<li>Publication examples: (<a href="https://github.com/zeroknowledgediscovery/qbiome/tree/main/publication_examples">https://github.com/zeroknowledgediscovery/qbiome/tree/main/publication_examples</a>)</li>
 </ul>
 <hr>
-<h2 id="faq">Faq</h2>
+<h2 id="faq">FAQ:</h2>
 <ul>
 <li><u><code>joblib errors</code>:</u> might require latest joblib version. In some python 3.8 installations, joblib 0.16.0 might be required. This is an open issue which is being addressed.</li>
 <li><u><code>nan/Nan</code> appearing in quantized inputs:</u> <code>get_qnet_inputs</code> should not return any <code>nan/Nan</code>, which causes errors in downstream processing. The input to qnet inferrence should consist of letters <code>A,B,&hellip;</code> or the empty string for missing data.</li>
 <li><u>Infinite value error raised from <code>sklearn</code>:</u> This happens if <code><a title="qbiome.forecaster" href="forecaster.html">qbiome.forecaster</a></code> is not called prior to <code>Quantizer.apply_random_forest_regressor</code> with teh same strat week. Note that the forecaster step is expected to remove all missing data, without which the random forest regressor cannot be applied.</li>
 </ul>
 <hr>
-<h2 id="contact">Contact</h2>
+<h2 id="contact">Contact:</h2>
 <p><a href="zed.uchicago.edu">Zero Knowledge Discovery</a>, The University of Chicago</p>
-<p>mailto: ishanu@uchicago.edu</p>
+<p><a href="mailto:ishanu@uchicago.edu">ishanu@uchicago.edu</a></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -67,7 +66,7 @@ Description:
 
 ---
 
-Installation:
+## Installation:
    ```
       pip install qbiome 
    ```
@@ -76,33 +75,32 @@ Installation:
       pip3 install qbiome --user 
    ```
 
-Notes:
+## Notes:
    Depends on the `quasinet` package, which is 
    installed automatically. For visualization, the [graph-tool](https://graph-tool.skewed.de/) package is required, which is not installed automatically. Please install graph-tool separately for full functionality with directions from [here](https://graph-tool.skewed.de/download).
 
 ---
-
-Quickstart:
-   Data format
    
-Examples:
-   + Examples directory on github repo
-   + [Medium article](https://medium.com/@ruolinzheng/18cb7da2baa5)
+## Examples:
+   + Basic usage: (https://github.com/zeroknowledgediscovery/qbiome/tree/main/examples)
+      - See also: [Medium article](https://medium.com/@ruolinzheng/18cb7da2baa5)
+   + Publication examples: (https://github.com/zeroknowledgediscovery/qbiome/tree/main/publication_examples)
+   
    
 
 ---
 
-FAQ:
+## FAQ:
   + &lt;u&gt;`joblib errors`:&lt;/u&gt; might require latest joblib version. In some python 3.8 installations, joblib 0.16.0 might be required. This is an open issue which is being addressed.
   + &lt;u&gt;`nan/Nan` appearing in quantized inputs:&lt;/u&gt; `get_qnet_inputs` should not return any `nan/Nan`, which causes errors in downstream processing. The input to qnet inferrence should consist of letters `A,B,...` or the empty string for missing data.
   + &lt;u&gt;Infinite value error raised from `sklearn`:&lt;/u&gt; This happens if `qbiome.forecaster` is not called prior to `Quantizer.apply_random_forest_regressor` with teh same strat week. Note that the forecaster step is expected to remove all missing data, without which the random forest regressor cannot be applied.
 
 ---
 
-Contact:
+## Contact:
   [Zero Knowledge Discovery](zed.uchicago.edu), The University of Chicago
   
-  mailto: ishanu@uchicago.edu
+  [ishanu@uchicago.edu](mailto:ishanu@uchicago.edu)
 
 &#34;&#34;&#34;</code></pre>
 </details>
@@ -156,7 +154,14 @@ Contact:
 <h1>Index</h1>
 <div class="toc">
 <ul>
-<li><a href="#microbiome-analysis-powered-by-recursive-quasi-species-networks">Microbiome Analysis Powered By Recursive Quasi-species Networks:</a></li>
+<li><a href="#microbiome-analysis-powered-by-recursive-quasi-species-networks">Microbiome Analysis Powered By Recursive Quasi-species Networks:</a><ul>
+<li><a href="#installation">Installation:</a></li>
+<li><a href="#notes">Notes:</a></li>
+<li><a href="#examples">Examples:</a></li>
+<li><a href="#faq">FAQ:</a></li>
+<li><a href="#contact">Contact:</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <ul id="index">
@@ -177,7 +182,7 @@ Contact:
 </main>
 <footer id="footer">
 Author: Lynn Zheng, Jin Li and Ishanu Chattopadhyay <a href="https://zed.uchicago.edu"> Zero Knowledge Discovery, University of Chicago</a>. Email: ishanu@uchicago.edu
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>
