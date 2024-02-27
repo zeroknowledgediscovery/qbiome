@@ -33,7 +33,7 @@ Description:
 ## FAQ:
   + <u>`joblib errors`:</u> might require latest joblib version. In some python 3.8 installations, joblib 0.16.0 might be required. This is an open issue which is being addressed.
   + <u>`nan/Nan` appearing in quantized inputs:</u> `get_qnet_inputs` should not return any `nan/Nan`, which causes errors in downstream processing. The input to qnet inferrence should consist of letters `A,B,...` or the empty string for missing data.
-  + <u>Infinite value error raised from `sklearn`:</u> This happens if `qbiome.forecaster` is not called prior to `Quantizer.apply_random_forest_regressor` with teh same strat week. Note that the forecaster step is expected to remove all missing data, without which the random forest regressor cannot be applied.
+  + <u>Infinite value error raised from `sklearn`:</u> This can happen if using the random forest regressor; in particular, if `qbiome.forecaster` is not called prior to `Quantizer.apply_random_forest_regressor` with the same start week. Note that the forecaster step is expected to remove all missing data, without which the random forest regressor cannot be applied.
 
 ---
 
