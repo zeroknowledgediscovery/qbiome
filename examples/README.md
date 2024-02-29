@@ -1,22 +1,13 @@
 # Examples
 
-Notebooks in `local_development` are used for local development only, not the pip package.
+For an example of the basic functionality of the package, see: `basic-example.ipynb`
 
-Use `qbiome_example.ipynb, export_dotfiles.ipynb, hypothesis.ipynb`.
+For examples of generating similar results to the paper's figures, see the `publication_examples/` directory.
 
-# Order of the pipeline
+# Development notes
 
-See the files in `local_development`
-
-1. `data_formatter`
-2. `quantizer`
-3. `qnet_orchestrator`
-4. `mask_checker`
-5. `forecaster`
-6. `export_dotfiles`
-7. `hypothesis`
-
-# Generate documentations
+- Notebooks in `local_development` are used for local development only, not the pip package.
+- To generate documentation:
 
 ```
 pdoc --html qbiome/ --output-dir docs --force
