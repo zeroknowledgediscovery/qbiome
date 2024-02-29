@@ -10,9 +10,6 @@ For examples of generating similar results to the paper's figures, see the `publ
 ### Development notes
 
 - Notebooks in `local_development` are used for local development only, not the pip package.
-- To generate documentation:
-
-```
-pdoc --html qbiome/ --output-dir docs --force
+- To generate documentation: `pdoc --html qbiome/ --output-dir docs --force` or run the `generate_doc.sh` script from the main directory.
 ```
 
