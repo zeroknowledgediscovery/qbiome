@@ -1,0 +1,53 @@
+import os
+from PIL import Image
+
+def load_images_from_folder(folder):
+    """Load all images from the specified folder."""
+    images = []
+    for filename in os.listdir(folder):
+        if filename.endswith(".png"):
+            img = Image.open(os.path.join(folder, filename))
+            if img is not None:
+                images.append(img)
+    return images
+
+def create_montage(images, background_color=(255, 255, 255)):
+    """Create a montage image."""
+    if not images:
+        raise ValueError("No images to create a montage.")
+
+    # Initialize variables for montage creation
+    max_width = sum(img.width for img in images)
+    total_height = 0
+    current_width = 0
+    max_height_in_row = 0
+
+    # Create a montage image with a temporary size
+    montage_image = Image.new('RGB', (max_width, max_width), background_color)
+
+    for img in images:
+        # Check if the image fits in the current row
+        if current_width + img.width > max_width:
+            # Move to the next row
+            total_height += max_height_in_row
+            current_width = 0
+            max_height_in_row = 0
+
+        # Paste the image
+        montage_image.paste(img, (current_width, total_height))
+        current_width += img.width
+        max_height_in_row = max(max_height_in_row, img.height)
+
+    # Crop the montage to the actual size
+    total_height += max_height_in_row
+    montage_image = montage_image.crop((0, 0, max_width, total_height))
+    return montage_image
+
+def main():
+    folder = './'  # Replace with the path to your directory
+    images = load_images_from_folder(folder)
+    montage = create_montage(images, background_color=(255, 255, 255))  # White background
+    montage.save('montage.png')  # Save the montage
+
+if __name__ == "__main__":
+    main()
