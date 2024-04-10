@@ -67,6 +67,13 @@ class Hypothesis(object):
         self.qnet_orchestrator = qnet_orchestrator
         self.quantizer = quantizer
 
+        if self.model_path is None:
+            self.model_path='hypotheses_tmpdot_'
+            if not os.path.isdir(self.model_path):
+                os.makedirs(self.model_path)
+            for f in os.listdir(self.model_path):
+                os.remove(os.path.join(self.model_path, f))
+            qnet_orchestrator.export_qnet_tree_dotfiles(self.model_path)
 
         if all(v is None for v in[qnet_orchestrator,quantizer,quantizer_mapfile]):
             raise Exception('Either qnet_orchestrator or quantizer or quantizer_mapfile must be provided to Hypothesis')
