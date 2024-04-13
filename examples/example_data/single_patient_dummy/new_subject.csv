@@ -1,17 +1,17 @@
 week,variable,value
-9,unclassified_Bacteria,0.7597365723493477
-9,Bifidobacterium,0.11889248460529578
-9,Streptococcus,0.4358796917420178
-9,Bacteroides,0.6213217148871238
-9,Veillonella,0.47150389344056964
-9,Clostridium sensu stricto 1,0.9698484250019184
-9,[Ruminococcus] gnavus group,0.3249612119212143
-9,Erysipelatoclostridium,0.6168259680350697
-9,Haemophilus,0.46237026602154985
-9,Salmonella,0.10415915341071624
-9,Blautia,0.7041474573968305
-9,Faecalibacterium,0.10272550690064919
-9,Flavonifractor,0.7585290156171434
-9,Intestinibacter,0.5598491145992537
-9,Anaerostipes,0.988674973803815
-9,Incertae Sedis,0.46008178289512125
+0,unclassified_Bacteria,
+0,Bifidobacterium,
+0,Streptococcus,
+0,Bacteroides,
+0,Veillonella,
+0,Clostridium sensu stricto 1,
+0,[Ruminococcus] gnavus group,
+0,Erysipelatoclostridium,
+0,Haemophilus,
+0,Salmonella,
+0,Blautia,
+0,Faecalibacterium,
+0,Flavonifractor,
+0,Intestinibacter,
+0,Anaerostipes,
+0,Incertae Sedis,
